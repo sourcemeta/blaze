@@ -35,7 +35,7 @@ TEST(example_1) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -83,13 +83,13 @@ TEST(example_2) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
         [
           [
-            72,
+            75,
             [ "additionalProperties" ],
             [],
             "#/additionalProperties",
@@ -157,7 +157,7 @@ TEST(example_3) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -204,13 +204,13 @@ TEST(example_4) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
         [
           [
-            72,
+            75,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -304,7 +304,7 @@ TEST(example_5) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -358,13 +358,13 @@ TEST(example_6) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
         [
           [
-            72,
+            75,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -466,13 +466,13 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
         [
           [
-            70,
+            73,
             [ "properties" ],
             [],
             "#/properties",
@@ -520,7 +520,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
             ],
             [
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -544,7 +544,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -568,7 +568,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -592,7 +592,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -616,7 +616,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -640,7 +640,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                99,
+                102,
                 [],
                 [],
                 "#/properties",
@@ -887,13 +887,13 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
 
   const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
         [
           [
-            97,
+            100,
             [ "items" ],
             [],
             "#/items",
@@ -1046,7 +1046,7 @@ TEST(messages_pool_survives_a_json_round_trip) {
 TEST(accepts_a_message_index_at_the_pool_size) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -1068,7 +1068,7 @@ TEST(accepts_a_message_index_at_the_pool_size) {
 TEST(rejects_a_message_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -1090,7 +1090,7 @@ TEST(rejects_a_message_index_beyond_the_pool) {
 TEST(rejects_a_message_detail_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -1112,7 +1112,7 @@ TEST(rejects_a_message_detail_index_beyond_the_pool) {
 TEST(rejects_a_vocabulary_index_beyond_the_pool) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      18,
+      19,
       false,
       false,
       [
@@ -1134,7 +1134,7 @@ TEST(rejects_a_vocabulary_index_beyond_the_pool) {
 TEST(rejects_the_previous_template_version) {
   const auto input{sourcemeta::core::parse_json(R"JSON(
     [
-      17,
+      18,
       false,
       false,
       [

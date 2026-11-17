@@ -1262,7 +1262,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
         [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
@@ -1273,7 +1273,7 @@
         [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
         [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
         [ false, "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -1288,7 +1288,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
         [ "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
@@ -1299,7 +1299,7 @@
         [ true, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/0" ],
         [ false, "AssertionTypeStrict", "/anyOf/0/items/type", "#/anyOf/0/items/type", "/1" ],
         [ false, "LoopItemsFrom", "/anyOf/0/items", "#/anyOf/0/items", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -1324,7 +1324,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
@@ -1333,7 +1333,7 @@
       "post": [
         [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
         [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -1347,7 +1347,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
@@ -1356,7 +1356,7 @@
       "post": [
         [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
         [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -9496,7 +9496,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
         [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
@@ -9504,7 +9504,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
         [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -9516,7 +9516,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
         [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
         [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/0" ],
@@ -9536,7 +9536,7 @@
         [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/2" ],
         [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
         [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -9726,12 +9726,12 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
         [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -9743,12 +9743,12 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
         [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -9771,13 +9771,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
         [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
@@ -9791,7 +9791,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
         [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ],
@@ -9799,7 +9799,7 @@
         [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
         [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
         [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
@@ -10651,7 +10651,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -10659,7 +10659,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -10671,7 +10671,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
@@ -10687,7 +10687,7 @@
         [ true, "Evaluate", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -10714,7 +10714,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
@@ -10723,7 +10723,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/zzz" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -10737,7 +10737,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
@@ -10754,7 +10754,7 @@
         [ true, "Evaluate", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/zzz" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -10783,7 +10783,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
@@ -10792,7 +10792,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ false, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/a" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -10806,7 +10806,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
@@ -10819,7 +10819,7 @@
         [ false, "AssertionType", "/anyOf/1/$ref/properties/a/type", "#/$defs/D/properties/a/type", "/a" ],
         [ false, "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
         [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/a" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -10846,13 +10846,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -10863,7 +10863,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
@@ -10873,7 +10873,7 @@
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/properties", "#/$defs/D/properties", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -10897,7 +10897,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
         [ "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
@@ -10907,7 +10907,7 @@
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
         [ true, "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -10920,7 +10920,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
         [ "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
@@ -10936,7 +10936,7 @@
         [ true, "Annotation", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "", true ],
         [ true, "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -11441,7 +11441,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
         [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
@@ -11453,7 +11453,7 @@
         [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
         [ false, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11470,7 +11470,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
         [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
         [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
@@ -11490,7 +11490,7 @@
         [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11525,7 +11525,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
         [ "AssertionTypeStrict", "/type", "#/type", "" ],
@@ -11534,7 +11534,7 @@
       "post": [
         [ false, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11548,7 +11548,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
@@ -11563,7 +11563,7 @@
         [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11594,7 +11594,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
         [ "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
@@ -11605,7 +11605,7 @@
         [ true, "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
         [ true, "AssertionPropertyTypeStrictEvaluate", "/anyOf/0/properties/bbb/type", "#/anyOf/0/properties/bbb/type", "/bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11620,7 +11620,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LogicalWhenType", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
         [ "Annotation", "/anyOf/0/properties", "#/anyOf/0/properties", "" ],
         [ "Evaluate", "/anyOf/0/properties", "#/anyOf/0/properties", "/aaa" ],
@@ -11643,7 +11643,7 @@
         [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "bbb" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11681,7 +11681,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "LogicalXorEvaluate", "/oneOf", "#/oneOf", "" ],
         [ "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
         [ "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
         [ "AssertionTypeStrict", "/type", "#/type", "" ],
@@ -11691,7 +11691,7 @@
       "post": [
         [ false, "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
         [ true, "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
-        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ true, "LogicalXorEvaluate", "/oneOf", "#/oneOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11707,7 +11707,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ "LogicalXorEvaluate", "/oneOf", "#/oneOf", "" ],
         [ "AssertionDefines", "/oneOf/0/required", "#/oneOf/0/required", "" ],
         [ "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
         [ "Annotation", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
@@ -11721,7 +11721,7 @@
         [ true, "Annotation", "/oneOf/1/properties", "#/oneOf/1/properties", "", "bbb" ],
         [ true, "Evaluate", "/oneOf/1/properties", "#/oneOf/1/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
-        [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ],
+        [ true, "LogicalXorEvaluate", "/oneOf", "#/oneOf", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11750,7 +11750,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
         [ "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
         [ "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
@@ -11761,7 +11761,7 @@
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
         [ false, "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
         [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11776,7 +11776,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ "Annotation", "/if/properties", "#/if/properties", "" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
@@ -11795,7 +11795,7 @@
         [ true, "Annotation", "/else/properties", "#/else/properties", "", "bbb" ],
         [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11825,7 +11825,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
         [ "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11833,7 +11833,7 @@
       "post": [
         [ true, "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
         [ true, "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -11845,7 +11845,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
         [ "Annotation", "/if/properties", "#/if/properties", "" ],
@@ -11863,7 +11863,7 @@
         [ true, "Annotation", "/then/properties", "#/then/properties", "", "bbb" ],
         [ true, "Evaluate", "/then/properties", "#/then/properties", "/bbb" ],
         [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -11891,14 +11891,14 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
         [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ]
       ],
       "post": [
         [ true, "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11911,7 +11911,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
         [ "Annotation", "/if/properties", "#/if/properties", "" ],
@@ -11926,7 +11926,7 @@
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
         [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -11953,7 +11953,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -11961,7 +11961,7 @@
       "post": [
         [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -11973,7 +11973,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
         [ "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
         [ "AssertionType", "/anyOf/1/properties/a/type", "#/anyOf/1/properties/a/type", "/a" ],
@@ -11987,7 +11987,7 @@
         [ true, "Annotation", "/anyOf/1/properties", "#/anyOf/1/properties", "", "a" ],
         [ true, "Evaluate", "/anyOf/1/properties", "#/anyOf/1/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/1/properties", "#/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -15843,25 +15843,25 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
         [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
         [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
         [ "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
         [ "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
         [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
         [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
         [ true, "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
         [ true, "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -15878,7 +15878,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
         [ "Annotation", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
         [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
@@ -15887,7 +15887,7 @@
         [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
         [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
         [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
         [ "Annotation", "/if/properties", "#/if/properties", "" ],
         [ "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
@@ -15899,7 +15899,7 @@
       "post": [
         [ true, "Annotation", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "", "@a" ],
         [ true, "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "foo" ],
         [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "bar" ],
         [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "@a" ],
@@ -15912,7 +15912,7 @@
         [ true, "Annotation", "/then/properties", "#/then/properties", "", "bar" ],
         [ true, "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
         [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -15988,14 +15988,14 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
         [ "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ]
       ],
       "post": [
         [ false, "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ],
         [ false, "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was not expected to define the property \"a\"",
@@ -16005,14 +16005,14 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
         [ "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ]
       ],
       "post": [
         [ false, "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ],
         [ false, "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was not expected to define the property \"a\"",
@@ -16037,14 +16037,14 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ]
       ],
       "post": [
         [ false, "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
         [ false, "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was not expected to define the property \"foo\"",
@@ -16057,7 +16057,7 @@
         [ "ControlJump", "/$ref", "#/$ref", "" ],
         [ "LogicalWhenType", "/$ref/properties", "#/$defs/foo/properties", "" ],
         [ "Annotation", "/$ref/properties", "#/$defs/foo/properties", "" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ]
@@ -16069,7 +16069,7 @@
         [ false, "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
         [ false, "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ false, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object property \"foo\" successfully validated against its property subschema",
@@ -16098,7 +16098,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
         [ "LoopPropertiesEvaluate", "/anyOf/1/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
@@ -16109,7 +16109,7 @@
         [ false, "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ false, "AssertionFail", "/anyOf/1/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
         [ false, "LoopPropertiesEvaluate", "/anyOf/1/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was not expected to define the property \"foo\"",
@@ -16124,7 +16124,7 @@
         [ "ControlJump", "/$ref", "#/$ref", "" ],
         [ "LogicalWhenType", "/$ref/properties", "#/$defs/foo/properties", "" ],
         [ "Annotation", "/$ref/properties", "#/$defs/foo/properties", "" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopPropertiesEvaluate", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ "AssertionFail", "/anyOf/0/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
@@ -16142,7 +16142,7 @@
         [ false, "AssertionFail", "/anyOf/1/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "/foo" ],
         [ false, "LoopPropertiesEvaluate", "/anyOf/1/$ref/additionalProperties", "#/$defs/bar/additionalProperties", "" ],
         [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object property \"foo\" successfully validated against its property subschema",
@@ -16559,14 +16559,14 @@
     "fast": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "AssertionTypeStrict", "/type", "#/type", "" ],
         [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "post": [
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
@@ -16582,7 +16582,7 @@
     "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
@@ -16594,7 +16594,7 @@
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
@@ -16625,13 +16625,13 @@
     "fast": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
         [ "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/1" ],
-        [ "LogicalOr", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
         [ "AssertionType", "/contains/anyOf/1/$ref/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1/0" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
         [ "LoopItemsUnevaluated", "/contains/anyOf/1/$ref/unevaluatedItems", "#/unevaluatedItems", "/1" ],
@@ -16640,15 +16640,15 @@
       ],
       "post": [
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ true, "AssertionType", "/contains/anyOf/1/$ref/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1/0" ],
-        [ true, "LogicalOr", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
         [ true, "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/1" ],
         [ true, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
         [ true, "LoopItemsUnevaluated", "/contains/anyOf/1/$ref/unevaluatedItems", "#/unevaluatedItems", "/1" ],
         [ true, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
@@ -16672,16 +16672,16 @@
     "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
         [ "Annotation", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
         [ "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/1" ],
-        [ "LogicalOr", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
         [ "AssertionType", "/contains/anyOf/1/$ref/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1/0" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/contains/anyOf/1/$ref/type", "#/type", "/1/0" ],
@@ -16696,19 +16696,19 @@
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ true, "AssertionType", "/contains/anyOf/1/$ref/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1/0" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/contains/anyOf/1/$ref/type", "#/type", "/1/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1/0" ],
-        [ true, "LogicalOr", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf/1/$ref/contains/anyOf", "#/contains/anyOf", "/1/0" ],
         [ true, "Annotation", "/contains/anyOf/1/$ref/contains", "#/contains", "/1", 0 ],
         [ true, "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/1" ],
         [ true, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
         [ true, "LoopItemsUnevaluated", "/contains/anyOf/1/$ref/unevaluatedItems", "#/unevaluatedItems", "/1" ],
         [ true, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ true, "Annotation", "/contains", "#/contains", "", 1 ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
@@ -16784,9 +16784,9 @@
     "fast": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
@@ -16796,11 +16796,11 @@
       ],
       "post": [
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
-        [ false, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ false, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
@@ -16822,12 +16822,12 @@
     "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
         [ "Annotation", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
         [ "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
@@ -16839,12 +16839,12 @@
         [ true, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
-        [ true, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ true, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ true, "Annotation", "/contains", "#/contains", "", 0 ],
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/1" ],
         [ false, "AssertionTypeStrict", "/contains/anyOf/1/$ref/type", "#/type", "/1" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/1" ],
-        [ false, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/1" ],
+        [ false, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/1" ],
         [ true, "LoopContains", "/contains", "#/contains", "" ],
         [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
@@ -16880,7 +16880,7 @@
     "fast": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
         [ "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/0" ]
@@ -16889,7 +16889,7 @@
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ false, "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
-        [ false, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ false, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
@@ -16903,7 +16903,7 @@
     "exhaustive": {
       "pre": [
         [ "LoopContains", "/contains", "#/contains", "" ],
-        [ "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
         [ "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/0" ]
@@ -16912,7 +16912,7 @@
         [ false, "AssertionType", "/contains/anyOf/0/type", "#/contains/anyOf/0/type", "/0" ],
         [ false, "LoopContains", "/contains/anyOf/1/$ref/contains", "#/contains", "/0" ],
         [ false, "ControlJump", "/contains/anyOf/1/$ref", "#/contains/anyOf/1/$ref", "/0" ],
-        [ false, "LogicalOr", "/contains/anyOf", "#/contains/anyOf", "/0" ],
+        [ false, "LogicalOrEvaluate", "/contains/anyOf", "#/contains/anyOf", "/0" ],
         [ false, "LoopContains", "/contains", "#/contains", "" ]
       ],
       "descriptions": [
@@ -17507,12 +17507,12 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
@@ -17522,12 +17522,12 @@
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17545,9 +17545,9 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17555,7 +17555,7 @@
         [ "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17571,7 +17571,7 @@
         [ true, "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17579,9 +17579,9 @@
         [ true, "Evaluate", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17631,12 +17631,12 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
@@ -17646,12 +17646,12 @@
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17669,9 +17669,9 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
@@ -17679,7 +17679,7 @@
         [ "Annotation", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
         [ "Evaluate", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
@@ -17695,7 +17695,7 @@
         [ true, "Annotation", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "", "b" ],
         [ true, "Evaluate", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
@@ -17703,9 +17703,9 @@
         [ true, "Annotation", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "", "b" ],
         [ true, "Evaluate", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17755,13 +17755,13 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
@@ -17773,13 +17773,13 @@
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17799,9 +17799,9 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17813,7 +17813,7 @@
         [ "Annotation", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
         [ "Evaluate", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17837,7 +17837,7 @@
         [ true, "Annotation", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "", "b" ],
         [ true, "Evaluate", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -17849,9 +17849,9 @@
         [ true, "Annotation", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "", "b" ],
         [ true, "Evaluate", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "/b" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -17909,22 +17909,22 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ]
       ],
       "post": [
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ false, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ false, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ false, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was expected to define the property \"a\"",
@@ -17938,26 +17938,26 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ]
       ],
       "post": [
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ false, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ false, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ false, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ false, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ false, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The object value was expected to define the property \"a\"",
@@ -17997,13 +17997,13 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
@@ -18016,13 +18016,13 @@
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ false, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ false, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/b" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18044,9 +18044,9 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18056,7 +18056,7 @@
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
         [ "AssertionType", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18077,7 +18077,7 @@
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ false, "AssertionType", "/anyOf/0/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
         [ false, "LogicalWhenType", "/anyOf/0/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18087,9 +18087,9 @@
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ false, "AssertionType", "/anyOf/1/$ref/anyOf/1/properties/b/type", "#/$defs/common/anyOf/1/properties/b/type", "/b" ],
         [ false, "LogicalWhenType", "/anyOf/1/$ref/anyOf/1/properties", "#/$defs/common/anyOf/1/properties", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/b" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18145,12 +18145,12 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
@@ -18161,12 +18161,12 @@
         [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18186,9 +18186,9 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18196,7 +18196,7 @@
         [ "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18213,7 +18213,7 @@
         [ true, "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
@@ -18221,9 +18221,9 @@
         [ true, "Evaluate", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
         [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
-        [ true, "LogicalOr", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18263,11 +18263,11 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18280,7 +18280,7 @@
         [ "LogicalAnd", "/allOf", "#/allOf", "" ],
         [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
         [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -18291,7 +18291,7 @@
         [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18319,14 +18319,14 @@
     "fast": {
       "pre": [
         [ "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
         [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
         [ true, "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
         [ true, "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18343,7 +18343,7 @@
         [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ "Annotation", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ "Annotation", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
@@ -18360,7 +18360,7 @@
         [ true, "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18391,12 +18391,12 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
         [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
       ],
       "post": [
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18411,7 +18411,7 @@
         [ "LogicalAnd", "/allOf", "#/allOf", "" ],
         [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
         [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
@@ -18423,7 +18423,7 @@
         [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
         [ true, "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18453,11 +18453,11 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18467,7 +18467,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
         [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
@@ -18479,7 +18479,7 @@
         [ true, "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ true, "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18506,7 +18506,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ "AssertionPropertyTypeEvaluate", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
@@ -18514,7 +18514,7 @@
       "post": [
         [ true, "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ true, "AssertionPropertyTypeEvaluate", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18526,7 +18526,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
         [ "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
@@ -18550,7 +18550,7 @@
         [ true, "Evaluate", "/then/$ref/properties", "#/$defs/common/properties", "/allowed" ],
         [ true, "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
       "descriptions": [
@@ -18583,14 +18583,14 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ "AssertionPropertyTypeEvaluate", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ]
       ],
       "post": [
         [ false, "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ false, "AssertionPropertyTypeEvaluate", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
-        [ false, "LogicalCondition", "/if", "#/if", "" ]
+        [ false, "LogicalConditionEvaluate", "/if", "#/if", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer but it was of type string",
@@ -18600,7 +18600,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
         [ "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
@@ -18615,7 +18615,7 @@
         [ false, "AssertionType", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
         [ false, "LogicalWhenType", "/else/$ref/properties", "#/$defs/common/properties", "" ],
         [ false, "ControlJump", "/else/$ref", "#/else/$ref", "" ],
-        [ false, "LogicalCondition", "/if", "#/if", "" ]
+        [ false, "LogicalConditionEvaluate", "/if", "#/if", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer but it was of type string",
@@ -18642,12 +18642,12 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
         [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
       ],
       "post": [
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -18659,7 +18659,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalCondition", "/if", "#/if", "" ],
+        [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
         [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
@@ -18672,7 +18672,7 @@
         [ true, "ControlJump", "/if/$ref", "#/if/$ref", "" ],
         [ true, "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
         [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
-        [ true, "LogicalCondition", "/if", "#/if", "" ],
+        [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
         [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
         [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
       ],
@@ -19047,7 +19047,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
@@ -19059,7 +19059,7 @@
         [ true, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -19073,7 +19073,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
@@ -19093,7 +19093,7 @@
         [ true, "Annotation", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "", 0 ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -19122,7 +19122,7 @@
     "valid": true,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/1" ],
@@ -19138,7 +19138,7 @@
         [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/1" ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -19154,7 +19154,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
@@ -19182,7 +19182,7 @@
         [ true, "Annotation", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "", 1 ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
       "descriptions": [
@@ -19215,14 +19215,14 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ]
       ],
       "post": [
         [ false, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The array value was expected to contain at least 1 item that validates against the given subschema",
@@ -19232,7 +19232,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
@@ -19243,7 +19243,7 @@
         [ false, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
         [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The array value was expected to contain at least 1 item that validates against the given subschema",
@@ -19266,7 +19266,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/1" ],
@@ -19283,7 +19283,7 @@
         [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ false, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/1" ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -19301,7 +19301,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
@@ -19326,7 +19326,7 @@
         [ false, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/1" ],
         [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
         [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
         [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
       ],
@@ -19359,7 +19359,7 @@
     "valid": false,
     "fast": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
@@ -19370,7 +19370,7 @@
         [ false, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ false, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer but it was of type string",
@@ -19382,7 +19382,7 @@
     },
     "exhaustive": {
       "pre": [
-        [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+        [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
         [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
         [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
         [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
@@ -19397,7 +19397,7 @@
         [ false, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
         [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
         [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
-        [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+        [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
       ],
       "descriptions": [
         "The value was expected to be of type integer but it was of type string",
