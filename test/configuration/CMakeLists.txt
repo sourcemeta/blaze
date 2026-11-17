@@ -3,6 +3,7 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME configuration
     configuration_test_utils.h
     configuration_applies_to_test.cc
     configuration_find_test.cc
+    configuration_find_resolve_test.cc
     configuration_from_json_test.cc
     configuration_json_test.cc
     configuration_add_dependency_test.cc
