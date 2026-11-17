@@ -328,6 +328,48 @@ TEST(invalid_14) {
       "/resolve/foo");
 }
 
+TEST(resolve_key_invalid_uri) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "%": "../single.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "The keys in the resolve object must represent valid URIs", "/resolve/%");
+}
+
+TEST(resolve_keys_denoting_the_same_uri) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "https://example.com/single.json": "../first.json",
+      "HTTPS://Example.com:443/single.json": "../second.json"
+    }
+  })JSON")};
+
+  EXPECT_CONFIGURATION_FROM_JSON_PARSE_ERROR(
+      input, TEST_DIRECTORY,
+      "Two keys in the resolve object denote the same URI",
+      "/resolve/HTTPS:~1~1Example.com:443~1single.json");
+}
+
+TEST(resolve_key_non_canonical) {
+  const auto input{sourcemeta::core::parse_json(R"JSON({
+    "resolve": {
+      "HTTPS://Example.com:443/single.json": "../single.json"
+    }
+  })JSON")};
+
+  const auto manifest{
+      sourcemeta::blaze::Configuration::from_json(input, TEST_DIRECTORY)};
+
+  EXPECT_EQ(manifest.resolve.size(), 1);
+  EXPECT_TRUE(manifest.resolve.contains("https://example.com/single.json"));
+  EXPECT_EQ(manifest.resolve.at("https://example.com/single.json"),
+            "../single.json");
+}
+
 TEST(valid_extension_string_with_leading_dot) {
   const auto input{sourcemeta::core::parse_json(R"JSON({
     "extension": ".schema"

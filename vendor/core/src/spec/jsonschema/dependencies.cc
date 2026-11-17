@@ -6,6 +6,7 @@
 #include <cassert>       // assert
 #include <cstdint>       // std::uint64_t
 #include <deque>         // std::deque
+#include <exception>     // std::rethrow_exception
 #include <functional>    // std::equal_to
 #include <memory>        // std::unique_ptr, std::make_unique
 #include <string>        // std::string
@@ -51,7 +52,6 @@ struct Deferred {
 struct Walk {
   const SchemaWalker &walker;
   const SchemaResolver &resolver;
-  SchemaResolverCache &cache;
   const SchemaDependencyCallback &callback;
   std::string_view default_dialect;
   std::uint64_t limit;
@@ -108,7 +108,9 @@ auto frame_within(Walk &walk, const JSON &schema,
 
 // Reading a document takes knowing which dialect it is written against, so one
 // that answers with nothing, or whose answer names a meta-schema that nothing
-// can produce, is not one the walk can go on from
+// can produce, is not one the walk can go on from. Only failures the lookup
+// itself produces land in these handlers, as whatever the caller's own
+// resolver throws travels marked as foreign and passes them by, unchanged
 //
 // A meta-schema that a document carries within itself counts here, as reading
 // consults the document before the resolver. One that another document carries
@@ -125,6 +127,11 @@ auto is_readable(const JSON &document, const SchemaResolver &resolver,
   } catch (const SchemaUnknownBaseDialectError &) {
     return false;
   } catch (const SchemaResolutionError &) {
+    return false;
+  } catch (const SchemaKeywordError &) {
+    // A dialect declaration that is not a string, or one that is no URI at
+    // all, leaves the document carrying it with nothing to be read against,
+    // wherever along the chain the lookup met it
     return false;
   }
 }
@@ -224,13 +231,10 @@ auto examine(Walk &walk, const SchemaFrame &frame,
       return;
     }
 
-    // What the walk takes over it also releases once it is done with, so the
-    // cache hands the document over rather than keeping a copy of the closure
-    // alive behind it. Nothing asks for this one again, as it is accounted for
-    auto taken{walk.cache.extract(JSON::String{reference.base})};
-    walk.pending.emplace_back(taken.empty() ? std::move(remote)
-                                            : std::move(taken.mapped()),
-                              JSON::String{reference.base});
+    // The cache keeps the answer, as framing may yet name this document as the
+    // dialect of one the walk has not read, and the queue borrows it from
+    // there rather than taking it out and leaving the resolver to answer twice
+    walk.pending.emplace_back(std::move(remote), JSON::String{reference.base});
   });
 }
 
@@ -242,12 +246,14 @@ auto schema_dependencies(const JSON &schema, const SchemaWalker &walker,
                          const SchemaDependenciesOptions &options)
     -> std::uint64_t {
   assert(callback);
-  // Framing reaches for the resolver of its own accord, so a limit error the
-  // caller's own resolver raises has to be told apart from one this
-  // operation's allowance ran into
+  // Framing and the dialect lookups it takes reach for the resolver and the
+  // walker of their own accord, inside handlers that translate failures of the
+  // library's own making, so whatever the caller's own components throw is
+  // marked on the way out and rethrown untouched at the boundary below
   SchemaResolverCache cache;
-  const SchemaResolver bounded{resolver_within_allowance(resolver)};
-  const SchemaResolver cached{resolver_with_cache(bounded, cache)};
+  const SchemaResolver foreign{guard_foreign(resolver)};
+  const SchemaResolver cached{resolver_with_cache(foreign, cache)};
+  const SchemaWalker guarded{guard_foreign(walker)};
   // Framing states these as preconditions rather than checking them, and a
   // path that names nothing otherwise fails deep inside the document rather
   // than at the call that got it wrong
@@ -258,9 +264,8 @@ auto schema_dependencies(const JSON &schema, const SchemaWalker &walker,
                (target->is_object() || target->is_boolean());
       }));
 
-  Walk walk{.walker = walker,
+  Walk walk{.walker = guarded,
             .resolver = cached,
-            .cache = cache,
             .callback = callback,
             .default_dialect = options.default_dialect,
             .limit = options.max_locations,
@@ -348,8 +353,8 @@ auto schema_dependencies(const JSON &schema, const SchemaWalker &walker,
           "Could not resolve the reference to an external schema",
           unresolved->destination);
     }
-  } catch (const ForeignFrameLimitError &foreign) {
-    throw foreign.error;
+  } catch (const ForeignError &caller) {
+    std::rethrow_exception(caller.error);
   }
 
   return options.max_locations - walk.remaining;
