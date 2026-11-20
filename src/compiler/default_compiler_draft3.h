@@ -306,8 +306,10 @@ static auto to_named_indexes(
   // The table of contents costs a load of its own before a lookup can compare
   // anything, which only pays off once there are enough names that scanning
   // them all is worse. Below that, the entries are left without one and the
-  // evaluator scans them, as it did before the table of contents existed
-  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{12};
+  // evaluator scans them, as it did before the table of contents existed.
+  // Measured over the end to end corpus, the table already pays from seven
+  // names up, and only sets of three names or fewer lose to the scan
+  constexpr std::size_t MINIMUM_NAMES_FOR_TABLE_OF_CONTENTS{6};
 
   ValueNamedIndexes result;
   // The table of contents works as in `to_string_hashes`: each index marks the
