@@ -2114,9 +2114,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
   // that value is decided here, rather than dispatched to and left to find the
   // property in the object a second time. The evaluation-marking variants of
   // those assertions are deliberately absent, as skipping them would skip the
-  // marker. Children are evaluated at `depth + 1`, which the direct path does
-  // not route through the depth check. Every condition holds for every child,
-  // so decide once rather than per property
+  // marker. Some of them compare against the property name rather than the
+  // value while `propertyNames` is being evaluated, which cannot reach here, as
+  // that evaluation hands its children a null instance that this loop's
+  // precondition rejects. Children are evaluated at `depth + 1`, which the
+  // direct path does not route through the depth check. Every condition holds
+  // for every child, so decide once rather than per property
   const auto direct_children{!HasCallback && depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
     const auto *index{named_index(value, entry.first, entry.hash)};
@@ -2147,6 +2150,30 @@ INSTRUCTION_HANDLER(LoopPropertiesMatch) {
             child_ok = DIRECT(AssertionTypeStrictAny, entry.second,
                               assume_value<ValueTypes>(child.value));
             break;
+          case InstructionIndex::AssertionTypeAny:
+            child_ok = DIRECT(AssertionTypeAny, entry.second,
+                              assume_value<ValueTypes>(child.value));
+            break;
+          case InstructionIndex::AssertionTypeStringBounded:
+            child_ok = DIRECT(AssertionTypeStringBounded, entry.second,
+                              assume_value<ValueRange>(child.value));
+            break;
+          case InstructionIndex::AssertionTypeArrayBounded:
+            child_ok = DIRECT(AssertionTypeArrayBounded, entry.second,
+                              assume_value<ValueRange>(child.value));
+            break;
+          case InstructionIndex::AssertionEqual:
+            child_ok = DIRECT(AssertionEqual, entry.second,
+                              assume_value<ValueJSON>(child.value));
+            break;
+          case InstructionIndex::AssertionEqualsAny:
+            child_ok = DIRECT(AssertionEqualsAny, entry.second,
+                              assume_value<ValueSet>(child.value));
+            break;
+          case InstructionIndex::AssertionEqualsAnyStringHash:
+            child_ok = DIRECT(AssertionEqualsAnyStringHash, entry.second,
+                              assume_value<ValueStringHashes>(child.value));
+            break;
           default:
             child_ok = EVALUATE_RECURSE(child, target);
             break;
@@ -2174,9 +2201,12 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
   // that value is decided here, rather than dispatched to and left to find the
   // property in the object a second time. The evaluation-marking variants of
   // those assertions are deliberately absent, as skipping them would skip the
-  // marker. Children are evaluated at `depth + 1`, which the direct path does
-  // not route through the depth check. Every condition holds for every child,
-  // so decide once rather than per property
+  // marker. Some of them compare against the property name rather than the
+  // value while `propertyNames` is being evaluated, which cannot reach here, as
+  // that evaluation hands its children a null instance that this loop's
+  // precondition rejects. Children are evaluated at `depth + 1`, which the
+  // direct path does not route through the depth check. Every condition holds
+  // for every child, so decide once rather than per property
   const auto direct_children{!HasCallback && depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
     const auto *index{named_index(value, entry.first, entry.hash)};
@@ -2207,6 +2237,30 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchClosed) {
           case InstructionIndex::AssertionPropertyTypeStrictAny:
             child_ok = DIRECT(AssertionTypeStrictAny, entry.second,
                               assume_value<ValueTypes>(child.value));
+            break;
+          case InstructionIndex::AssertionTypeAny:
+            child_ok = DIRECT(AssertionTypeAny, entry.second,
+                              assume_value<ValueTypes>(child.value));
+            break;
+          case InstructionIndex::AssertionTypeStringBounded:
+            child_ok = DIRECT(AssertionTypeStringBounded, entry.second,
+                              assume_value<ValueRange>(child.value));
+            break;
+          case InstructionIndex::AssertionTypeArrayBounded:
+            child_ok = DIRECT(AssertionTypeArrayBounded, entry.second,
+                              assume_value<ValueRange>(child.value));
+            break;
+          case InstructionIndex::AssertionEqual:
+            child_ok = DIRECT(AssertionEqual, entry.second,
+                              assume_value<ValueJSON>(child.value));
+            break;
+          case InstructionIndex::AssertionEqualsAny:
+            child_ok = DIRECT(AssertionEqualsAny, entry.second,
+                              assume_value<ValueSet>(child.value));
+            break;
+          case InstructionIndex::AssertionEqualsAnyStringHash:
+            child_ok = DIRECT(AssertionEqualsAnyStringHash, entry.second,
+                              assume_value<ValueStringHashes>(child.value));
             break;
           default:
             child_ok = EVALUATE_RECURSE(child, target);

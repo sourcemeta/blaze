@@ -108,6 +108,12 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
     EXPECT_FALSE(result);
   }
 
+  // A callback turns off the shortcuts that the evaluator takes when nothing is
+  // watching, such as deciding a property loop's children against the value the
+  // loop already holds, so the verdict is asked for again without one
+  const auto untraced_result{evaluator.validate(compiled_schema, instance)};
+  EXPECT_EQ(untraced_result, expected_valid);
+
   for (std::size_t index = 0; index < pre.size(); index++) {
     const auto &expected{pre.at(index)};
     assert(expected.is_array());

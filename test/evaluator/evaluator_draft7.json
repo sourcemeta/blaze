@@ -8093,5 +8093,641 @@
         "The value was expected to be of type integer"
       ]
     }
+  },
+  {
+    "description": "closed_properties_constant",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "const": 1 } }
+    },
+    "instance": { "foo": 1 },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 1 was expected to equal the integer constant 1",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_constant_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "const": 1 } }
+    },
+    "instance": { "foo": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal the integer constant 1",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_string_enumeration",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "enum": [ "a", "bb" ] } }
+    },
+    "instance": { "foo": "bb" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bb\" was expected to equal one of the given declared values",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"bb\" was expected to equal one of the 2 declared values",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_string_enumeration_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "enum": [ "a", "bb" ] } }
+    },
+    "instance": { "foo": "c" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"c\" was expected to equal one of the given declared values",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"c\" was expected to equal one of the following values: \"a\", and \"bb\"",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_mixed_enumeration",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "enum": [ 1, "a", true ] } }
+    },
+    "instance": { "foo": true },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The boolean value true was expected to equal one of the 3 declared values",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The boolean value true was expected to equal one of the 3 declared values",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_mixed_enumeration_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "enum": [ 1, "a", true ] } }
+    },
+    "instance": { "foo": 2 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal one of the following values: true, 1, and \"a\"",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 2 was expected to equal one of the following values: true, 1, and \"a\"",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_bounded_string",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "string", "minLength": 2 } }
+    },
+    "instance": { "foo": "ab" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at least 2 characters",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The string value \"ab\" was expected to consist of at least 2 characters and its length was 2",
+        "The value was expected to be of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_bounded_string_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "string", "minLength": 2 } }
+    },
+    "instance": { "foo": "a" },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of a string of at least 2 characters",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The string value \"a\" was expected to consist of at least 2 characters but its length was 1",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_bounded_array",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "array", "minItems": 2 } }
+    },
+    "instance": { "foo": [ 1, 2 ] },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeArrayBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeArrayBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 2 items",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionArraySizeGreater", "/properties/foo/minItems", "#/properties/foo/minItems", "/foo" ],
+        [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionArraySizeGreater", "/properties/foo/minItems", "#/properties/foo/minItems", "/foo" ],
+        [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items and its size was 2",
+        "The value was expected to be of type array",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_bounded_array_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "array", "minItems": 2 } }
+    },
+    "instance": { "foo": [ 1 ] },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeArrayBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeArrayBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to consist of an array of at least 2 items",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionArraySizeGreater", "/properties/foo/minItems", "#/properties/foo/minItems", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionArraySizeGreater", "/properties/foo/minItems", "#/properties/foo/minItems", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The array value was expected to contain at least 2 items but its size was 1",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_type_union",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": [ "integer", "string" ] } }
+    },
+    "instance": { "foo": "bar" },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer, or string and it was of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer, or string and it was of type string",
+        "The object value was expected to validate against the single defined property subschema",
+        "The object value was not expected to define additional properties",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "closed_properties_type_union_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": { "foo": { "type": [ "integer", "string" ] } }
+    },
+    "instance": { "foo": true },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+        [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer, or string but it was of type boolean",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+      ],
+      "post": [
+        [ false, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The value was expected to be of type integer, or string but it was of type boolean",
+        "The object value was expected to validate against the single defined property subschema"
+      ]
+    }
+  },
+  {
+    "description": "open_properties_constant",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "a1": { "const": 0 },
+        "b2": { "const": 1 },
+        "c3": { "const": 2 },
+        "d4": { "const": 3 },
+        "e5": { "const": 4 },
+        "f6": { "const": 5 }
+      }
+    },
+    "instance": { "a1": 0, "f6": 5, "zz": true },
+    "valid": true,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ true, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to equal the integer constant 0",
+        "The integer value 5 was expected to equal the integer constant 5",
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ true, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to equal the integer constant 0",
+        "The integer value 5 was expected to equal the integer constant 5",
+        "The object value was expected to validate against the 6 defined properties subschemas",
+        "The value was expected to be of type object"
+      ]
+    }
+  },
+  {
+    "description": "open_properties_constant_mismatch",
+    "schema": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "type": "object",
+      "properties": {
+        "a1": { "const": 0 },
+        "b2": { "const": 1 },
+        "c3": { "const": 2 },
+        "d4": { "const": 3 },
+        "e5": { "const": 4 },
+        "f6": { "const": 5 }
+      }
+    },
+    "instance": { "a1": 0, "f6": 4 },
+    "valid": false,
+    "fast": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ false, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to equal the integer constant 0",
+        "The integer value 4 was expected to equal the integer constant 5",
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    },
+    "exhaustive": {
+      "pre": [
+        [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+        [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ]
+      ],
+      "post": [
+        [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+        [ false, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+        [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+      ],
+      "descriptions": [
+        "The integer value 0 was expected to equal the integer constant 0",
+        "The integer value 4 was expected to equal the integer constant 5",
+        "The object value was expected to validate against the 6 defined properties subschemas"
+      ]
+    }
   }
 ]
