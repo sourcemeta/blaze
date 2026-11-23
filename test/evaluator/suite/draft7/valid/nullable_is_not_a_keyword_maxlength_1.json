@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "nullable": true,
+    "maxLength": 2
+  },
+  "instance": "xxx",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at most 2 characters"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xxx\" was expected to consist of at most 2 characters but its length was 3"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/foo" } ],
+    "definitions": {
+      "foo": { "additionalProperties": { "$ref": "#/definitions/bar" } },
+      "bar": { "additionalProperties": { "$ref": "#/definitions/foo" } }
+    }
+  },
+  "instance": true,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The boolean value was expected to validate against the referenced schema",
+      "The boolean value was expected to validate against the given subschema"
+    ]
+  }
+}

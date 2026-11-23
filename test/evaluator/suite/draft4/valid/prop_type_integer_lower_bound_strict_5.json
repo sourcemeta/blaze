@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "x": { "type": "integer", "minimum": 1 } }
+  },
+  "instance": { "x": 5.5 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerLowerBoundStrict", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerLowerBoundStrict", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer above the given minimum"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
+      [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
+      [ false, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The number value 5.5 was expected to be greater than or equal to the integer 1",
+      "The value was expected to be of type integer but it was of type number",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

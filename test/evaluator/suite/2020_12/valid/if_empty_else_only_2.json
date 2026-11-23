@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "$comment": "always true" },
+    "else": { "type": "string" }
+  },
+  "instance": 1,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

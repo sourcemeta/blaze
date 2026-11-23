@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a1": { "const": 0 },
+      "b2": { "const": 1 },
+      "c3": { "const": 2 },
+      "d4": { "const": 3 },
+      "e5": { "const": 4 },
+      "f6": { "const": 5 }
+    }
+  },
+  "instance": { "a1": 0, "f6": 4 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ false, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to equal the integer constant 0",
+      "The integer value 4 was expected to equal the integer constant 5",
+      "The object value was expected to validate against the 6 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ false, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to equal the integer constant 0",
+      "The integer value 4 was expected to equal the integer constant 5",
+      "The object value was expected to validate against the 6 defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1,
+    "exclusiveMaximum": 11,
+    "exclusiveMinimum": -1
+  },
+  "instance": -1,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value -1 was expected to be an integer between 0 and 10"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+      [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value -1 was expected to be less than the integer 11",
+      "The integer value -1 was expected to be greater than the integer -1"
+    ]
+  }
+}

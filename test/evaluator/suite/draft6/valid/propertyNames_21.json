@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "definitions": { "inner": { "$ref": "#/definitions/outer" } } },
+    "allOf": [ { "$ref": "#/propertyNames/definitions/inner" } ],
+    "definitions": { "outer": { "type": "string" } }
+  },
+  "instance": 1,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "ControlJump", "/allOf/0/$ref/$ref", "#/propertyNames/definitions/inner/$ref", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/allOf/0/$ref/$ref/type", "#/definitions/outer/type", "" ],
+      [ false, "ControlJump", "/allOf/0/$ref/$ref", "#/propertyNames/definitions/inner/$ref", "" ],
+      [ false, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the given subschema"
+    ]
+  }
+}

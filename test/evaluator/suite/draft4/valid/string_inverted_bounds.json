@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "minLength": 3,
+    "maxLength": 1
+  },
+  "instance": "abcd",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abcd\" was expected to consist of at most 1 character but its length was 4"
+    ]
+  }
+}

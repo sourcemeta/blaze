@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "s1": {
+        "id": "https://example.com/one",
+        "properties": { "a": { "id": "#tag", "type": "integer" }, "r": { "$ref": "#tag" } }
+      },
+      "s2": {
+        "id": "https://example.com/two",
+        "properties": { "a": { "id": "#tag", "type": "string" }, "r": { "$ref": "#tag" } }
+      }
+    }
+  },
+  "instance": { "s1": { "r": 5 }, "s2": { "r": "x" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ],
+      [ "AssertionPropertyTypeStrict", "/properties/s2/properties/r/$ref/type", "https://example.com/two#/properties/a/type", "/s2/r" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/s2/properties/r/$ref/type", "https://example.com/two#/properties/a/type", "/s2/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalWhenType", "/properties/s1/properties", "https://example.com/one#/properties", "/s1" ],
+      [ "ControlJump", "/properties/s1/properties/r/$ref", "https://example.com/one#/properties/r/$ref", "/s1/r" ],
+      [ "AssertionTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ],
+      [ "LogicalWhenType", "/properties/s2/properties", "https://example.com/two#/properties", "/s2" ],
+      [ "ControlJump", "/properties/s2/properties/r/$ref", "https://example.com/two#/properties/r/$ref", "/s2/r" ],
+      [ "AssertionTypeStrict", "/properties/s2/properties/r/$ref/type", "https://example.com/two#/properties/a/type", "/s2/r" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ],
+      [ true, "ControlJump", "/properties/s1/properties/r/$ref", "https://example.com/one#/properties/r/$ref", "/s1/r" ],
+      [ true, "LogicalWhenType", "/properties/s1/properties", "https://example.com/one#/properties", "/s1" ],
+      [ true, "AssertionTypeStrict", "/properties/s2/properties/r/$ref/type", "https://example.com/two#/properties/a/type", "/s2/r" ],
+      [ true, "ControlJump", "/properties/s2/properties/r/$ref", "https://example.com/two#/properties/r/$ref", "/s2/r" ],
+      [ true, "LogicalWhenType", "/properties/s2/properties", "https://example.com/two#/properties", "/s2" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

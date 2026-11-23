@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "pattern": "^f" }
+  },
+  "instance": { "bar": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"bar\" was expected to match the regular expression \"^f\"",
+      "The object value was expected to validate the property names \"bar\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/propertyNames/pattern", "#/propertyNames/pattern", "/bar" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"bar\" was expected to match the regular expression \"^f\"",
+      "The object value was expected to validate the property names \"bar\" against the given subschema"
+    ]
+  }
+}

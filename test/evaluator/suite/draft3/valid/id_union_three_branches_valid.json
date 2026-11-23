@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } },
+      { "type": "object", "patternProperties": { "^c": {} } }
+    ],
+    "properties": { "foo": { "id": "https://example.com/tri", "type": "integer" } },
+    "extends": [ { "properties": { "r": { "$ref": "https://example.com/tri" } } } ]
+  },
+  "instance": { "foo": 5, "r": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/tri#/type", "/foo" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/tri#/type", "/foo" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ "ControlJump", "/extends/0/properties/r/$ref", "#/extends/0/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "https://example.com/tri#/type", "/foo" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ],
+      [ true, "ControlJump", "/extends/0/properties/r/$ref", "#/extends/0/properties/r/$ref", "/r" ],
+      [ true, "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "https://example.com/tri#/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  }
+}

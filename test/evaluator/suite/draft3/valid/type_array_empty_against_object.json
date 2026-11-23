@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "type": [] },
+  "instance": { "foo": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "a": { "type": "string" } },
+    "minProperties": 1
+  },
+  "instance": { "a": "hello" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ],
+      [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "The value was expected to consist of an object of at least 1 property"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at least 1 property and it defines 1 of them: \"a\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

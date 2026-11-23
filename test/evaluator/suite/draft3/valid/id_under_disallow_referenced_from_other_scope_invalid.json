@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "n": { "disallow": [ { "id": "https://example.com/neg", "type": "string" } ] },
+      "s": {
+        "id": "https://example.com/scope",
+        "properties": { "r": { "$ref": "https://example.com/neg" } }
+      }
+    }
+  },
+  "instance": { "n": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "AssertionTypeStrict", "/disallow/0/type", "https://example.com/neg#/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ false, "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/type", "https://example.com/neg#/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ false, "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to not validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "oneOf": [
+      { "type": "string" },
+      { "type": "integer" },
+      { "type": "number" },
+      { "type": "boolean" }
+    ]
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ false, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The value was expected to be of type number but it was of type string",
+      "The value was expected to be of type boolean but it was of type string",
+      "The string value was expected to validate against one and only one of the 4 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ false, "AssertionTypeStrictAny", "/oneOf/2/type", "#/oneOf/2/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/3/type", "#/oneOf/3/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The value was expected to be of type number but it was of type string",
+      "The value was expected to be of type boolean but it was of type string",
+      "The string value was expected to validate against one and only one of the 4 given subschemas"
+    ]
+  }
+}

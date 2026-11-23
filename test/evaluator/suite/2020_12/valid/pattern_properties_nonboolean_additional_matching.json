@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "patternProperties": { "^a.$": { "type": "string" } },
+    "additionalProperties": { "enum": [] }
+  },
+  "instance": { "ab": "x" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "ab" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"ab\" successfully validated against its pattern property subschema",
+      "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "common": {
+        "anyOf": [
+          { "properties": { "a": { "type": "integer" } }, "required": [ "a" ] },
+          { "properties": { "b": { "type": "integer" } }, "required": [ "b" ] }
+        ]
+      }
+    },
+    "anyOf": [ { "$ref": "#/$defs/common" }, { "$ref": "#/$defs/common" } ],
+    "unevaluatedProperties": false
+  },
+  "instance": {},
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ false, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

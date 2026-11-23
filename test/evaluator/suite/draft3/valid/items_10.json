@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "features": {
+        "items": {
+          "properties": {
+            "geometry": {
+              "type": "object",
+              "properties": {
+                "geometries": { "items": { "type": "string" }, "required": true }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "instance": { "features": [ { "geometry": null } ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/properties/features/items", "#/properties/features/items", "/features" ],
+      [ "AssertionObjectPropertiesSimple", "/properties/features/items/properties/geometry/properties", "#/properties/features/items/properties/geometry/properties", "/features/0/geometry" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties/features/items/properties/geometry/properties", "#/properties/features/items/properties/geometry/properties", "/features/0/geometry" ],
+      [ false, "LoopItems", "/properties/features/items", "#/properties/features/items", "/features" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItems", "/properties/features/items", "#/properties/features/items", "/features" ],
+      [ "LogicalWhenType", "/properties/features/items/properties", "#/properties/features/items/properties", "/features/0" ],
+      [ "AssertionDefinesStrict", "/properties/features/items/properties/geometry/properties", "#/properties/features/items/properties/geometry/properties", "/features/0/geometry" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/properties/features/items/properties/geometry/properties", "#/properties/features/items/properties/geometry/properties", "/features/0/geometry" ],
+      [ false, "LogicalWhenType", "/properties/features/items/properties", "#/properties/features/items/properties", "/features/0" ],
+      [ false, "LoopItems", "/properties/features/items", "#/properties/features/items", "/features" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"geometries\"",
+      "The object value was expected to validate against the single defined property subschema",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "foobar": "baz" },
+  "instance": "foo bar",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

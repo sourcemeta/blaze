@@ -1,0 +1,88 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "object" },
+    "then": {
+      "type": "object",
+      "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+      "required": [ "a", "b" ],
+      "additionalProperties": false
+    },
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": "x", "b": "y" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ],
+      [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The value was expected to be an object that only defines properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactly", "/then/required", "#/then/required", "" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/a" ],
+      [ "AssertionTypeStrict", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/b" ],
+      [ "LoopPropertiesExcept", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/then/type", "#/then/type", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDefinesExactly", "/then/required", "#/then/required", "" ],
+      [ true, "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "a" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/a" ],
+      [ true, "AssertionTypeStrict", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "b" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/b" ],
+      [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/then/type", "#/then/type", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to only define properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type string",
+      "The object property \"b\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

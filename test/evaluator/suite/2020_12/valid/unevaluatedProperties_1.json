@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": { "type": "string" },
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": "baz" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "string" } ],
+    "unevaluatedItems": { "type": "boolean" }
+  },
+  "instance": [ "foo", true ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type boolean",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type boolean",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

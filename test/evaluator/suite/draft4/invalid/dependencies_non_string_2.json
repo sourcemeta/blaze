@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "dependencies": { "a": [ "b", 1 ] }
+  },
+  "error": {
+    "message": "Every value of this keyword was expected to be a valid schema or an array of unique property names",
+    "base": "",
+    "location": "/dependencies"
+  }
+}

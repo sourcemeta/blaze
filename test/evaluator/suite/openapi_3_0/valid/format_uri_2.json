@@ -1,0 +1,7 @@
+{
+  "schema": { "format": "uri" },
+  "instance": "https://www.example.com",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

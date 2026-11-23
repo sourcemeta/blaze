@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "type": "integer",
+    "maximum": 10,
+    "minimum": 0
+  },
+  "instance": 12345678901234567890123456789012345678901234,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionType", "/type", "#/type", "" ],
+      [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/type", "#/type", "" ],
+      [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value 12345678901234567890123456789012345678901234 was expected to be less than or equal to the integer 10"
+    ]
+  }
+}

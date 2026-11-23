@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1,
+    "exclusiveMaximum": 11,
+    "exclusiveMinimum": -1
+  },
+  "instance": 1.5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.5 was expected to be an integer between 0 and 10"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ],
+      [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+      [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.5 was expected to be less than the integer 11",
+      "The number value 1.5 was expected to be greater than the integer -1",
+      "The number value 1.5 was expected to be divisible by the integer 1"
+    ]
+  }
+}

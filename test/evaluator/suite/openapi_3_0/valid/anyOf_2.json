@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "anyOf": [ { "type": "string" }, { "type": "integer" }, { "type": "number" } ]
+  },
+  "instance": true,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number, or string but it was of type boolean"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ false, "AssertionTypeStrictAny", "/anyOf/2/type", "#/anyOf/2/type", "" ],
+      [ false, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type boolean",
+      "The value was expected to be of type integer but it was of type boolean",
+      "The value was expected to be of type number but it was of type boolean",
+      "The boolean value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  }
+}

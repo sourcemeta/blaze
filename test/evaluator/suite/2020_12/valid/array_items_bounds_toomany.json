@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "minItems": 1,
+    "maxItems": 2,
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  },
+  "instance": [ 1, 2, 3 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+      [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+      [ false, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be a number within the given range",
+      "The value was expected to consist of an array of 1 to 2 items"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items but its size was 3"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema": {
+    "$schema": "https://example.com/meta",
+    "$id": "https://example.com/schema",
+    "type": "string",
+    "$defs": {
+      "https://example.com/meta": {
+        "$id": "https://example.com/meta",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$vocabulary": { "https://json-schema.org/draft/2020-12/vocab/core": true },
+        "type": "object"
+      }
+    }
+  },
+  "instance": 1,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/type", "https://example.com/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/type", "https://example.com/schema#/type", "", "string" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"type\" was collected as the annotation \"string\""
+    ]
+  }
+}

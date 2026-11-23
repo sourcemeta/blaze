@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "patternProperties": { "^a.$": { "type": "string" } },
+    "additionalProperties": { "allOf": [ false ] }
+  },
+  "instance": { "ab": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/patternProperties/^a.$/type", "#/patternProperties/%5Ea.$/type", "/ab" ],
+      [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object properties that match the regular expression \"^a.$\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "propertyNames": { "items": { "oneOf": [ { "type": "string" }, { "type": "integer" } ] } }
+    }
+  },
+  "instance": { "propertyNames": [ true ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "LogicalXor", "/properties/propertyNames/items/oneOf", "#/properties/propertyNames/items/oneOf", "/propertyNames/0" ],
+      [ "AssertionTypeStrict", "/properties/propertyNames/items/oneOf/0/type", "#/properties/propertyNames/items/oneOf/0/type", "/propertyNames/0" ],
+      [ "AssertionType", "/properties/propertyNames/items/oneOf/1/type", "#/properties/propertyNames/items/oneOf/1/type", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/propertyNames/items/oneOf/0/type", "#/properties/propertyNames/items/oneOf/0/type", "/propertyNames/0" ],
+      [ false, "AssertionType", "/properties/propertyNames/items/oneOf/1/type", "#/properties/propertyNames/items/oneOf/1/type", "/propertyNames/0" ],
+      [ false, "LogicalXor", "/properties/propertyNames/items/oneOf", "#/properties/propertyNames/items/oneOf", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type boolean",
+      "The value was expected to be of type integer but it was of type boolean",
+      "The boolean value was expected to validate against one and only one of the 2 given subschemas",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "LogicalXor", "/properties/propertyNames/items/oneOf", "#/properties/propertyNames/items/oneOf", "/propertyNames/0" ],
+      [ "AssertionTypeStrict", "/properties/propertyNames/items/oneOf/0/type", "#/properties/propertyNames/items/oneOf/0/type", "/propertyNames/0" ],
+      [ "AssertionType", "/properties/propertyNames/items/oneOf/1/type", "#/properties/propertyNames/items/oneOf/1/type", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/propertyNames/items/oneOf/0/type", "#/properties/propertyNames/items/oneOf/0/type", "/propertyNames/0" ],
+      [ false, "AssertionType", "/properties/propertyNames/items/oneOf/1/type", "#/properties/propertyNames/items/oneOf/1/type", "/propertyNames/0" ],
+      [ false, "LogicalXor", "/properties/propertyNames/items/oneOf", "#/properties/propertyNames/items/oneOf", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type boolean",
+      "The value was expected to be of type integer but it was of type boolean",
+      "The boolean value was expected to validate against one and only one of the 2 given subschemas",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "const": 3
+  },
+  "instance": 3,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/const", "#/const", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/const", "#/const", "" ]
+    ],
+    "descriptions": [
+      "The integer value 3 was expected to equal the integer constant 3"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/const", "#/const", "" ],
+      [ "AssertionType", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/const", "#/const", "" ],
+      [ true, "AssertionType", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 3 was expected to equal the integer constant 3",
+      "The value was expected to be of type integer"
+    ]
+  }
+}

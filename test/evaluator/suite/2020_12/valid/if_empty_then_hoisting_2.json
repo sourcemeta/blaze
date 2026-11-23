@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "value" ],
+    "properties": {
+      "value": {
+        "if": { "$comment": "always true" },
+        "then": { "type": "string", "pattern": "^f" }
+      }
+    }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+      [ "AssertionPropertyTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"value\"",
+      "The string value \"foo\" was expected to match the regular expression \"^f\"",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionRegex", "/properties/value/then/pattern", "#/properties/value/then/pattern", "/value" ],
+      [ true, "AssertionTypeStrict", "/properties/value/then/type", "#/properties/value/then/type", "/value" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"value\"",
+      "The string value \"foo\" was expected to match the regular expression \"^f\"",
+      "The value was expected to be of type string",
+      "The object property \"value\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

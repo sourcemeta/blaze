@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "enum": [ "foo", "bar", "baz" ]
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal one of the given declared values"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal one of the 3 declared values",
+      "The value was expected to be of type string"
+    ]
+  }
+}

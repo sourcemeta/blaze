@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "if": { "required": [ "recurse" ] },
+    "then": { "$ref": "#" },
+    "else": { "properties": { "allowed": { "type": "integer" } } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "allowed": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ false, "AssertionPropertyTypeEvaluate", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"recurse\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ "AssertionType", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ false, "AssertionType", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"recurse\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional"
+    ]
+  }
+}

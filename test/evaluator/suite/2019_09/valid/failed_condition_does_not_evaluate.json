@@ -1,0 +1,74 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "properties": { "aaa": true, "bbb": { "type": "string" } } },
+    "else": { "properties": { "bbb": true } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "aaa": 1, "bbb": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+      [ "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+    ],
+    "post": [
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ false, "AssertionPropertyTypeStrictEvaluate", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+      [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type string but it was of type integer",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"aaa\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ "Annotation", "/if/properties", "#/if/properties", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ "AssertionTypeStrict", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+      [ "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ "Annotation", "/else/properties", "#/else/properties", "" ],
+      [ "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/if/properties", "#/if/properties", "", "aaa" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ false, "AssertionTypeStrict", "/if/properties/bbb/type", "#/if/properties/bbb/type", "/bbb" ],
+      [ false, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ true, "Annotation", "/else/properties", "#/else/properties", "", "bbb" ],
+      [ true, "Evaluate", "/else/properties", "#/else/properties", "/bbb" ],
+      [ true, "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/aaa" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"aaa\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object property \"bbb\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"aaa\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

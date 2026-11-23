@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "type": "number" },
+    "then": { "$ref": "#/$defs/shared", "const": 7 },
+    "else": { "$ref": "#/$defs/shared" },
+    "$defs": { "shared": { "minimum": 5, "multipleOf": 1 } }
+  },
+  "instance": 999,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+      [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+      [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+      [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+      [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+      [ false, "AssertionEqual", "/then/const", "#/then/const", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The integer value 999 was expected to be divisible by the integer 1",
+      "The integer value 999 was expected to be greater than or equal to the integer 5",
+      "The integer value 999 was expected to equal the integer constant 7",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+      [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+      [ "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+      [ "AssertionEqual", "/then/const", "#/then/const", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDivisible", "/then/$ref/multipleOf", "#/$defs/shared/multipleOf", "" ],
+      [ true, "AssertionGreaterEqual", "/then/$ref/minimum", "#/$defs/shared/minimum", "" ],
+      [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ false, "AssertionEqual", "/then/const", "#/then/const", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The integer value 999 was expected to be divisible by the integer 1",
+      "The integer value 999 was expected to be greater than or equal to the integer 5",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value 999 was expected to equal the integer constant 7",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "discriminator": { "propertyName": "petType" }
+  },
+  "instance": { "petType": "dog", "name": "Rex" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/discriminator", "#/discriminator", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/discriminator", "#/discriminator", "", {"propertyName": "petType"} ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"discriminator\" was collected as the annotation {\"propertyName\":\"petType\"}"
+    ]
+  }
+}

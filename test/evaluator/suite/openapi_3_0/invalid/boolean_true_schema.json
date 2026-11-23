@@ -1,0 +1,8 @@
+{
+  "schema": true,
+  "error": {
+    "message": "This dialect does not support boolean schemas",
+    "base": "",
+    "location": ""
+  }
+}

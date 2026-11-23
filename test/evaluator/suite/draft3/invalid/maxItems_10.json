@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "maxItems": "not-an-integer"
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an integer",
+    "base": "",
+    "location": "/maxItems"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": { "type": "string", "maxLength": 3 }
+  },
+  "instance": { "abcdefgh": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeLess", "/propertyNames/maxLength", "#/propertyNames/maxLength", "/abcdefgh" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/propertyNames/maxLength", "#/propertyNames/maxLength", "/abcdefgh" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"abcdefgh\" was expected to consist of at most 3 characters but its length was 8",
+      "The object value was expected to validate the property names \"abcdefgh\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeLess", "/propertyNames/maxLength", "#/propertyNames/maxLength", "/abcdefgh" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/propertyNames/maxLength", "#/propertyNames/maxLength", "/abcdefgh" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"abcdefgh\" was expected to consist of at most 3 characters but its length was 8",
+      "The object value was expected to validate the property names \"abcdefgh\" against the given subschema"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "multipleOf": 1, "maximum": 10, "minimum": 0 }
+  },
+  "instance": [ 5 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be an integer between 0 and 10",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionDivisible", "/items/multipleOf", "#/items/multipleOf", "/0" ],
+      [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/items/multipleOf", "#/items/multipleOf", "/0" ],
+      [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be divisible by the integer 1",
+      "The integer value 5 was expected to be less than or equal to the integer 10",
+      "The integer value 5 was expected to be greater than or equal to the integer 0",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

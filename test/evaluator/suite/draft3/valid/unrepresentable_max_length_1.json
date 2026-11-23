@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "maxLength": 99999999999999999999
+  },
+  "instance": "a",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

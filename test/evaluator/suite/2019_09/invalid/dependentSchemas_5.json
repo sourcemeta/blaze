@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": "not-an-object"
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an object",
+    "base": "",
+    "location": "/dependentSchemas"
+  }
+}

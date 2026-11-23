@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "const": "admin" },
+    "maxContains": 0
+  },
+  "instance": [],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+    ]
+  }
+}

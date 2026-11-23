@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a_property_name_that_is_definitely_over_thirty_two_chars_one": { "type": "string" },
+      "a_property_name_that_is_definitely_over_thirty_two_chars_two": { "type": "string" }
+    },
+    "required": [ "a_property_name_that_is_definitely_over_thirty_two_chars_one", "a_property_name_that_is_definitely_over_thirty_two_chars_two" ],
+    "additionalProperties": false
+  },
+  "instance": {
+    "a_property_name_that_is_definitely_over_thirty_two_chars_one": "x",
+    "a_property_name_that_is_definitely_over_thirty_two_chars_two": "y"
+  },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a_property_name_that_is_definitely_over_thirty_two_chars_one/type", "#/properties/a_property_name_that_is_definitely_over_thirty_two_chars_one/type", "/a_property_name_that_is_definitely_over_thirty_two_chars_one" ],
+      [ "AssertionTypeStrict", "/properties/a_property_name_that_is_definitely_over_thirty_two_chars_two/type", "#/properties/a_property_name_that_is_definitely_over_thirty_two_chars_two/type", "/a_property_name_that_is_definitely_over_thirty_two_chars_two" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a_property_name_that_is_definitely_over_thirty_two_chars_one/type", "#/properties/a_property_name_that_is_definitely_over_thirty_two_chars_one/type", "/a_property_name_that_is_definitely_over_thirty_two_chars_one" ],
+      [ true, "AssertionTypeStrict", "/properties/a_property_name_that_is_definitely_over_thirty_two_chars_two/type", "#/properties/a_property_name_that_is_definitely_over_thirty_two_chars_two/type", "/a_property_name_that_is_definitely_over_thirty_two_chars_two" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a_property_name_that_is_definitely_over_thirty_two_chars_one\", and \"a_property_name_that_is_definitely_over_thirty_two_chars_two\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

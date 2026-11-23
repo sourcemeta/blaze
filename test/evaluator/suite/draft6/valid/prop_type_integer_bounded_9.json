@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 100 } }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

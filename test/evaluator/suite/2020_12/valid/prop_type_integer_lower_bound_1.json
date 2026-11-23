@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "x": { "type": "integer", "minimum": 1 } }
+  },
+  "instance": { "x": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeIntegerLowerBound", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer above the given minimum"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ true, "AssertionGreaterEqual", "/properties/x/minimum", "#/properties/x/minimum", "/x" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "x" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value 5 was expected to be greater than or equal to the integer 1",
+      "The object property \"x\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

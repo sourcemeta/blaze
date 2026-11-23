@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxLength": 0 },
+  "instance": "x",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"x\" was expected to consist of at most 0 characters but its length was 1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"x\" was expected to consist of at most 0 characters but its length was 1"
+    ]
+  }
+}

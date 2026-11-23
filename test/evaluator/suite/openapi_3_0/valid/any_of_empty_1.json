@@ -1,0 +1,27 @@
+{
+  "schema": { "anyOf": [] },
+  "instance": 1,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionFail", "/anyOf", "#/anyOf", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  }
+}

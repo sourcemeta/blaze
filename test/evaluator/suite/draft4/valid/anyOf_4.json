@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "anyOf": [ { "$ref": "#/definitions/test" }, {} ],
+    "definitions": {
+      "test": {
+        "properties": {
+          "a": { "type": "string" },
+          "b": { "type": "string", "pattern": "^b" },
+          "c": { "type": "string", "pattern": "^c" },
+          "d": { "type": "string", "pattern": "^d" },
+          "e": { "type": "string", "pattern": "^e" },
+          "f": { "type": "string", "pattern": "^f" },
+          "g": { "type": "string", "pattern": "^g" },
+          "h": { "type": "string", "pattern": "^h" },
+          "i": { "type": "string", "pattern": "^i" },
+          "j": { "type": "string", "pattern": "^j" },
+          "k": { "type": "string", "pattern": "^k" }
+        }
+      }
+    }
+  },
+  "instance": { "a": "foo" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesMatch", "/anyOf/0/$ref/properties", "#/definitions/test/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/anyOf/0/$ref/properties/a/type", "#/definitions/test/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/anyOf/0/$ref/properties/a/type", "#/definitions/test/properties/a/type", "/a" ],
+      [ true, "LoopPropertiesMatch", "/anyOf/0/$ref/properties", "#/definitions/test/properties", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 11 defined properties subschemas",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LoopPropertiesMatch", "/anyOf/0/$ref/properties", "#/definitions/test/properties", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/$ref/properties/a/type", "#/definitions/test/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/$ref/properties/a/type", "#/definitions/test/properties/a/type", "/a" ],
+      [ true, "LoopPropertiesMatch", "/anyOf/0/$ref/properties", "#/definitions/test/properties", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 11 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

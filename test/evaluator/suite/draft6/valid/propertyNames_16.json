@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": { "stringType": { "type": "string" } },
+    "propertyNames": { "$ref": "#/definitions/stringType" },
+    "additionalProperties": { "$ref": "#/definitions/stringType" }
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ],
+      [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate the property names \"foo\" against the given subschema",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

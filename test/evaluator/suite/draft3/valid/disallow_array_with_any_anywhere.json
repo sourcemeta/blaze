@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ "string", "any", "integer" ]
+  },
+  "instance": null,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionFail", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  }
+}

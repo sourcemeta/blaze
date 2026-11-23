@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "$ref": "#/$defs/maybe" },
+    "minContains": 2,
+    "maxContains": 3,
+    "properties": { "x": { "$ref": "#/$defs/maybe" } },
+    "$defs": { "maybe": {} }
+  },
+  "instance": [ 1 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+      [ "Annotation", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/contains/$ref", "#/contains/$ref", "/0" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the referenced schema",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain 2 to 3 items that validate against the given subschema"
+    ]
+  }
+}

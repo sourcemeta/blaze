@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ true ]
+  },
+  "instance": [ 5 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value was expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value successfully validated against the first positional subschema",
+      "Every item in the array value was successfully validated",
+      "The first item of the array value was expected to validate against the corresponding subschemas"
+    ]
+  }
+}

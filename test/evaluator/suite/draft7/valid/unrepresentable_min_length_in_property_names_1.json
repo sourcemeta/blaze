@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "propertyNames": { "minLength": 99999999999999999999 }
+  },
+  "instance": { "a": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/minLength", "#/propertyNames/minLength", "/a" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  }
+}

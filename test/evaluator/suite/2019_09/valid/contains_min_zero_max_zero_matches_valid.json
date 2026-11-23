@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "const": 1 },
+    "minContains": 0,
+    "maxContains": 1
+  },
+  "instance": [ 2, 3 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The integer value 3 was expected to equal the integer constant 1",
+      "The array value was expected to contain up to 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The integer value 3 was expected to equal the integer constant 1",
+      "The array value was expected to contain up to 1 item that validates against the given subschema"
+    ]
+  }
+}

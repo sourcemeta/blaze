@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "if": { "const": 10 },
+    "then": { "multipleOf": 5 }
+  },
+  "instance": 10,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The integer value 10 was expected to equal the integer constant 10",
+      "The integer value 10 was expected to be divisible by the integer 5",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The integer value 10 was expected to equal the integer constant 10",
+      "The integer value 10 was expected to be divisible by the integer 5",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  }
+}

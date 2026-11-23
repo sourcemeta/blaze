@@ -1,0 +1,93 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "known": { "type": "string" } },
+    "if": { "properties": { "known": { "const": "special" } } },
+    "then": { "properties": { "extra": { "type": "integer" } } },
+    "unevaluatedProperties": { "type": "boolean" }
+  },
+  "instance": { "known": "special", "extra": 10, "other": true },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+      [ "AssertionPropertyTypeEvaluate", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+      [ "AssertionPropertyTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+      [ true, "AssertionPropertyTypeEvaluate", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"special\" was expected to equal the string constant \"special\"",
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the given conditional",
+      "The value was expected to be of type string",
+      "The value was expected to be of type boolean",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+      [ "Annotation", "/if/properties", "#/if/properties", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "AssertionType", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/extra" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ],
+      [ "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/properties/known/const", "#/if/properties/known/const", "/known" ],
+      [ true, "Annotation", "/if/properties", "#/if/properties", "", "known" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/known" ],
+      [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ true, "AssertionType", "/then/properties/extra/type", "#/then/properties/extra/type", "/extra" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "extra" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/extra" ],
+      [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "AssertionTypeStrict", "/properties/known/type", "#/properties/known/type", "/known" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "known" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/other" ],
+      [ true, "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "", "other" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"special\" was expected to equal the string constant \"special\"",
+      "The object property \"known\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type integer",
+      "The object property \"extra\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The value was expected to be of type string",
+      "The object property \"known\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type boolean",
+      "The object property \"other\" successfully validated against the subschema for unevaluated properties",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  }
+}

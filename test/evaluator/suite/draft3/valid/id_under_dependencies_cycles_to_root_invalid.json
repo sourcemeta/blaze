@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": { "v": { "type": "integer" } },
+    "dependencies": {
+      "a": {
+        "id": "https://example.com/dep",
+        "properties": { "nested": { "$ref": "https://example.com/root" } }
+      }
+    }
+  },
+  "instance": { "v": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/v/type", "https://example.com/root#/properties/v/type", "/v" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/v/type", "https://example.com/root#/properties/v/type", "/v" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/v/type", "https://example.com/root#/properties/v/type", "/v" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/v/type", "https://example.com/root#/properties/v/type", "/v" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

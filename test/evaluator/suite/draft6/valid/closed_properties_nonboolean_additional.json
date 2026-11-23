@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "a": {}, "b": {}, "c": {}, "d": {}, "e": {}, "f": {} },
+    "additionalProperties": { "allOf": [ false ] }
+  },
+  "instance": { "zzz": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties/allOf/0", "#/additionalProperties/allOf/0", "/zzz" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties/allOf/0", "#/additionalProperties/allOf/0", "/zzz" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "No instance is expected to succeed against the false schema",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "LogicalAnd", "/additionalProperties/allOf", "#/additionalProperties/allOf", "/zzz" ],
+      [ "AssertionFail", "/additionalProperties/allOf/0", "#/additionalProperties/allOf/0", "/zzz" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties/allOf/0", "#/additionalProperties/allOf/0", "/zzz" ],
+      [ false, "LogicalAnd", "/additionalProperties/allOf", "#/additionalProperties/allOf", "/zzz" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "No instance is expected to succeed against the false schema",
+      "The integer value was expected to validate against the given subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

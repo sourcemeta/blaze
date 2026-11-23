@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "a": { "$ref": "#/x-definitions/Name" } },
+    "x-definitions": { "Name": { "type": "string" } }
+  },
+  "instance": { "a": "Rex" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+      [ "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/a/$ref/type", "#/x-definitions/Name/type", "/a" ],
+      [ true, "ControlJump", "/properties/a/$ref", "#/properties/a/$ref", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

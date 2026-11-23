@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 100 } }
+  },
+  "instance": { "x": "hello" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerBounded", "/properties/x/minimum", "#/properties/x/minimum", "/x" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/x/type", "#/properties/x/type", "/x" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

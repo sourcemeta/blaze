@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "array", "nullable": true, "minItems": 2 },
+  "instance": [ 1 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 2 items but its size was 1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 2 items but its size was 1"
+    ]
+  }
+}

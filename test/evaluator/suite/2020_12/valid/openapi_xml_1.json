@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "xml": { "name": "pet", "wrapped": true }
+  },
+  "instance": { "name": "Rex" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/xml", "#/xml", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/xml", "#/xml", "", {"name": "pet", "wrapped": true} ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"xml\" was collected as the annotation {\"name\":\"pet\",\"wrapped\":true}"
+    ]
+  }
+}

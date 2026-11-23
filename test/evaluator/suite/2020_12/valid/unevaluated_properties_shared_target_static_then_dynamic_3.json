@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "a": true } } },
+    "allOf": [ { "$ref": "#/$defs/common" } ],
+    "anyOf": [ { "$ref": "#/$defs/common" } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "extra": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
+      [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the given subschema",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ true, "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
+      [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

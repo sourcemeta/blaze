@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "dependencies": {
+      "foo": [ "bar", "baz" ],
+      "qux": { "properties": { "extra": { "required": true } } }
+    }
+  },
+  "instance": { "foo": 1, "bar": 2, "baz": 3 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "Because the object value defined \"foo\", it was also expected to define \"bar\", and \"baz\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "Because the object value defined \"foo\", it was also expected to define \"bar\", and \"baz\""
+    ]
+  }
+}

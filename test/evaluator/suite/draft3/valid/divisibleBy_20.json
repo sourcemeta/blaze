@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "divisibleBy": 0.1 },
+  "instance": 0.35,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.35 was expected to be divisible by the number 0.1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.35 was expected to be divisible by the number 0.1"
+    ]
+  }
+}

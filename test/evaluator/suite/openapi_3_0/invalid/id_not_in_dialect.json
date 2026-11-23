@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "string", "id": "https://example.com/schema" },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/id"
+  }
+}

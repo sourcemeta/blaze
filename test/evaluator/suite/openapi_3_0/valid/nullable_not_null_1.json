@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "string", "nullable": true, "not": { "enum": [ null ] } },
+  "instance": null,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionEqual", "/not/enum", "#/not/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The null value null was expected to equal the null constant null",
+      "The null value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionEqual", "/not/enum", "#/not/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The null value null was expected to equal the null constant null",
+      "The null value was expected to not validate against the given subschema"
+    ]
+  }
+}

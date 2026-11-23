@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/schema/items",
+    "$defs": {
+      "schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://www.example.com",
+        "items": { "type": "string" }
+      }
+    }
+  },
+  "instance": "foo bar",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "#/$ref", "" ],
+      [ "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "https://www.example.com/#/items/type", "" ],
+      [ true, "ControlJump", "/$ref", "#/$ref", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": {
+      "title": "Test",
+      "description": "Test",
+      "default": "Test",
+      "deprecated": true,
+      "examples": [ "foo" ],
+      "readOnly": true,
+      "writeOnly": true,
+      "x-foo": "bar",
+      "format": "email",
+      "contentEncoding": "base64",
+      "contentMediaType": "application/json",
+      "contentSchema": true,
+      "items": [ { "type": "string" } ],
+      "additionalItems": { "type": "string" },
+      "unevaluatedItems": { "type": "string" },
+      "properties": { "foo": { "type": "string" } },
+      "patternProperties": { "^f": { "type": "string" } },
+      "additionalProperties": { "type": "string" },
+      "unevaluatedProperties": { "type": "string" }
+    }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "post": [
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  }
+}

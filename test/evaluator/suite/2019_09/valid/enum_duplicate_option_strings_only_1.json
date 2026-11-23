@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "enum": [ "a", "a" ]
+  },
+  "instance": "a",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal the given constant"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal the string constant \"a\""
+    ]
+  }
+}

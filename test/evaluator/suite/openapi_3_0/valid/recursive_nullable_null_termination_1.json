@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "type": "object",
+    "nullable": true,
+    "properties": { "child": { "$ref": "#" } }
+  },
+  "instance": { "child": { "child": null } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/type", "#/type", "/child" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ true, "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ true, "AssertionTypeStrictAny", "/properties/child/$ref/type", "#/type", "/child" ],
+      [ true, "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or object and it was of type null",
+      "The null value was expected to validate against the referenced schema",
+      "The value was expected to be of type null, or object and it was of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type null, or object and it was of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ "LogicalWhenType", "/properties/child/$ref/properties", "#/properties", "/child" ],
+      [ "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/type", "#/type", "/child" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ true, "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ true, "LogicalWhenType", "/properties/child/$ref/properties", "#/properties", "/child" ],
+      [ true, "AssertionTypeStrictAny", "/properties/child/$ref/type", "#/type", "/child" ],
+      [ true, "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or object and it was of type null",
+      "The null value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type null, or object and it was of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type null, or object and it was of type object"
+    ]
+  }
+}

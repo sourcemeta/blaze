@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "scores": {
+        "type": "array",
+        "items": { "type": "number", "minimum": 0, "maximum": 100 },
+        "minItems": 1
+      }
+    }
+  },
+  "instance": { "scores": [] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+    ],
+    "post": [
+      [ false, "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be a number within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+      [ "AssertionArraySizeGreater", "/properties/scores/minItems", "#/properties/scores/minItems", "/scores" ]
+    ],
+    "post": [
+      [ true, "LoopItems", "/properties/scores/items", "#/properties/scores/items", "/scores" ],
+      [ false, "AssertionArraySizeGreater", "/properties/scores/minItems", "#/properties/scores/minItems", "/scores" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array value was expected to validate against the given subschema",
+      "The array value was expected to contain at least 1 item but its size was 0",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

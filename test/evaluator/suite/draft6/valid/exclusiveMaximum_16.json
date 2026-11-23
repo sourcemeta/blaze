@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 99999999999999999999999999999999999
+  },
+  "instance": 99999999999999999999999999999999999,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/exclusiveMaximum", "#/exclusiveMaximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 99999999999999999999999999999999999 was expected to be less than the integer 99999999999999999999999999999999999"
+    ]
+  }
+}

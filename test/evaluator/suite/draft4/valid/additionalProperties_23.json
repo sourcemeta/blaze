@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
+  },
+  "instance": {
+    "foo": 12345678910111213141516171819202122232425262728293031,
+    "bar": 12345678910111213141516171819202122232425262728293031
+  },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LoopPropertiesTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "LoopPropertiesTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\"",
+      "The object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\"",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

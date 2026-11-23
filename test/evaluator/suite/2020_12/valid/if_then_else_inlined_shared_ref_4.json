@@ -1,0 +1,75 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "left": { "$ref": "#/$defs/shared" },
+      "right": { "$ref": "#/$defs/shared" }
+    },
+    "$defs": {
+      "shared": {
+        "if": { "type": "array" },
+        "then": { "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  },
+  "instance": { "left": [ "x" ] },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ true, "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+      [ true, "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The value was expected to consist of a string of at least 1 character",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The array value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/$defs/shared/then/items/minLength", "/left/0" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+      [ "LogicalWhenArraySizeGreater", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ "Annotation", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ true, "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/$defs/shared/then/items/minLength", "/left/0" ],
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/$defs/shared/then/items/type", "/left/0" ],
+      [ true, "LoopItemsFrom", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ true, "Annotation", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/properties/left/$ref/then/items", "#/$defs/shared/then/items", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ true, "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "left" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The string value \"x\" was expected to consist of at least 1 character and its length was 1",
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords",
+      "The array value was expected to validate against the given conditional",
+      "The array value was expected to validate against the referenced schema",
+      "The object property \"left\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

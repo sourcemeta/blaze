@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com/ifrefelse",
+    "if": { "$ref": "#/$defs/always" },
+    "then": { "minLength": 3 },
+    "else": { "const": "never" },
+    "$defs": { "always": {} }
+  },
+  "instance": "abcd",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+      [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+      [ true, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abcd\" was expected to consist of at least 3 characters and its length was 4",
+      "The string value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ],
+      [ "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+      [ "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/if/$ref", "https://example.com/ifrefelse#/if/$ref", "" ],
+      [ true, "AssertionStringSizeGreater", "/then/minLength", "https://example.com/ifrefelse#/then/minLength", "" ],
+      [ true, "LogicalCondition", "/if", "https://example.com/ifrefelse#/if", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The string value \"abcd\" was expected to consist of at least 3 characters and its length was 4",
+      "The string value was expected to validate against the given conditional"
+    ]
+  }
+}

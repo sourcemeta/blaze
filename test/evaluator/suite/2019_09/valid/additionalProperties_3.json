@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "type": "integer" }
+  },
+  "instance": { "bar": "baz", "foo": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

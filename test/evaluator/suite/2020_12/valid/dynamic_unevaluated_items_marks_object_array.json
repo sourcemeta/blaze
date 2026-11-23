@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$ref": "https://example.com/inner",
+    "$defs": {
+      "a": { "$id": "https://example.com/a", "$dynamicAnchor": "T", "title": "x" },
+      "b": { "$id": "https://example.com/b", "$dynamicAnchor": "T", "title": "y" },
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$dynamicRef": "https://example.com/a#T",
+        "unevaluatedItems": true,
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "instance": [ 1 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "LoopItemsUnevaluated", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ true, "LoopItemsUnevaluated", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://example.com/root#/$ref", "" ],
+      [ "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "Annotation", "/$ref/$dynamicRef/title", "https://example.com/a#/title", "" ],
+      [ "LoopItemsUnevaluated", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "" ],
+      [ "Annotation", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/$ref/$dynamicRef/title", "https://example.com/a#/title", "", "x" ],
+      [ true, "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ true, "Annotation", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/$ref/unevaluatedItems", "https://example.com/inner#/unevaluatedItems", "" ],
+      [ true, "ControlJump", "/$ref", "https://example.com/root#/$ref", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"x\"",
+      "The array value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+      "The array value was expected to validate against the referenced schema"
+    ]
+  }
+}

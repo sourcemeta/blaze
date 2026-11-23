@@ -1,0 +1,33 @@
+{
+  "schema": { "not": { "type": "string" } },
+  "instance": "foo",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionTypeStrict", "/not/type", "#/not/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/not/type", "#/not/type", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to not validate against the given subschema"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema",
+    "id": "common",
+    "allOf": [ { "$ref": "#reference" } ],
+    "definitions": { "reference": { "id": "#reference", "type": "string" } }
+  },
+  "instance": "test",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "common#/definitions/reference/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "common#/definitions/reference/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "common#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "common#/allOf/0/$ref", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "common#/definitions/reference/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "common#/definitions/reference/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "common#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "common#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given subschema"
+    ]
+  }
+}

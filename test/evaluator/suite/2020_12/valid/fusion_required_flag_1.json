@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "type": "object", "properties": { "foo": { "type": "string" } } },
+      { "required": [ "foo" ] }
+    ]
+  },
+  "instance": {},
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "AssertionDefines", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ false, "AssertionDefines", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "The object value was expected to define the property \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ "AssertionDefines", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ false, "AssertionDefines", "/allOf/1/required", "#/allOf/1/required", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to define the property \"foo\"",
+      "The object value was expected to validate against the 3 given subschemas"
+    ]
+  }
+}

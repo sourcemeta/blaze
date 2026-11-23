@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "externalDocs": { "url": "https://example.com/docs" }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/externalDocs", "#/externalDocs", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/externalDocs", "#/externalDocs", "", {"url": "https://example.com/docs"} ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"externalDocs\" was collected as the annotation {\"url\":\"https://example.com/docs\"}"
+    ]
+  }
+}

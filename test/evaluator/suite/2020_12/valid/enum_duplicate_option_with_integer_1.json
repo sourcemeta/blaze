@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "enum": [ "a", "a", 1 ]
+  },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal one of the 2 declared values"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal one of the 2 declared values"
+    ]
+  }
+}

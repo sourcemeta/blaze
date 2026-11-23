@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "enum": [ "a", "bb" ] } }
+  },
+  "instance": { "foo": "c" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAnyStringHash", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"c\" was expected to equal one of the given declared values",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAny", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"c\" was expected to equal one of the following values: \"a\", and \"bb\"",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

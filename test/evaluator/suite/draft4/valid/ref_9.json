@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": { "$ref": "#/definitions/one" },
+    "definitions": { "one": { "$ref": "#/definitions/two" }, "two": { "type": "boolean" } }
+  },
+  "instance": { "foo": true },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type boolean"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+      [ "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/$ref/$ref/type", "#/definitions/two/type", "/foo" ],
+      [ true, "ControlJump", "/additionalProperties/$ref/$ref", "#/definitions/one/$ref", "/foo" ],
+      [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The boolean value was expected to validate against the referenced schema",
+      "The boolean value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

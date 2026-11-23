@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "not": { "type": "null" } }
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "LogicalNot", "/propertyNames/not", "#/propertyNames/not", "/a" ],
+      [ "AssertionFail", "/propertyNames/not/type", "#/propertyNames/not/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/not/type", "#/propertyNames/not/type", "/a" ],
+      [ true, "LogicalNot", "/propertyNames/not", "#/propertyNames/not", "/a" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The integer value was expected to not validate against the given subschema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "LogicalNot", "/propertyNames/not", "#/propertyNames/not", "/a" ],
+      [ "AssertionFail", "/propertyNames/not/type", "#/propertyNames/not/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/not/type", "#/propertyNames/not/type", "/a" ],
+      [ true, "LogicalNot", "/propertyNames/not", "#/propertyNames/not", "/a" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The integer value was expected to not validate against the given subschema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  }
+}

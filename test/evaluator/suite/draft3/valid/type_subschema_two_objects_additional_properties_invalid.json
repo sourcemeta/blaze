@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } }
+    ],
+    "additionalProperties": { "type": "integer" }
+  },
+  "instance": { "a1": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ],
+      [ false, "LoopPropertiesTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ],
+      [ false, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/a1" ],
+      [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "n": { "disallow": [ { "id": "https://example.com/neg", "type": "string" } ] },
+      "s": {
+        "id": "https://example.com/scope",
+        "properties": { "r": { "$ref": "https://example.com/neg" } }
+      }
+    }
+  },
+  "instance": { "n": 5, "s": { "r": "hi" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "AssertionTypeStrict", "/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ "AssertionPropertyTypeStrict", "/properties/s/properties/r/$ref/type", "https://example.com/neg#/type", "/s/r" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ true, "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/s/properties/r/$ref/type", "https://example.com/neg#/type", "/s/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ "LogicalWhenType", "/properties/s/properties", "https://example.com/scope#/properties", "/s" ],
+      [ "ControlJump", "/properties/s/properties/r/$ref", "https://example.com/scope#/properties/r/$ref", "/s/r" ],
+      [ "AssertionTypeStrict", "/properties/s/properties/r/$ref/type", "https://example.com/neg#/type", "/s/r" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/disallow/0/type", "https://example.com/neg#/type", "/n" ],
+      [ true, "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ true, "AssertionTypeStrict", "/properties/s/properties/r/$ref/type", "https://example.com/neg#/type", "/s/r" ],
+      [ true, "ControlJump", "/properties/s/properties/r/$ref", "https://example.com/scope#/properties/r/$ref", "/s/r" ],
+      [ true, "LogicalWhenType", "/properties/s/properties", "https://example.com/scope#/properties", "/s" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

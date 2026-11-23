@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": {
+      "required": [ "blocked" ],
+      "properties": { "hidden": true },
+      "if": false,
+      "then": { "$ref": "#" }
+    },
+    "unevaluatedProperties": false
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ true, "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ false, "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ true, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was expected to define the property \"blocked\"",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ true, "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ false, "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ true, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was expected to define the property \"blocked\"",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": [ "string", "foo" ]
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+    "base": "",
+    "location": "/type"
+  }
+}

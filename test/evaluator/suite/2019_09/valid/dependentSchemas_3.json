@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": { "required": [ "bar", "baz" ] },
+      "qux": { "required": [ "extra" ] }
+    }
+  },
+  "instance": { "none": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\", or \"qux\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\", or \"qux\""
+    ]
+  }
+}

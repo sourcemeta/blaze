@@ -1,0 +1,7 @@
+{
+  "schema": { "allOf": [] },
+  "instance": 1,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

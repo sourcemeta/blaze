@@ -1,0 +1,65 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [
+      { "$ref": "https://example.com/override" },
+      {
+        "propertyNames": { "$dynamicRef": "https://example.com/fallback#name" }
+      }
+    ],
+    "$defs": {
+      "override": {
+        "$id": "https://example.com/override",
+        "$dynamicAnchor": "name",
+        "minLength": 1
+      },
+      "fallback": {
+        "$id": "https://example.com/fallback",
+        "$dynamicAnchor": "name",
+        "minLength": 3
+      }
+    }
+  },
+  "instance": { "ab": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/allOf/1/propertyNames", "#/allOf/1/propertyNames", "" ],
+      [ "ControlDynamicAnchorJump", "/allOf/1/propertyNames/$dynamicRef", "#/allOf/1/propertyNames/$dynamicRef", "/ab" ],
+      [ "AssertionStringSizeGreater", "/allOf/1/propertyNames/$dynamicRef/minLength", "https://example.com/fallback#/minLength", "/ab" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/allOf/1/propertyNames/$dynamicRef/minLength", "https://example.com/fallback#/minLength", "/ab" ],
+      [ false, "ControlDynamicAnchorJump", "/allOf/1/propertyNames/$dynamicRef", "#/allOf/1/propertyNames/$dynamicRef", "/ab" ],
+      [ false, "LoopKeys", "/allOf/1/propertyNames", "#/allOf/1/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"ab\" was expected to consist of at least 3 characters but its length was 2",
+      "The integer value was expected to validate against the first subschema in scope that declared the dynamic anchor \"name\"",
+      "The object value was expected to validate the property names \"ab\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlResourceJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "LoopKeys", "/allOf/1/propertyNames", "#/allOf/1/propertyNames", "" ],
+      [ "ControlDynamicAnchorJump", "/allOf/1/propertyNames/$dynamicRef", "#/allOf/1/propertyNames/$dynamicRef", "/ab" ],
+      [ "AssertionStringSizeGreater", "/allOf/1/propertyNames/$dynamicRef/minLength", "https://example.com/fallback#/minLength", "/ab" ]
+    ],
+    "post": [
+      [ true, "ControlResourceJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ false, "AssertionStringSizeGreater", "/allOf/1/propertyNames/$dynamicRef/minLength", "https://example.com/fallback#/minLength", "/ab" ],
+      [ false, "ControlDynamicAnchorJump", "/allOf/1/propertyNames/$dynamicRef", "#/allOf/1/propertyNames/$dynamicRef", "/ab" ],
+      [ false, "LoopKeys", "/allOf/1/propertyNames", "#/allOf/1/propertyNames", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the referenced schema",
+      "The property name \"ab\" was expected to consist of at least 3 characters but its length was 2",
+      "The integer value was expected to validate against the first subschema in scope that declared the dynamic anchor \"name\"",
+      "The object value was expected to validate the property names \"ab\" against the given subschema",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

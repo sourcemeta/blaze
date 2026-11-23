@@ -1,0 +1,97 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "p0": { "type": "string" },
+      "p1": { "type": "string" },
+      "p2": { "type": "string" },
+      "p3": { "type": "string" },
+      "p4": { "type": "string" },
+      "p5": { "type": "string" },
+      "p6": { "type": "string" },
+      "p7": { "type": "string" },
+      "p8": { "type": "string" },
+      "p9": { "type": "string" },
+      "p10": { "type": "string" },
+      "p11": { "type": "string" },
+      "p12": { "type": "string" },
+      "p13": { "type": "string" },
+      "p14": { "type": "string" },
+      "p15": { "type": "string" },
+      "p16": { "type": "string" },
+      "p17": { "type": "string" },
+      "p18": { "type": "string" },
+      "p19": { "type": "string" },
+      "p20": { "type": "string" },
+      "p21": { "type": "string" },
+      "p22": { "type": "string" },
+      "p23": { "type": "string" },
+      "p24": { "type": "string" },
+      "p25": { "type": "string" },
+      "p26": { "type": "string" },
+      "p27": { "type": "string" },
+      "p28": { "type": "string" },
+      "p29": { "type": "string" },
+      "p30": { "type": "string" },
+      "p31": { "type": "string" }
+    },
+    "required": [ "p0", "p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9", "p10", "p11", "p12", "p13", "p14", "p15", "p16", "p17", "p18", "p19", "p20", "p21", "p22", "p23", "p24", "p25", "p26", "p27", "p28", "p29", "p30", "p31" ]
+  },
+  "instance": {
+    "p0": "x",
+    "p1": "x",
+    "p2": "x",
+    "p3": "x",
+    "p4": "x",
+    "p5": "x",
+    "p6": "x",
+    "p7": "x",
+    "p8": "x",
+    "p9": "x",
+    "p10": "x",
+    "p11": "x",
+    "p12": "x",
+    "p13": "x",
+    "p14": "x",
+    "p15": "x",
+    "p16": "x",
+    "p17": "x",
+    "p18": "x",
+    "p19": "x",
+    "p20": "x",
+    "p21": "x",
+    "p22": "x",
+    "p23": "x",
+    "p24": "x",
+    "p25": "x",
+    "p26": "x",
+    "p27": "x",
+    "p28": "x",
+    "p29": "x",
+    "p30": "x"
+  },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"p0\", \"p1\", \"p10\", \"p11\", \"p12\", \"p13\", \"p14\", \"p15\", \"p16\", \"p17\", \"p18\", \"p19\", \"p2\", \"p20\", \"p21\", \"p22\", \"p23\", \"p24\", \"p25\", \"p26\", \"p27\", \"p28\", \"p29\", \"p3\", \"p30\", \"p31\", \"p4\", \"p5\", \"p6\", \"p7\", \"p8\", and \"p9\""
+    ]
+  }
+}

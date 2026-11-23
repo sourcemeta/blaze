@@ -1,0 +1,29 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "minLength": 1 } ],
+    "definitions": { "t": { "type": "integer" } },
+    "properties": { "r": { "$ref": "#/definitions/t" } }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [ 5, 1, "extra" ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ false, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ false, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

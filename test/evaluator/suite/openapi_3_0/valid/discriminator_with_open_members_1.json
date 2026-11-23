@@ -1,0 +1,7 @@
+{
+  "schema": { "discriminator": { "propertyName": "petType", "extra": "allowed" } },
+  "instance": { "petType": "dog" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

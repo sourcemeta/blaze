@@ -1,0 +1,117 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$defs": {
+      "common": {
+        "anyOf": [
+          { "properties": { "a": { "type": "integer" } }, "required": [ "a" ] },
+          { "properties": { "b": { "type": "integer" } }, "required": [ "b" ] }
+        ]
+      }
+    },
+    "anyOf": [ { "$ref": "#/$defs/common" }, { "$ref": "#/$defs/common" } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ true, "AssertionPropertyTypeEvaluate", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ true, "AssertionPropertyTypeEvaluate", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The value was expected to be of type integer",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to define the property \"a\"",
+      "The value was expected to be of type integer",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ "Annotation", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
+      [ "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ "Annotation", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ "Evaluate", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
+      [ "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/anyOf/0/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ true, "AssertionType", "/anyOf/0/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ true, "Annotation", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "", "a" ],
+      [ true, "Evaluate", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
+      [ true, "LogicalWhenType", "/anyOf/0/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ false, "AssertionDefines", "/anyOf/0/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf/0/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ true, "AssertionDefines", "/anyOf/1/$ref/anyOf/0/required", "#/$defs/common/anyOf/0/required", "" ],
+      [ true, "AssertionType", "/anyOf/1/$ref/anyOf/0/properties/a/type", "#/$defs/common/anyOf/0/properties/a/type", "/a" ],
+      [ true, "Annotation", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "", "a" ],
+      [ true, "Evaluate", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "/a" ],
+      [ true, "LogicalWhenType", "/anyOf/1/$ref/anyOf/0/properties", "#/$defs/common/anyOf/0/properties", "" ],
+      [ false, "AssertionDefines", "/anyOf/1/$ref/anyOf/1/required", "#/$defs/common/anyOf/1/required", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf/1/$ref/anyOf", "#/$defs/common/anyOf", "" ],
+      [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The value was expected to be of type integer",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to define the property \"a\"",
+      "The value was expected to be of type integer",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to define the property \"b\"",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

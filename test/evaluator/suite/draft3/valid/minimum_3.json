@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "minimum": 2 },
+  "instance": 2,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to be greater than or equal to the integer 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to be greater than or equal to the integer 2"
+    ]
+  }
+}

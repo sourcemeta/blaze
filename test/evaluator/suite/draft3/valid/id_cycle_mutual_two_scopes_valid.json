@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": {
+      "value": { "type": "integer" },
+      "child": { "$ref": "https://example.com/inner" }
+    },
+    "definitions": {
+      "i": {
+        "id": "https://example.com/inner",
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "parent": { "$ref": "https://example.com/root" }
+        }
+      }
+    }
+  },
+  "instance": { "value": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/value/type", "https://example.com/root#/properties/value/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/value/type", "https://example.com/root#/properties/value/type", "/value" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/value/type", "https://example.com/root#/properties/value/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/value/type", "https://example.com/root#/properties/value/type", "/value" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

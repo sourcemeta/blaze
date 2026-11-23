@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/dir/root.json",
+    "properties": {
+      "t": { "id": "target.json", "type": "integer" },
+      "r1": { "$ref": "target.json" },
+      "r2": { "$ref": "https://example.com/dir/target.json" }
+    }
+  },
+  "instance": { "r1": 5, "r2": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/r1/$ref/type", "https://example.com/dir/target.json#/type", "/r1" ],
+      [ "AssertionPropertyTypeStrict", "/properties/r2/$ref/type", "https://example.com/dir/target.json#/type", "/r2" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/r1/$ref/type", "https://example.com/dir/target.json#/type", "/r1" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/r2/$ref/type", "https://example.com/dir/target.json#/type", "/r2" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/dir/root.json#/properties", "" ],
+      [ "ControlJump", "/properties/r1/$ref", "https://example.com/dir/root.json#/properties/r1/$ref", "/r1" ],
+      [ "AssertionTypeStrict", "/properties/r1/$ref/type", "https://example.com/dir/target.json#/type", "/r1" ],
+      [ "ControlJump", "/properties/r2/$ref", "https://example.com/dir/root.json#/properties/r2/$ref", "/r2" ],
+      [ "AssertionTypeStrict", "/properties/r2/$ref/type", "https://example.com/dir/target.json#/type", "/r2" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/r1/$ref/type", "https://example.com/dir/target.json#/type", "/r1" ],
+      [ true, "ControlJump", "/properties/r1/$ref", "https://example.com/dir/root.json#/properties/r1/$ref", "/r1" ],
+      [ true, "AssertionTypeStrict", "/properties/r2/$ref/type", "https://example.com/dir/target.json#/type", "/r2" ],
+      [ true, "ControlJump", "/properties/r2/$ref", "https://example.com/dir/root.json#/properties/r2/$ref", "/r2" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/dir/root.json#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

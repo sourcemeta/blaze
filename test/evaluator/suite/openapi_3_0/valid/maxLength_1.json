@@ -1,0 +1,7 @@
+{
+  "schema": { "maxLength": 2 },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [ { "type": "string" }, { "type": "number" }, { "type": "null" } ]
+  },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, number, or string and it was of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionTypeStrictAny", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ "AssertionTypeStrict", "/anyOf/2/type", "#/anyOf/2/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ true, "AssertionTypeStrictAny", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ false, "AssertionTypeStrict", "/anyOf/2/type", "#/anyOf/2/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type number",
+      "The value was expected to be of type null but it was of type integer",
+      "The integer value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  }
+}

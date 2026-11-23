@@ -1,0 +1,7 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "extends": [ {} ] },
+  "instance": "anything",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

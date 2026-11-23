@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "properties": { "foo": { "type": "string" } } },
+      { "properties": { "bar": { "type": "integer" } } }
+    ]
+  },
+  "instance": { "foo": "hello" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

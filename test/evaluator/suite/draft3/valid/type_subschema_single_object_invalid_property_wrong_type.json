@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ { "properties": { "foo": { "type": "string" } } } ]
+  },
+  "instance": { "foo": 5 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema"
+    ]
+  }
+}

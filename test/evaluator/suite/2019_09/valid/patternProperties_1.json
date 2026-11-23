@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "patternProperties": { "^f": true }
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against its pattern property subschema",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

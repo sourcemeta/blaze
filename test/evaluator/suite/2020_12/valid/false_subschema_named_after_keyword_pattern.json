@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "patternProperties": { "unevaluatedItems": false }
+  },
+  "instance": { "unevaluatedItems": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ],
+      [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object properties that match the regular expression \"unevaluatedItems\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/patternProperties/unevaluatedItems", "#/patternProperties/unevaluatedItems", "/unevaluatedItems" ],
+      [ false, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object properties that match the regular expression \"unevaluatedItems\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

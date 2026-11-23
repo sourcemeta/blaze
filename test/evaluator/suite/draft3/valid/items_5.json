@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

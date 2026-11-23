@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "dependencies": {
+      "foo": [ "bar", "baz" ],
+      "qux": { "properties": { "extra": { "required": true } } }
+    }
+  },
+  "instance": { "qux": 1, "extra": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+      [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+      [ true, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"extra\"",
+      "The object value defined the property \"qux\"",
+      "The object value did not define \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+      [ "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/dependencies/qux/properties", "#/dependencies/qux/properties", "" ],
+      [ true, "LogicalWhenDefines", "/dependencies", "#/dependencies", "" ],
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"extra\"",
+      "The object value defined the property \"qux\"",
+      "The object value did not define \"foo\""
+    ]
+  }
+}

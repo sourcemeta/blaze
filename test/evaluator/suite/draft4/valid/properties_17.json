@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [ "foo", "bar", "baz" ],
+    "properties": {
+      "foo": { "type": "string" },
+      "bar": { "type": "array" },
+      "baz": { "type": "object" }
+    }
+  },
+  "instance": "baz",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that only defines the 3 given properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object but it was of type string"
+    ]
+  }
+}

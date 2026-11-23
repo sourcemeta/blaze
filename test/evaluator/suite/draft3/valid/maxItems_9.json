@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "maxItems": 0 },
+  "instance": [],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 0 items and its size was 0"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 0 items and its size was 0"
+    ]
+  }
+}

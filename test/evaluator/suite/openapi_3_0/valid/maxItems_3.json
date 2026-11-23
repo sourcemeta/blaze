@@ -1,0 +1,27 @@
+{
+  "schema": { "maxItems": 2 },
+  "instance": [ 1, 2, 3 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items but its size was 3"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items but its size was 3"
+    ]
+  }
+}

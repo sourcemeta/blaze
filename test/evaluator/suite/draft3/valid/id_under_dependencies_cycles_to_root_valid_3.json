@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": { "v": { "type": "integer" } },
+    "dependencies": {
+      "a": {
+        "id": "https://example.com/dep",
+        "properties": { "nested": { "$ref": "https://example.com/root" } }
+      }
+    }
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value defined the property \"a\"",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ "LogicalWhenType", "/dependencies/a/properties", "https://example.com/dep#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependencies/a/properties", "https://example.com/dep#/properties", "" ],
+      [ true, "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value defined the property \"a\"",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

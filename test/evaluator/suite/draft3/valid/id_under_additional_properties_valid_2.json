@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "known": { "type": "string" },
+      "probe": { "$ref": "https://example.com/extra" }
+    },
+    "additionalProperties": { "id": "https://example.com/extra", "type": "integer" }
+  },
+  "instance": { "other": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "https://example.com/extra#/type", "/other" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "https://example.com/extra#/type", "/other" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "https://example.com/extra#/type", "/other" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "https://example.com/extra#/type", "/other" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type integer",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

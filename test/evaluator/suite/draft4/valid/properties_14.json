@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": false,
+    "properties": {
+      "a": { "type": "string" },
+      "b": { "type": "string" },
+      "c": { "type": "string" },
+      "d": { "type": "string" },
+      "e": { "type": "string" },
+      "f": { "type": "string" },
+      "g": { "type": "string" },
+      "h": { "type": "string" },
+      "i": { "type": "string" },
+      "j": { "type": "string" },
+      "k": { "type": "string" },
+      "l": { "type": "string" },
+      "m": { "type": "string" },
+      "n": { "type": "string" },
+      "o": { "type": "string" },
+      "p": { "type": "string" },
+      "q": { "type": "string" },
+      "r": { "type": "string" },
+      "s": { "type": "string" },
+      "t": { "type": "string" },
+      "u": { "type": "string" },
+      "v": { "type": "string" },
+      "w": { "type": "string" },
+      "x": { "type": "string" },
+      "y": { "type": "string" },
+      "z": { "type": "string" }
+    }
+  },
+  "instance": { "f": "foo" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+      [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every object value was expected to validate against one of the 26 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/f/type", "#/properties/f/type", "/f" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 26 defined properties subschemas",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

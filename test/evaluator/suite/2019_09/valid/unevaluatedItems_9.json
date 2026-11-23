@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "boolean" } ],
+    "additionalItems": { "type": "boolean" },
+    "unevaluatedItems": false
+  },
+  "instance": [ true, false ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type boolean",
+      "Every item in the array value except for the first one was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ],
+      [ "Annotation", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ true, "Annotation", "/additionalItems", "#/additionalItems", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type boolean",
+      "Every item in the array value except for the first one was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

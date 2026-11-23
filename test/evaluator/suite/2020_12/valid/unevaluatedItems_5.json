@@ -1,0 +1,85 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": { "type": "number" }
+  },
+  "instance": [ true, 1, false, 2 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The value was expected to be of type number",
+      "The value was expected to be of type number",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "AnnotationToParent", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+      [ "AnnotationToParent", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 2 ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/3" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "AssertionTypeStrictAny", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/3" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The value was expected to be of type boolean",
+      "The item at index 2 of the array value successfully validated against the containment check subschema",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The value was expected to be of type number",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The value was expected to be of type number",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "type": "object" },
+    "then": { "additionalProperties": { "$ref": "#/$defs/e" } },
+    "unevaluatedProperties": false,
+    "$defs": { "e": {} }
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/foo" ],
+      [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/bar" ],
+      [ "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/foo" ],
+      [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "foo" ],
+      [ true, "ControlJump", "/then/additionalProperties/$ref", "#/then/additionalProperties/$ref", "/bar" ],
+      [ true, "Annotation", "/then/additionalProperties", "#/then/additionalProperties", "", "bar" ],
+      [ true, "LoopPropertiesEvaluate", "/then/additionalProperties", "#/then/additionalProperties", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The integer value was expected to validate against the referenced schema",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The integer value was expected to validate against the referenced schema",
+      "The object property \"bar\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

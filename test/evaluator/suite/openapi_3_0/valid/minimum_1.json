@@ -1,0 +1,7 @@
+{
+  "schema": { "minimum": 2 },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

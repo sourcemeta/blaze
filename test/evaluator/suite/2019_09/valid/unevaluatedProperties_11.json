@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": false,
+    "allOf": [ { "patternProperties": { "^f": true } } ]
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LoopPropertiesStartsWith", "/allOf/0/patternProperties", "#/allOf/0/patternProperties", "" ],
+      [ "Annotation", "/allOf/0/patternProperties", "#/allOf/0/patternProperties", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/patternProperties", "#/allOf/0/patternProperties", "", "foo" ],
+      [ true, "LoopPropertiesStartsWith", "/allOf/0/patternProperties", "#/allOf/0/patternProperties", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against its pattern property subschema",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

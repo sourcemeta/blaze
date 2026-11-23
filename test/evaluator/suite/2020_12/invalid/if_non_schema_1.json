@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": 1,
+    "then": { "type": "integer" }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a valid schema",
+    "base": "",
+    "location": "/if"
+  }
+}

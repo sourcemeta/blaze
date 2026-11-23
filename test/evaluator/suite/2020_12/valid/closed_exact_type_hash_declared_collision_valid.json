@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "a": { "type": "string" }, "a\u0000": { "type": "string" } },
+    "required": [ "a", "a\u0000" ],
+    "additionalProperties": false
+  },
+  "instance": { "a": "x", "a\u0000": "y" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a\u0000/type", "#/properties/a%00/type", "/a\u0000" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "AssertionTypeStrict", "/properties/a\u0000/type", "#/properties/a%00/type", "/a\u0000" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a\u0000" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a\", and \"a\u0000\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The value was expected to be of type string",
+      "The object property \"a\u0000\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

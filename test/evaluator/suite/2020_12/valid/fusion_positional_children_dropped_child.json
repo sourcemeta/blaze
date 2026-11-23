@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "empty": { "$comment": "x" } },
+    "type": "object",
+    "properties": {
+      "a": { "items": { "$ref": "#/$defs/empty" } },
+      "b": { "items": { "minLength": 3 } }
+    }
+  },
+  "instance": { "b": [ "x" ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItemsFrom", "/properties/b/items", "#/properties/b/items", "/b" ],
+      [ "AssertionStringSizeGreater", "/properties/b/items/minLength", "#/properties/b/items/minLength", "/b/0" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/properties/b/items/minLength", "#/properties/b/items/minLength", "/b/0" ],
+      [ false, "LoopItemsFrom", "/properties/b/items", "#/properties/b/items", "/b" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"x\" was expected to consist of at least 3 characters but its length was 1",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": { "items": { "type": "string", "nullable": true } },
+  "instance": [ null ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsTypeStrictAny", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsTypeStrictAny", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The array items were expected to be of type null, or string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string and it was of type null",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

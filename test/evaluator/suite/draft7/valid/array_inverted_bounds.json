@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "minItems": 3,
+    "maxItems": 1
+  },
+  "instance": [ 1, 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 1 item but its size was 2"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "string", "properties": { "a": { "if": {} } } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/properties/a/if"
+  }
+}

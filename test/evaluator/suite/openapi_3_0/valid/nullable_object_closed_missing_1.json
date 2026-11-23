@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "type": "object",
+    "nullable": true,
+    "additionalProperties": false,
+    "required": [ "a" ],
+    "properties": { "a": { "type": "string" } }
+  },
+  "instance": {},
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\""
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "enum": [ "a", "a", 1 ] },
+  "instance": "a",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal one of the 2 declared values"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal one of the 2 declared values"
+    ]
+  }
+}

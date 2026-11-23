@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "dependencies": {
+      "foo": [ "bar", "baz" ],
+      "qux": { "properties": { "extra": { "required": true } } }
+    }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

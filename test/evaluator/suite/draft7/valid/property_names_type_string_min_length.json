@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "propertyNames": { "type": "string", "minLength": 4 }
+  },
+  "instance": { "ab": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/ab" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/ab" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"ab\" was expected to consist of at least 4 characters but its length was 2",
+      "The object value was expected to validate the property names \"ab\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/ab" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/ab" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"ab\" was expected to consist of at least 4 characters but its length was 2",
+      "The object value was expected to validate the property names \"ab\" against the given subschema"
+    ]
+  }
+}

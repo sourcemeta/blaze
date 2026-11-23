@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "string", "enum": [ "foo", "bar", "baz" ] },
+  "instance": "xxxx",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xxxx\" was expected to equal one of the given declared values"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xxxx\" was expected to equal one of the following values: \"bar\", \"baz\", and \"foo\""
+    ]
+  }
+}

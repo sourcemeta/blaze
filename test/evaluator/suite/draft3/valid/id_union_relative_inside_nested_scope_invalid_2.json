@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/a/",
+    "properties": {
+      "scope": {
+        "id": "sub/",
+        "type": [
+          { "type": "object", "patternProperties": { "^a": {} } },
+          { "type": "object", "patternProperties": { "^b": {} } }
+        ],
+        "properties": { "v": { "id": "leaf", "type": "integer" } }
+      },
+      "r": { "$ref": "https://example.com/a/sub/leaf" }
+    }
+  },
+  "instance": { "r": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/a/sub/leaf#/type", "/r" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/a/sub/leaf#/type", "/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/a/#/properties", "" ],
+      [ "ControlJump", "/properties/r/$ref", "https://example.com/a/#/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/a/sub/leaf#/type", "/r" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/a/sub/leaf#/type", "/r" ],
+      [ false, "ControlJump", "/properties/r/$ref", "https://example.com/a/#/properties/r/$ref", "/r" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/a/#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

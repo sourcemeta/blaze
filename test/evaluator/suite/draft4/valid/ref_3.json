@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "foo": { "$ref": "https://example.com" } }
+  },
+  "instance": { "foo": {} },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com/#/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com/#/type", "/foo" ],
+      [ true, "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+      [ "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com/#/properties", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com/#/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com/#/properties", "/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/$ref/type", "https://example.com/#/type", "/foo" ],
+      [ true, "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": { "a": { "type": "string" }, "bb": { "type": "string" } },
+    "required": [ "a", "bb" ],
+    "additionalProperties": false
+  },
+  "instance": { "a\u0000": "x", "bb": "y" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a\", and \"bb\", but it also defines \"a\u0000\""
+    ]
+  }
+}

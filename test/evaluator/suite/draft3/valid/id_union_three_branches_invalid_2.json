@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } },
+      { "type": "object", "patternProperties": { "^c": {} } }
+    ],
+    "properties": { "foo": { "id": "https://example.com/tri", "type": "integer" } },
+    "extends": [ { "properties": { "r": { "$ref": "https://example.com/tri" } } } ]
+  },
+  "instance": { "r": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ "ControlJump", "/extends/0/properties/r/$ref", "#/extends/0/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/extends/0/properties/r/$ref/type", "https://example.com/tri#/type", "/r" ],
+      [ false, "ControlJump", "/extends/0/properties/r/$ref", "#/extends/0/properties/r/$ref", "/r" ],
+      [ false, "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema"
+    ]
+  }
+}

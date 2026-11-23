@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "properties": { "aaa": { "type": "integer" } } },
+    "then": { "properties": { "bbb": true } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "aaa": 1, "ccc": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeEvaluate", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"ccc\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+      [ "Annotation", "/if/properties", "#/if/properties", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/if/properties/aaa/type", "#/if/properties/aaa/type", "/aaa" ],
+      [ true, "Annotation", "/if/properties", "#/if/properties", "", "aaa" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/aaa" ],
+      [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/ccc" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"aaa\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"ccc\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

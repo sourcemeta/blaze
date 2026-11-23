@@ -1,0 +1,8 @@
+{
+  "schema": { "else": {} },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/else"
+  }
+}

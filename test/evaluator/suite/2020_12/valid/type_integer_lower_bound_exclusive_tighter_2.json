@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "minimum": 0,
+    "exclusiveMinimum": 5
+  },
+  "instance": 6,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerLowerBound", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeIntegerLowerBound", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer above the given minimum"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+      [ "AssertionType", "/type", "#/type", "" ],
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ],
+      [ true, "AssertionType", "/type", "#/type", "" ],
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 6 was expected to be greater than the integer 5",
+      "The value was expected to be of type integer",
+      "The integer value 6 was expected to be greater than or equal to the integer 0"
+    ]
+  }
+}

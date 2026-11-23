@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "if": { "$ref": "#/$defs/common" },
+    "then": { "$ref": "#/$defs/common" },
+    "else": { "$ref": "#/$defs/common" },
+    "unevaluatedProperties": false
+  },
+  "instance": { "extra": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ true, "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/extra" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

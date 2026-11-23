@@ -1,0 +1,74 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "n": {
+        "disallow": [
+          {
+            "type": [
+              { "type": "object", "patternProperties": { "^a": {} } },
+              { "type": "object", "patternProperties": { "^b": {} } }
+            ],
+            "properties": { "bad": { "id": "https://example.com/bad", "type": "integer" } }
+          }
+        ]
+      },
+      "r": { "$ref": "https://example.com/bad" }
+    }
+  },
+  "instance": { "n": 5, "r": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/bad#/type", "/r" ],
+      [ "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "LogicalOr", "/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/disallow/0/type/1/type", "https://example.com/root#/properties/n/disallow/0/type/1/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/bad#/type", "/r" ],
+      [ false, "AssertionTypeStrict", "/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ false, "AssertionTypeStrict", "/disallow/0/type/1/type", "https://example.com/root#/properties/n/disallow/0/type/1/type", "/n" ],
+      [ false, "LogicalOr", "/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ true, "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object but it was of type integer",
+      "The value was expected to be of type object but it was of type integer",
+      "The integer value was expected to validate against at least one of the 2 given subschemas",
+      "The integer value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/bad#/type", "/r" ],
+      [ "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "LogicalOr", "/properties/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/type/1/type", "https://example.com/root#/properties/n/disallow/0/type/1/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/bad#/type", "/r" ],
+      [ true, "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ false, "AssertionTypeStrict", "/properties/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ false, "AssertionTypeStrict", "/properties/disallow/0/type/1/type", "https://example.com/root#/properties/n/disallow/0/type/1/type", "/n" ],
+      [ false, "LogicalOr", "/properties/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ true, "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type object but it was of type integer",
+      "The value was expected to be of type object but it was of type integer",
+      "The integer value was expected to validate against at least one of the 2 given subschemas",
+      "The integer value was expected to not validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

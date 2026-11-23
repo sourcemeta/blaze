@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [ 5 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

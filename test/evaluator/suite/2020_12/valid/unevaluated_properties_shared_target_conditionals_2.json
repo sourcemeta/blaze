@@ -1,0 +1,76 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "if": { "$ref": "#/$defs/common" },
+    "then": { "$ref": "#/$defs/common" },
+    "else": { "$ref": "#/$defs/common" },
+    "unevaluatedProperties": false
+  },
+  "instance": { "allowed": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "AssertionPropertyTypeEvaluate", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "AssertionPropertyTypeEvaluate", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "Annotation", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Evaluate", "/if/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "Annotation", "/then/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Evaluate", "/then/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "Annotation", "/if/$ref/properties", "#/$defs/common/properties", "", "allowed" ],
+      [ true, "Evaluate", "/if/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ true, "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ true, "AssertionType", "/then/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "Annotation", "/then/$ref/properties", "#/$defs/common/properties", "", "allowed" ],
+      [ true, "Evaluate", "/then/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ true, "LogicalWhenType", "/then/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"allowed\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The object property \"allowed\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

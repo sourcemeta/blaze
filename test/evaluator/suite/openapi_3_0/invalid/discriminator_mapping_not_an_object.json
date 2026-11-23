@@ -1,0 +1,8 @@
+{
+  "schema": { "discriminator": { "propertyName": "pet_type", "mapping": [] } },
+  "error": {
+    "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+    "base": "",
+    "location": "/discriminator"
+  }
+}

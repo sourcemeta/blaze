@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "multipleOf": 1,
+    "maximum": 10,
+    "minimum": 0
+  },
+  "instance": "x",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionType", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionType", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  }
+}

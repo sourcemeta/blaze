@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "contentEncoding": "base64",
+    "contentMediaType": "application/json"
+  },
+  "instance": "test",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

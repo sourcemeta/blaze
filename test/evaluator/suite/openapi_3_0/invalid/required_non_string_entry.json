@@ -1,0 +1,8 @@
+{
+  "schema": { "required": [ 1 ] },
+  "error": {
+    "message": "This keyword was expected to be set to an array of unique property names",
+    "base": "",
+    "location": "/required"
+  }
+}

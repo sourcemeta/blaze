@@ -8,12 +8,12 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
+#include "tracesuite.h"
 
-#include <cassert>    // assert
 #include <cstdio>     // std::fprintf
 #include <filesystem> // std::filesystem::path
 #include <string>     // std::string
-#include <utility>    // std::move
+#include <utility>    // std::pair
 
 namespace {
 auto declared_dialect(const sourcemeta::core::JSON &schema)
@@ -64,18 +64,16 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
 }
 } // namespace
 
-static auto register_tests(const std::filesystem::path &path,
-                           const std::string &suite_name,
-                           const std::string &default_dialect = "") -> void {
+static auto
+register_tests(const std::filesystem::path &directory,
+               const std::string &suite_name,
+               const sourcemeta::core::SchemaBaseDialect base_dialect,
+               const std::string &default_dialect = "") -> void {
   // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
-  auto suite{sourcemeta::core::read_json(path)};
-  assert(suite.is_array());
+  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  for (const auto &test_case : suite.as_array()) {
-    assert(test_case.is_object());
-    assert(test_case.defines("description"));
-    const auto &description{test_case.at("description").to_string()};
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Trace, base_dialect, default_dialect)) {
 
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
@@ -83,7 +81,7 @@ static auto register_tests(const std::filesystem::path &path,
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
 
-      const auto title{description + mode_suffix};
+      const auto title{name + mode_suffix};
 
       sourcemeta::core::test_register(
           suite_name, title, __FILE__, __LINE__,
@@ -96,6 +94,8 @@ static auto register_tests(const std::filesystem::path &path,
 
 auto main(int argc, char **argv) -> int {
   try {
+    const std::filesystem::path suite{TRACE_SUITE_CANONICAL_PATH};
+
     // The two dated OpenAPI 3.0 dialects answer with the same Schema Object
     // definition, so one suite says what both of them mean
     for (const auto &[label, dialect] :
@@ -104,34 +104,27 @@ auto main(int argc, char **argv) -> int {
           std::pair<const char *, const char *>{
               "2021_09_28",
               "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}}) {
-      register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                         "evaluator_openapi_3_0.json",
-                     std::string{"Canonicalize_OpenAPI_3_0_"} + label, dialect);
+      register_tests(suite / "openapi_3_0" / "valid",
+                     std::string{"Canonicalize_OpenAPI_3_0_"} + label,
+                     sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4,
+                     dialect);
     }
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_openapi_3_1.json",
-                   "Canonicalize_OpenAPI_3_1");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_openapi_3_2.json",
-                   "Canonicalize_OpenAPI_3_2");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_draft7.json",
-                   "Canonicalize_draft7");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_2019_09.json",
-                   "Canonicalize_2019_09");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_draft6.json",
-                   "Canonicalize_draft6");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_2020_12.json",
-                   "Canonicalize_2020_12");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_draft4.json",
-                   "Canonicalize_draft4");
-    register_tests(std::filesystem::path{TRACE_SUITE_CANONICAL_PATH} /
-                       "evaluator_draft3.json",
-                   "Canonicalize_draft3");
+    register_tests(suite / "openapi_3_1" / "valid", "Canonicalize_OpenAPI_3_1",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "openapi_3_2" / "valid", "Canonicalize_OpenAPI_3_2",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "draft7" / "valid", "Canonicalize_draft7",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
+    register_tests(suite / "2019_09" / "valid", "Canonicalize_2019_09",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_tests(suite / "draft6" / "valid", "Canonicalize_draft6",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
+    register_tests(suite / "2020_12" / "valid", "Canonicalize_2020_12",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "draft4" / "valid", "Canonicalize_draft4",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+    register_tests(suite / "draft3" / "valid", "Canonicalize_draft3",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
   } catch (const std::exception &error) {
     // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Error: %s\n", error.what());

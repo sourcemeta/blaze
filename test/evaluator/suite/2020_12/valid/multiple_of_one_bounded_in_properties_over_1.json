@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "multipleOf": 1, "maximum": 10, "minimum": 0 } }
+  },
+  "instance": { "a": 11 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
+    ],
+    "descriptions": [
+      "The integer value 11 was expected to be an integer between 0 and 10"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionDivisible", "/properties/a/multipleOf", "#/properties/a/multipleOf", "/a" ],
+      [ "AssertionLessEqual", "/properties/a/maximum", "#/properties/a/maximum", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/properties/a/multipleOf", "#/properties/a/multipleOf", "/a" ],
+      [ false, "AssertionLessEqual", "/properties/a/maximum", "#/properties/a/maximum", "/a" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 11 was expected to be divisible by the integer 1",
+      "The integer value 11 was expected to be less than or equal to the integer 10",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

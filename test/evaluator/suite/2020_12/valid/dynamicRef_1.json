@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#foo",
+    "$defs": { "string": { "$dynamicAnchor": "foo", "type": "string" } }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "#/$defs/string/type", "" ],
+      [ true, "ControlJump", "/$dynamicRef", "#/$dynamicRef", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema"
+    ]
+  }
+}

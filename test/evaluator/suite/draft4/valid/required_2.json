@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [ "foo" ]
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"foo\""
+    ]
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": {
+        "properties": { "foo": { "type": "number" } },
+        "additionalProperties": false
+      }
+    },
+    "unevaluatedProperties": { "type": "integer" }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+      [ "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+      [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define additional properties",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"foo\", it was also expected to validate against the corresponding subschemas",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+      [ "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+      [ "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+      [ "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/dependentSchemas/foo/properties/foo/type", "#/dependentSchemas/foo/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "", "foo" ],
+      [ true, "LoopPropertiesMatch", "/dependentSchemas/foo/properties", "#/dependentSchemas/foo/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define additional properties",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"foo\", it was also expected to validate against the corresponding subschemas",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [ 5, true, "extra" ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean",
+      "The first 2 items of the array value successfully validated against the given positional subschemas",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

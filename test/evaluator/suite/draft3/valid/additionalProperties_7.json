@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": { "foo": { "type": "boolean" } },
+    "patternProperties": { "^bar$": { "type": "integer" } },
+    "additionalProperties": true
+  },
+  "instance": { "foo": true, "bar": 2, "baz": "qux" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type boolean"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type boolean",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "minLength": 2 } ], "type": "string", "required": true }
+    }
+  },
+  "instance": {},
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\""
+    ]
+  }
+}

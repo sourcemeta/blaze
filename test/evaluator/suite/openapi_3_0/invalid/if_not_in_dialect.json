@@ -1,0 +1,8 @@
+{
+  "schema": { "if": { "type": "string" } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/if"
+  }
+}

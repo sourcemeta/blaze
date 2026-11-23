@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "array", "nullable": true, "maxItems": 2 },
+  "instance": [ 1 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items and its size was 1",
+      "The value was expected to be of type null, or array and it was of type array"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items and its size was 1",
+      "The value was expected to be of type null, or array and it was of type array"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "object", "patternProperties": { "^x": { "type": "string" } } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/patternProperties"
+  }
+}

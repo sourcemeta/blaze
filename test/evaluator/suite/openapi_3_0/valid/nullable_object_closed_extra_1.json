@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "type": "object",
+    "nullable": true,
+    "additionalProperties": false,
+    "required": [ "a" ],
+    "properties": { "a": { "type": "string" } }
+  },
+  "instance": { "a": "x", "extra": "y" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ],
+      [ "LoopPropertiesTypeStrict", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/required", "#/required", "" ],
+      [ true, "LoopPropertiesTypeStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The object properties were expected to be of type string",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefines", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"a\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

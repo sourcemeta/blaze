@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": { "n": { "$ref": "#", "title": 1 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a string",
+    "base": "",
+    "location": "/properties/n/title"
+  }
+}

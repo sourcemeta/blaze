@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "minLength": 2.0
+  },
+  "instance": "a",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at least 2 characters"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1"
+    ]
+  }
+}

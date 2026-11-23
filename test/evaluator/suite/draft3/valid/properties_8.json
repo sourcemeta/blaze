@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "bar": { "type": "string", "pattern": "^a" },
+      "foo": { "type": "integer" }
+    }
+  },
+  "instance": { "foo": 2, "bar": "abc" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The string value \"abc\" was expected to match the regular expression \"^a\"",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The string value \"abc\" was expected to match the regular expression \"^a\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

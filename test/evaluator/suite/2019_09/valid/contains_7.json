@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "minContains": 2,
+    "contains": { "type": "string" }
+  },
+  "instance": [ 1, "foo", 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "The array value was expected to contain at least 2 items that validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/2" ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type string",
+      "The item at index 1 of the array value successfully validated against the containment check subschema",
+      "The value was expected to be of type string but it was of type integer",
+      "The array value was expected to contain at least 2 items that validate against the given subschema"
+    ]
+  }
+}

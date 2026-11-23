@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ { "$ref": "#/definitions/foo_string" } ],
+    "definitions": { "foo_string": { "type": "string" } }
+  },
+  "instance": "hello",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type/0/$ref/type", "#/definitions/foo_string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/$ref/type", "#/definitions/foo_string/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "ControlJump", "/type/0/$ref", "#/type/0/$ref", "" ],
+      [ "AssertionTypeStrict", "/type/0/$ref/type", "#/definitions/foo_string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/$ref/type", "#/definitions/foo_string/type", "" ],
+      [ true, "ControlJump", "/type/0/$ref", "#/type/0/$ref", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given subschema"
+    ]
+  }
+}

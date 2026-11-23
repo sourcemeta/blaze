@@ -1,0 +1,39 @@
+{
+  "schema": { "type": "string", "nullable": true, "not": { "enum": [ null ] } },
+  "instance": "a",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal the null constant null",
+      "The string value was expected to not validate against the given subschema",
+      "The value was expected to be of type null, or string and it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/not/enum", "#/not/enum", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to equal the null constant null",
+      "The string value was expected to not validate against the given subschema",
+      "The value was expected to be of type null, or string and it was of type string"
+    ]
+  }
+}

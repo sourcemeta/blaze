@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "minLength": 1 } ],
+    "definitions": { "t": { "type": "integer" } },
+    "properties": { "r": { "$ref": "#/definitions/t" } }
+  },
+  "instance": { "r": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "#/definitions/t/type", "/r" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "#/definitions/t/type", "/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/r/$ref", "#/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/properties/r/$ref/type", "#/definitions/t/type", "/r" ]
+    ],
+    "post": [
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ],
+      [ true, "AssertionTypeStrict", "/properties/r/$ref/type", "#/definitions/t/type", "/r" ],
+      [ true, "ControlJump", "/properties/r/$ref", "#/properties/r/$ref", "/r" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the given subschema",
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "required": [ "foo", "baz" ] },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesAll", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define properties \"baz\", and \"foo\" but did not define \"baz\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAll", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAll", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define properties \"baz\", and \"foo\" but did not define \"baz\""
+    ]
+  }
+}

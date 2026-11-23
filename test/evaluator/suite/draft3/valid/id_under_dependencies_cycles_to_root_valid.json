@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": { "v": { "type": "integer" } },
+    "dependencies": {
+      "a": {
+        "id": "https://example.com/dep",
+        "properties": { "nested": { "$ref": "https://example.com/root" } }
+      }
+    }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

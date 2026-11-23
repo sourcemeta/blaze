@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "a": true } } },
+    "allOf": [ { "$ref": "#/$defs/common" } ],
+    "anyOf": [ { "$ref": "#/$defs/common" } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ true, "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The instance location was marked as evaluated",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the given subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Annotation", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Annotation", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/$ref/properties", "#/$defs/common/properties", "", "a" ],
+      [ true, "Evaluate", "/allOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ true, "Annotation", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "", "a" ],
+      [ true, "Evaluate", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "/a" ],
+      [ true, "LogicalWhenType", "/anyOf/0/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

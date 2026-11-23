@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ { "type": "string" } ]
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+      [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+      [ true, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/disallow/0", "#/disallow/0", "" ],
+      [ "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/disallow/0/type", "#/disallow/0/type", "" ],
+      [ true, "LogicalNot", "/disallow/0", "#/disallow/0", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": { "n": { "$ref": "#", "divisibleBy": 0 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a number greater than zero",
+    "base": "",
+    "location": "/properties/n/divisibleBy"
+  }
+}

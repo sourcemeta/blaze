@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "maxProperties": 2.0
+  },
+  "instance": { "a": 1, "b": 2, "c": 3 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of an object of at most 2 properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 2 properties but it defines 3 of them: \"a\", \"b\", and \"c\""
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  },
+  "instance": "not an array",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

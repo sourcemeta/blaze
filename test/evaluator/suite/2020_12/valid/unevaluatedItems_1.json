@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "boolean" },
+    "unevaluatedItems": false
+  },
+  "instance": [ false ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

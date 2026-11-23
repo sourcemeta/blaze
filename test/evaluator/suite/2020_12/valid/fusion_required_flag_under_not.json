@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": {
+      "allOf": [
+        { "type": "object", "properties": { "foo": { "type": "string" } } },
+        { "required": [ "foo" ] }
+      ]
+    }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionObjectPropertiesSimple", "/not/allOf/0/properties", "#/not/allOf/0/properties", "" ],
+      [ "AssertionDefines", "/not/allOf/1/required", "#/not/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/not/allOf/0/properties", "#/not/allOf/0/properties", "" ],
+      [ false, "AssertionDefines", "/not/allOf/1/required", "#/not/allOf/1/required", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "The object value was expected to define the property \"foo\"",
+      "The object value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalAnd", "/not/allOf", "#/not/allOf", "" ],
+      [ "LogicalWhenType", "/not/allOf/0/properties", "#/not/allOf/0/properties", "" ],
+      [ "AssertionTypeStrict", "/not/allOf/0/type", "#/not/allOf/0/type", "" ],
+      [ "AssertionDefines", "/not/allOf/1/required", "#/not/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/not/allOf/0/properties", "#/not/allOf/0/properties", "" ],
+      [ true, "AssertionTypeStrict", "/not/allOf/0/type", "#/not/allOf/0/type", "" ],
+      [ false, "AssertionDefines", "/not/allOf/1/required", "#/not/allOf/1/required", "" ],
+      [ false, "LogicalAnd", "/not/allOf", "#/not/allOf", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to define the property \"foo\"",
+      "The object value was expected to validate against the 3 given subschemas",
+      "The object value was expected to not validate against the given subschema"
+    ]
+  }
+}

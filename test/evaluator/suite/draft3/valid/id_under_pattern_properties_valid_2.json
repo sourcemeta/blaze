@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "patternProperties": { "^p": { "id": "https://example.com/pat", "type": "integer" } },
+    "properties": { "r": { "$ref": "https://example.com/pat" } }
+  },
+  "instance": { "r": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/pat#/type", "/r" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/pat#/type", "/r" ]
+    ],
+    "descriptions": [
+      "The object properties that start with the string \"p\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/pat#/type", "/r" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/pat#/type", "/r" ],
+      [ true, "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object properties that start with the string \"p\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

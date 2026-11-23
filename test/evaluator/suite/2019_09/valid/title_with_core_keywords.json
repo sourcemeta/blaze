@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com",
+    "$comment": "My comment",
+    "$anchor": "main",
+    "title": "My title"
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/title", "https://example.com/#/title", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "https://example.com/#/title", "", "My title" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"My title\""
+    ]
+  }
+}

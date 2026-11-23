@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": {
+      "$id": "nested",
+      "$recursiveAnchor": true,
+      "minimum": 1,
+      "additionalProperties": { "$recursiveRef": "#" }
+    }
+  },
+  "instance": { "foo": { "bar": 1 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+      [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+      [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+      [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+      [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+      [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to be greater than or equal to the integer 1",
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+      [ "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+      [ "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+      [ "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+      [ "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+      [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/additionalProperties/additionalProperties/$recursiveRef/minimum", "https://example.com/nested#/minimum", "/foo/bar" ],
+      [ true, "ControlDynamicAnchorJump", "/additionalProperties/additionalProperties/$recursiveRef", "https://example.com/nested#/additionalProperties/$recursiveRef", "/foo/bar" ],
+      [ true, "Annotation", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo", "bar" ],
+      [ true, "LoopProperties", "/additionalProperties/additionalProperties", "https://example.com/nested#/additionalProperties", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to be greater than or equal to the integer 1",
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object property \"bar\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

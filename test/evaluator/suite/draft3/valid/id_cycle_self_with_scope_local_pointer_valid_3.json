@@ -1,0 +1,87 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "definitions": { "shared": { "type": "string" } },
+    "properties": {
+      "t": {
+        "id": "https://example.com/tree",
+        "type": "object",
+        "definitions": { "shared": { "type": "integer" } },
+        "properties": {
+          "v": { "$ref": "#/definitions/shared" },
+          "kid": { "$ref": "https://example.com/tree" }
+        }
+      }
+    }
+  },
+  "instance": { "t": { "kid": { "kid": { "v": 3 } } } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/t/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid" ],
+      [ "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid/kid" ],
+      [ "AssertionPropertyTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref/type", "https://example.com/tree#/definitions/shared/type", "/t/kid/kid/v" ],
+      [ "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid/kid" ],
+      [ "AssertionTypeStrict", "/properties/t/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid" ],
+      [ "AssertionPropertyTypeStrict", "/properties/t/type", "https://example.com/tree#/type", "/t" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref/type", "https://example.com/tree#/definitions/shared/type", "/t/kid/kid/v" ],
+      [ true, "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid/kid" ],
+      [ true, "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid/kid" ],
+      [ true, "AssertionTypeStrict", "/properties/t/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid" ],
+      [ true, "ControlJump", "/properties/t/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/t/type", "https://example.com/tree#/type", "/t" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalWhenType", "/properties/t/properties", "https://example.com/tree#/properties", "/t" ],
+      [ "ControlJump", "/properties/t/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid" ],
+      [ "LogicalWhenType", "/properties/t/properties/kid/$ref/properties", "https://example.com/tree#/properties", "/t/kid" ],
+      [ "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid/kid" ],
+      [ "LogicalWhenType", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties", "https://example.com/tree#/properties", "/t/kid/kid" ],
+      [ "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref", "https://example.com/tree#/properties/v/$ref", "/t/kid/kid/v" ],
+      [ "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref/type", "https://example.com/tree#/definitions/shared/type", "/t/kid/kid/v" ],
+      [ "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid/kid" ],
+      [ "AssertionTypeStrict", "/properties/t/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid" ],
+      [ "AssertionTypeStrict", "/properties/t/type", "https://example.com/tree#/type", "/t" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref/type", "https://example.com/tree#/definitions/shared/type", "/t/kid/kid/v" ],
+      [ true, "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties/v/$ref", "https://example.com/tree#/properties/v/$ref", "/t/kid/kid/v" ],
+      [ true, "LogicalWhenType", "/properties/t/properties/kid/$ref/properties/kid/$ref/properties", "https://example.com/tree#/properties", "/t/kid/kid" ],
+      [ true, "AssertionTypeStrict", "/properties/t/properties/kid/$ref/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid/kid" ],
+      [ true, "ControlJump", "/properties/t/properties/kid/$ref/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid/kid" ],
+      [ true, "LogicalWhenType", "/properties/t/properties/kid/$ref/properties", "https://example.com/tree#/properties", "/t/kid" ],
+      [ true, "AssertionTypeStrict", "/properties/t/properties/kid/$ref/type", "https://example.com/tree#/type", "/t/kid" ],
+      [ true, "ControlJump", "/properties/t/properties/kid/$ref", "https://example.com/tree#/properties/kid/$ref", "/t/kid" ],
+      [ true, "LogicalWhenType", "/properties/t/properties", "https://example.com/tree#/properties", "/t" ],
+      [ true, "AssertionTypeStrict", "/properties/t/type", "https://example.com/tree#/type", "/t" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

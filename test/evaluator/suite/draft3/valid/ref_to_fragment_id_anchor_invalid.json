@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": { "a": { "id": "#target", "type": "string" }, "b": { "$ref": "#target" } }
+  },
+  "instance": { "a": "x", "b": 5 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "AssertionPropertyTypeStrict", "/properties/b/$ref/type", "#/properties/a/type", "/b" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ false, "AssertionPropertyTypeStrict", "/properties/b/$ref/type", "#/properties/a/type", "/b" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "ControlJump", "/properties/b/$ref", "#/properties/b/$ref", "/b" ],
+      [ "AssertionTypeStrict", "/properties/b/$ref/type", "#/properties/a/type", "/b" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ false, "AssertionTypeStrict", "/properties/b/$ref/type", "#/properties/a/type", "/b" ],
+      [ false, "ControlJump", "/properties/b/$ref", "#/properties/b/$ref", "/b" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

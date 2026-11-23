@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "propertyNames": { "type": "null" }
+  },
+  "instance": { "a": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionFail", "/propertyNames/type", "#/propertyNames/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/type", "#/propertyNames/type", "/a" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionFail", "/propertyNames/type", "#/propertyNames/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/propertyNames/type", "#/propertyNames/type", "/a" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate the property names \"a\" against the given subschema"
+    ]
+  }
+}

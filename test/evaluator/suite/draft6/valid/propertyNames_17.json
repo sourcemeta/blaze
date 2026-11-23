@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "$ref": "#/definitions/foo" },
+    "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": {} }
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ "ControlJump", "/propertyNames/$ref/$ref", "#/definitions/foo/$ref", "/foo" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/propertyNames/$ref/$ref", "#/definitions/foo/$ref", "/foo" ],
+      [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  }
+}

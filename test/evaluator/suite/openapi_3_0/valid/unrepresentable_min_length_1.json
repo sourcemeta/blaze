@@ -1,0 +1,27 @@
+{
+  "schema": { "minLength": 99999999999999999999 },
+  "instance": "a",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than string, as no string is long enough to satisfy a minimum length that large"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "minProperties": 3,
+    "maxProperties": 1
+  },
+  "instance": { "a": 1, "b": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
+    ]
+  }
+}

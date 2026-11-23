@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "exclusiveMaximum": true
+  },
+  "error": {
+    "message": "This keyword was expected to accompany the bound it applies to",
+    "base": "",
+    "location": "/exclusiveMaximum"
+  }
+}

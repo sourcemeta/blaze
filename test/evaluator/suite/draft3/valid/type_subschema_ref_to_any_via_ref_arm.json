@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", { "$ref": "#/definitions/any" } ],
+    "definitions": { "any": { "type": "any" } }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "ControlJump", "/type/1/$ref", "#/type/1/$ref", "" ],
+      [ "AssertionTypeStrictAny", "/type/1/$ref/type", "#/definitions/any/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "AssertionTypeStrictAny", "/type/1/$ref/type", "#/definitions/any/type", "" ],
+      [ true, "ControlJump", "/type/1/$ref", "#/type/1/$ref", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type null, boolean, number, string, array, or object and it was of type number",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

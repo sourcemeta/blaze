@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "string" },
+    "minContains": 0,
+    "unevaluatedItems": false
+  },
+  "instance": [ "foo" ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The array value was expected to contain at least 0 items that validate against the given subschema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain at least 0 items that validate against the given subschema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": { "type": {} },
+  "error": {
+    "message": "The value this keyword is set to is not supported by this dialect",
+    "base": "",
+    "location": "/type"
+  }
+}

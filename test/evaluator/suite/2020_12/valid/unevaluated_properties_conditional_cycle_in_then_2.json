@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "if": { "required": [ "recurse" ] },
+    "then": { "$ref": "#" },
+    "else": { "properties": { "allowed": { "type": "integer" } } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "allowed": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ true, "AssertionPropertyTypeEvaluate", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"recurse\"",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the given conditional",
+      "The value was expected to be of type object",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ "AssertionType", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ "Annotation", "/else/properties", "#/else/properties", "" ],
+      [ "Evaluate", "/else/properties", "#/else/properties", "/allowed" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ true, "AssertionType", "/else/properties/allowed/type", "#/else/properties/allowed/type", "/allowed" ],
+      [ true, "Annotation", "/else/properties", "#/else/properties", "", "allowed" ],
+      [ true, "Evaluate", "/else/properties", "#/else/properties", "/allowed" ],
+      [ true, "LogicalWhenType", "/else/properties", "#/else/properties", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"recurse\"",
+      "The value was expected to be of type integer",
+      "The object property \"allowed\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The value was expected to be of type object",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

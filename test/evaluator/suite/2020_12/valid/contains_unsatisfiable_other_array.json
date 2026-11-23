@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "const": "admin" },
+    "maxContains": 0
+  },
+  "instance": [ "user" ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The string value \"user\" was expected to equal the string constant \"admin\"",
+      "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The string value \"user\" was expected to equal the string constant \"admin\"",
+      "The array value was expected to contain 1 to 0 items that validate against the given subschema"
+    ]
+  }
+}

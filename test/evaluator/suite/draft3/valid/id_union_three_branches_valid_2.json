@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } },
+      { "type": "object", "patternProperties": { "^c": {} } }
+    ],
+    "properties": { "foo": { "id": "https://example.com/tri", "type": "integer" } },
+    "extends": [ { "properties": { "r": { "$ref": "https://example.com/tri" } } } ]
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/extends/0/properties", "#/extends/0/properties", "" ],
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 3 given subschemas"
+    ]
+  }
+}

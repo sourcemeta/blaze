@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "minLength": 1 } ],
+    "definitions": { "t": { "type": "integer" } },
+    "properties": { "r": { "$ref": "#/definitions/t" } }
+  },
+  "instance": "ab",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/extends/0/minLength", "#/extends/0/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/extends/0/minLength", "#/extends/0/minLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"ab\" was expected to consist of at least 1 character and its length was 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "AssertionStringSizeGreater", "/extends/0/minLength", "#/extends/0/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/extends/0/minLength", "#/extends/0/minLength", "" ],
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+    ],
+    "descriptions": [
+      "The string value \"ab\" was expected to consist of at least 1 character and its length was 2",
+      "The string value was expected to validate against the given subschema"
+    ]
+  }
+}

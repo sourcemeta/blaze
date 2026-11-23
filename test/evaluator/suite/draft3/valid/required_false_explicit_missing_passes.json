@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": { "foo": { "required": false } }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

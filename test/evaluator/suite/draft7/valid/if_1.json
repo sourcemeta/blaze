@@ -1,0 +1,33 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "if": { "const": 1 } },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/const", "#/if/const", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/const", "#/if/const", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The integer value was expected to validate against the given conditional"
+    ]
+  }
+}

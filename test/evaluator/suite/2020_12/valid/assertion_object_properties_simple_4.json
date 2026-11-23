@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "x": { "type": "string" }, "y": { "type": "integer" } }
+  },
+  "instance": { "x": "hello", "y": 42 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/y/type", "#/properties/y/type", "/y" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "x" ],
+      [ true, "AssertionType", "/properties/y/type", "#/properties/y/type", "/y" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "y" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"x\" successfully validated against its property subschema",
+      "The value was expected to be of type integer",
+      "The object property \"y\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

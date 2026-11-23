@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [
+      { "type": "object", "properties": { "foo": { "type": "string" } } },
+      { "required": [ "foo" ] }
+    ]
+  },
+  "instance": { "foo": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/allOf/0/properties", "#/allOf/0/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/allOf/0/properties", "#/allOf/0/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the 3 given subschemas"
+    ]
+  }
+}

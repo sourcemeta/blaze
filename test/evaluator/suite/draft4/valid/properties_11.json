@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "foo": { "items": { "type": "number", "multipleOf": 3, "maximum": 100 } },
+      "bar": { "type": "string", "pattern": "^a" }
+    }
+  },
+  "instance": { "foo": [ 3 ], "bar": "abc" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "LoopItems", "/properties/foo/items", "#/properties/foo/items", "/foo" ],
+      [ "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
+      [ "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
+      [ "AssertionTypeStrictAny", "/properties/foo/items/type", "#/properties/foo/items/type", "/foo/0" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
+      [ true, "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
+      [ true, "AssertionTypeStrictAny", "/properties/foo/items/type", "#/properties/foo/items/type", "/foo/0" ],
+      [ true, "LoopItems", "/properties/foo/items", "#/properties/foo/items", "/foo" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to match the regular expression \"^a\"",
+      "The value was expected to be of type string",
+      "The integer value 3 was expected to be less than or equal to the integer 100",
+      "The integer value 3 was expected to be divisible by the integer 3",
+      "The value was expected to be of type number",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "LoopItems", "/properties/foo/items", "#/properties/foo/items", "/foo" ],
+      [ "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
+      [ "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
+      [ "AssertionTypeStrictAny", "/properties/foo/items/type", "#/properties/foo/items/type", "/foo/0" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/properties/bar/pattern", "#/properties/bar/pattern", "/bar" ],
+      [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionLessEqual", "/properties/foo/items/maximum", "#/properties/foo/items/maximum", "/foo/0" ],
+      [ true, "AssertionDivisible", "/properties/foo/items/multipleOf", "#/properties/foo/items/multipleOf", "/foo/0" ],
+      [ true, "AssertionTypeStrictAny", "/properties/foo/items/type", "#/properties/foo/items/type", "/foo/0" ],
+      [ true, "LoopItems", "/properties/foo/items", "#/properties/foo/items", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to match the regular expression \"^a\"",
+      "The value was expected to be of type string",
+      "The integer value 3 was expected to be less than or equal to the integer 100",
+      "The integer value 3 was expected to be divisible by the integer 3",
+      "The value was expected to be of type number",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

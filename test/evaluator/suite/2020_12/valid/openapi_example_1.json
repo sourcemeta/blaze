@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "example": { "name": "Rex", "petType": "dog" }
+  },
+  "instance": { "name": "Fluffy", "petType": "cat" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/example", "#/example", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/example", "#/example", "", {"name": "Rex", "petType": "dog"} ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"example\" was collected as the annotation {\"name\":\"Rex\",\"petType\":\"dog\"}"
+    ]
+  }
+}

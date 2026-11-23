@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://example.com/target#meta",
+    "$defs": {
+      "target": {
+        "$id": "https://example.com/target",
+        "$dynamicAnchor": "meta",
+        "type": "boolean"
+      },
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "meta",
+        "type": "number"
+      }
+    }
+  },
+  "instance": true,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The boolean value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ],
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "#/$dynamicRef", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The boolean value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+    ]
+  }
+}

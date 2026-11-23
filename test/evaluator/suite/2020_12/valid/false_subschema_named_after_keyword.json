@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "unevaluatedItems": false }
+  },
+  "instance": { "unevaluatedItems": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/properties/unevaluatedItems", "#/properties/unevaluatedItems", "/unevaluatedItems" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

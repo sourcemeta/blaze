@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "if": { "$ref": "#/$defs/common" },
+    "then": { "$ref": "#/$defs/common" },
+    "else": { "$ref": "#/$defs/common" },
+    "unevaluatedProperties": false
+  },
+  "instance": { "allowed": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "AssertionPropertyTypeEvaluate", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeEvaluate", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "AssertionPropertyTypeEvaluate", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalConditionEvaluate", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "ControlJump", "/else/$ref", "#/else/$ref", "" ],
+      [ "LogicalWhenType", "/else/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/if/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalWhenType", "/if/$ref/properties", "#/$defs/common/properties", "" ],
+      [ false, "ControlJump", "/if/$ref", "#/if/$ref", "" ],
+      [ false, "AssertionType", "/else/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalWhenType", "/else/$ref/properties", "#/$defs/common/properties", "" ],
+      [ false, "ControlJump", "/else/$ref", "#/else/$ref", "" ],
+      [ false, "LogicalConditionEvaluate", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given conditional"
+    ]
+  }
+}

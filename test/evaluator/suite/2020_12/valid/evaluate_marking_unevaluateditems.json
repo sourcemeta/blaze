@@ -1,0 +1,69 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "array" },
+    "then": { "unevaluatedItems": { "$ref": "#/$defs/e" } },
+    "unevaluatedItems": false,
+    "$defs": { "e": {} }
+  },
+  "instance": [ 1, 2, 3 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+      "The array value was expected to validate against the given conditional",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/0" ],
+      [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/1" ],
+      [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/2" ],
+      [ "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/0" ],
+      [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+      [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/1" ],
+      [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+      [ true, "ControlJump", "/then/unevaluatedItems/$ref", "#/then/unevaluatedItems/$ref", "/2" ],
+      [ true, "Annotation", "/then/unevaluatedItems", "#/then/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/then/unevaluatedItems", "#/then/unevaluatedItems", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The integer value was expected to validate against the referenced schema",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The integer value was expected to validate against the referenced schema",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The integer value was expected to validate against the referenced schema",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema",
+      "The array value was expected to validate against the given conditional",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

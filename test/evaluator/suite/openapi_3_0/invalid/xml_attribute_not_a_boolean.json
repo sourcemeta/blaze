@@ -1,0 +1,8 @@
+{
+  "schema": { "xml": { "attribute": "yes" } },
+  "error": {
+    "message": "This keyword was expected to be set to an object of the shape this dialect defines",
+    "base": "",
+    "location": "/xml"
+  }
+}

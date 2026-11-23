@@ -1,0 +1,8 @@
+{
+  "schema": { "pattern": 1 },
+  "error": {
+    "message": "This keyword was expected to be set to a string",
+    "base": "",
+    "location": "/pattern"
+  }
+}

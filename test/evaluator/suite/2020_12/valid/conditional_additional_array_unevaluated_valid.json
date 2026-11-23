@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "additionalProperties": true },
+    "unevaluatedProperties": false,
+    "unevaluatedItems": { "type": "integer" }
+  },
+  "instance": [ 1, 2 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the given conditional",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the given conditional",
+      "The value was expected to be of type integer",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The value was expected to be of type integer",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

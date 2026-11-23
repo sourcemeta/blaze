@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "p": {
+        "extends": [
+          {
+            "id": "https://example.com/mid",
+            "extends": [ { "id": "https://example.com/deep", "type": "integer" } ]
+          }
+        ]
+      },
+      "r1": { "$ref": "https://example.com/mid" },
+      "r2": { "$ref": "https://example.com/deep" }
+    }
+  },
+  "instance": { "p": 5, "r1": 5, "r2": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/p/extends/0/extends/0/type", "https://example.com/deep#/type", "/p" ],
+      [ "AssertionPropertyTypeStrict", "/properties/r1/$ref/extends/0/type", "https://example.com/deep#/type", "/r1" ],
+      [ "AssertionPropertyTypeStrict", "/properties/r2/$ref/type", "https://example.com/deep#/type", "/r2" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/p/extends/0/extends/0/type", "https://example.com/deep#/type", "/p" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/r1/$ref/extends/0/type", "https://example.com/deep#/type", "/r1" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/r2/$ref/type", "https://example.com/deep#/type", "/r2" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ],
+      [ "LogicalAnd", "/properties/r1/$ref/extends", "https://example.com/mid#/extends", "/r1" ],
+      [ "AssertionTypeStrict", "/properties/r1/$ref/extends/0/type", "https://example.com/deep#/type", "/r1" ],
+      [ "ControlJump", "/properties/r2/$ref", "https://example.com/root#/properties/r2/$ref", "/r2" ],
+      [ "AssertionTypeStrict", "/properties/r2/$ref/type", "https://example.com/deep#/type", "/r2" ],
+      [ "LogicalAnd", "/properties/p/extends", "https://example.com/root#/properties/p/extends", "/p" ],
+      [ "LogicalAnd", "/properties/p/extends/0/extends", "https://example.com/mid#/extends", "/p" ],
+      [ "AssertionTypeStrict", "/properties/p/extends/0/extends/0/type", "https://example.com/deep#/type", "/p" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/r1/$ref/extends/0/type", "https://example.com/deep#/type", "/r1" ],
+      [ true, "LogicalAnd", "/properties/r1/$ref/extends", "https://example.com/mid#/extends", "/r1" ],
+      [ true, "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ],
+      [ true, "AssertionTypeStrict", "/properties/r2/$ref/type", "https://example.com/deep#/type", "/r2" ],
+      [ true, "ControlJump", "/properties/r2/$ref", "https://example.com/root#/properties/r2/$ref", "/r2" ],
+      [ true, "AssertionTypeStrict", "/properties/p/extends/0/extends/0/type", "https://example.com/deep#/type", "/p" ],
+      [ true, "LogicalAnd", "/properties/p/extends/0/extends", "https://example.com/mid#/extends", "/p" ],
+      [ true, "LogicalAnd", "/properties/p/extends", "https://example.com/root#/properties/p/extends", "/p" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the given subschema",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the given subschema",
+      "The integer value was expected to validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

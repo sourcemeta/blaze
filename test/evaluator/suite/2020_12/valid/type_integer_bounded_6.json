@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100
+  },
+  "instance": 3.5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionType", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type number"
+    ]
+  }
+}

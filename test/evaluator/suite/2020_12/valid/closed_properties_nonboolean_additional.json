@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": {}, "b": {}, "c": {}, "d": {}, "e": {}, "f": {} },
+    "additionalProperties": { "enum": [] }
+  },
+  "instance": { "zzz": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The integer value was not expected to validate against the empty enumeration",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties/enum", "#/additionalProperties/enum", "/zzz" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The integer value was not expected to validate against the empty enumeration",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

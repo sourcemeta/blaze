@@ -1,0 +1,90 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "oneOf": [
+      {
+        "properties": {
+          "version": { "enum": [ 1 ] },
+          "one": { "items": { "type": "integer" } },
+          "two": { "items": { "type": "boolean" } },
+          "three": { "items": { "type": "object" } },
+          "four": { "items": { "type": "integer" } },
+          "five": { "items": { "type": "boolean" } },
+          "six": { "items": { "type": "object" } },
+          "seven": { "items": { "type": "object" } },
+          "eight": { "items": { "type": "object" } },
+          "nine": { "items": { "type": "object" } },
+          "then": { "items": { "type": "object" } }
+        }
+      },
+      {
+        "properties": { "version": { "enum": [ 2 ] }, "one": { "type": "string" } }
+      },
+      {
+        "properties": {
+          "version": { "enum": [ 3 ] },
+          "one": { "items": { "type": "integer" } },
+          "two": { "items": { "type": "boolean" } },
+          "three": { "items": { "type": "object" } }
+        }
+      }
+    ]
+  },
+  "instance": { "version": 2, "one": "two" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionEqual", "/oneOf/0/properties/version/enum", "#/oneOf/0/properties/version/enum", "/version" ],
+      [ "AssertionEqual", "/oneOf/1/properties/version/enum", "#/oneOf/1/properties/version/enum", "/version" ],
+      [ "AssertionPropertyTypeStrict", "/oneOf/1/properties/one/type", "#/oneOf/1/properties/one/type", "/one" ],
+      [ "AssertionEqual", "/oneOf/2/properties/version/enum", "#/oneOf/2/properties/version/enum", "/version" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/oneOf/0/properties/version/enum", "#/oneOf/0/properties/version/enum", "/version" ],
+      [ true, "AssertionEqual", "/oneOf/1/properties/version/enum", "#/oneOf/1/properties/version/enum", "/version" ],
+      [ true, "AssertionPropertyTypeStrict", "/oneOf/1/properties/one/type", "#/oneOf/1/properties/one/type", "/one" ],
+      [ false, "AssertionEqual", "/oneOf/2/properties/version/enum", "#/oneOf/2/properties/version/enum", "/version" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The integer value 2 was expected to equal the integer constant 2",
+      "The value was expected to be of type string",
+      "The integer value 2 was expected to equal the integer constant 3",
+      "The object value was expected to validate against one and only one of the 3 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "LogicalWhenType", "/oneOf/0/properties", "#/oneOf/0/properties", "" ],
+      [ "AssertionEqual", "/oneOf/0/properties/version/enum", "#/oneOf/0/properties/version/enum", "/version" ],
+      [ "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
+      [ "AssertionEqual", "/oneOf/1/properties/version/enum", "#/oneOf/1/properties/version/enum", "/version" ],
+      [ "AssertionTypeStrict", "/oneOf/1/properties/one/type", "#/oneOf/1/properties/one/type", "/one" ],
+      [ "LogicalWhenType", "/oneOf/2/properties", "#/oneOf/2/properties", "" ],
+      [ "AssertionEqual", "/oneOf/2/properties/version/enum", "#/oneOf/2/properties/version/enum", "/version" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/oneOf/0/properties/version/enum", "#/oneOf/0/properties/version/enum", "/version" ],
+      [ false, "LogicalWhenType", "/oneOf/0/properties", "#/oneOf/0/properties", "" ],
+      [ true, "AssertionEqual", "/oneOf/1/properties/version/enum", "#/oneOf/1/properties/version/enum", "/version" ],
+      [ true, "AssertionTypeStrict", "/oneOf/1/properties/one/type", "#/oneOf/1/properties/one/type", "/one" ],
+      [ true, "LogicalWhenType", "/oneOf/1/properties", "#/oneOf/1/properties", "" ],
+      [ false, "AssertionEqual", "/oneOf/2/properties/version/enum", "#/oneOf/2/properties/version/enum", "/version" ],
+      [ false, "LogicalWhenType", "/oneOf/2/properties", "#/oneOf/2/properties", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The integer value 2 was expected to equal the integer constant 2",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The integer value 2 was expected to equal the integer constant 3",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against one and only one of the 3 given subschemas"
+    ]
+  }
+}

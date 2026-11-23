@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "writeOnly": true
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/writeOnly", "#/writeOnly", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/writeOnly", "#/writeOnly", "", true ]
+    ],
+    "descriptions": [
+      "The instance was considered write-only"
+    ]
+  }
+}

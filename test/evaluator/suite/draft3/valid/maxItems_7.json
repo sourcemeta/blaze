@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "minItems": 1,
+    "maxItems": 2
+  },
+  "instance": [ 1, 2 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeArrayBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of an array of 1 to 2 items"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArraySizeLess", "/maxItems", "#/maxItems", "" ],
+      [ true, "AssertionArraySizeGreater", "/minItems", "#/minItems", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at most 2 items and its size was 2",
+      "The array value was expected to contain at least 1 item and its size was 2",
+      "The value was expected to be of type array"
+    ]
+  }
+}

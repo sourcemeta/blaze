@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "foo": {
+        "allOf": [ { "if": { "type": "object" }, "then": { "required": [ "bar" ] } } ]
+      }
+    }
+  },
+  "instance": { "foo": { "bar": 1 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+      [ "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+      [ true, "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ],
+      [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define the property \"bar\"",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
+      [ "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+      [ "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/foo/allOf/0/if/type", "#/properties/foo/allOf/0/if/type", "/foo" ],
+      [ true, "AssertionDefines", "/properties/foo/allOf/0/then/required", "#/properties/foo/allOf/0/then/required", "/foo" ],
+      [ true, "LogicalCondition", "/properties/foo/allOf/0/if", "#/properties/foo/allOf/0/if", "/foo" ],
+      [ true, "LogicalAnd", "/properties/foo/allOf", "#/properties/foo/allOf", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define the property \"bar\"",
+      "The object value was expected to validate against the given conditional",
+      "The object value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": {
+      "a": { "type": "object" },
+      "b": {
+        "type": "object",
+        "properties": { "x": { "type": "string" } },
+        "required": [ "x" ]
+      }
+    }
+  },
+  "instance": { "a": 5, "b": { "x": "s" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ false, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"a\", and \"b\"",
+      "The value was expected to be of type object but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"a\", and \"b\"",
+      "The value was expected to be of type object but it was of type integer",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

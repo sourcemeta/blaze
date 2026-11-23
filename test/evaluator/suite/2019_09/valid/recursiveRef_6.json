@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$recursiveAnchor": true,
+    "additionalProperties": { "$recursiveRef": "#" }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/additionalProperties/$recursiveRef", "#/additionalProperties/$recursiveRef", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

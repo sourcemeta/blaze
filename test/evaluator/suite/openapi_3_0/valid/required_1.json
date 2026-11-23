@@ -1,0 +1,7 @@
+{
+  "schema": { "required": [ "foo" ] },
+  "instance": "foo bar",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "My title",
+    "description": "My description",
+    "default": 1,
+    "readOnly": true,
+    "writeOnly": false,
+    "examples": [ 1, 2, 3 ]
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

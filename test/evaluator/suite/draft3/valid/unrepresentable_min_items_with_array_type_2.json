@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "minItems": 99999999999999999999
+  },
+  "instance": "a",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
+      "The value was expected to be of type array but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/minItems", "#/minItems", "" ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than array, as no array has enough items to satisfy a minimum size that large",
+      "The value was expected to be of type array but it was of type string"
+    ]
+  }
+}

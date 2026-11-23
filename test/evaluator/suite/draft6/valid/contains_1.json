@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "contains": { "type": "string" }
+  },
+  "instance": 2,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

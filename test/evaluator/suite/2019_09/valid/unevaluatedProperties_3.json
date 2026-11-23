@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": { "type": "boolean" },
+    "allOf": [ { "properties": { "foo": { "type": "string" } } } ]
+  },
+  "instance": { "foo": "baz", "bar": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+      [ false, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+      [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/properties/foo/type", "#/allOf/0/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ false, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ false, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The value was expected to be of type boolean but it was of type integer",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  }
+}

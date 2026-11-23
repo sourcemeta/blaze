@@ -1,0 +1,73 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "unevaluatedProperties": false,
+    "properties": {
+      "a": { "type": "boolean" },
+      "b": { "type": "boolean" },
+      "c": { "type": "boolean" },
+      "d": { "type": "boolean" },
+      "e": { "type": "boolean" },
+      "f": { "type": "boolean" },
+      "g": { "type": "boolean" },
+      "h": { "type": "boolean" },
+      "i": { "type": "boolean" },
+      "j": { "type": "boolean" },
+      "k": { "type": "boolean" },
+      "l": { "type": "boolean" },
+      "m": { "type": "boolean" },
+      "n": { "type": "boolean" },
+      "o": { "type": "boolean" },
+      "p": { "type": "boolean" },
+      "q": { "type": "boolean" },
+      "r": { "type": "boolean" },
+      "s": { "type": "boolean" },
+      "t": { "type": "boolean" },
+      "u": { "type": "boolean" },
+      "v": { "type": "boolean" },
+      "w": { "type": "boolean" },
+      "x": { "type": "boolean" },
+      "y": { "type": "boolean" },
+      "z": { "type": "boolean" }
+    }
+  },
+  "instance": { "a": true },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The object value was expected to validate against the 26 defined properties subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the 26 defined properties subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "known": { "type": "string" },
+      "probe": { "$ref": "https://example.com/extra" }
+    },
+    "additionalProperties": { "id": "https://example.com/extra", "type": "integer" }
+  },
+  "instance": { "known": "s" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/known/type", "https://example.com/root#/properties/known/type", "/known" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/known/type", "https://example.com/root#/properties/known/type", "/known" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/known/type", "https://example.com/root#/properties/known/type", "/known" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/known/type", "https://example.com/root#/properties/known/type", "/known" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "https://example.com/root#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

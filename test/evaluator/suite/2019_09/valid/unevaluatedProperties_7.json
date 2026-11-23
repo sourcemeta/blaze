@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [ { "properties": { "foo": true } }, { "unevaluatedProperties": false } ]
+  },
+  "instance": { "foo": "bar" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ],
+      [ false, "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define the property \"foo\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ false, "AssertionFail", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "/foo" ],
+      [ false, "LoopProperties", "/allOf/1/unevaluatedProperties", "#/allOf/1/unevaluatedProperties", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define the property \"foo\"",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

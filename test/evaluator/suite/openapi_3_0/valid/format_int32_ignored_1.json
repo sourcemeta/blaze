@@ -1,0 +1,7 @@
+{
+  "schema": { "format": "int32" },
+  "instance": 2147483648,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

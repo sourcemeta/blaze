@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "object", "maxProperties": 2 },
+  "instance": { "bar": 2, "foo": 1, "baz": 3 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeObjectUpper", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of an object of at most 2 properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 2 properties but it defines 3 of them: \"bar\", \"baz\", and \"foo\""
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "$ref": "https://example.com/inner",
+    "$defs": {
+      "a": { "$id": "https://example.com/a", "$dynamicAnchor": "T", "title": "x" },
+      "b": { "$id": "https://example.com/b", "$dynamicAnchor": "T", "title": "y" },
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$dynamicRef": "https://example.com/a#T",
+        "unevaluatedItems": true,
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "LoopPropertiesUnevaluated", "/$ref/unevaluatedProperties", "https://example.com/inner#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/$ref/unevaluatedProperties", "https://example.com/inner#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://example.com/root#/$ref", "" ],
+      [ "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "Annotation", "/$ref/$dynamicRef/title", "https://example.com/a#/title", "" ],
+      [ "LoopPropertiesUnevaluated", "/$ref/unevaluatedProperties", "https://example.com/inner#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/$ref/$dynamicRef/title", "https://example.com/a#/title", "", "x" ],
+      [ true, "ControlDynamicAnchorJump", "/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/$ref/unevaluatedProperties", "https://example.com/inner#/unevaluatedProperties", "" ],
+      [ true, "ControlJump", "/$ref", "https://example.com/root#/$ref", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"x\"",
+      "The object value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  }
+}

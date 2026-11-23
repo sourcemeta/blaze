@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "allOf": [ { "unevaluatedProperties": false } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "/a" ],
+      [ false, "LoopProperties", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define the property \"a\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LoopProperties", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "/a" ],
+      [ false, "LoopProperties", "/allOf/0/unevaluatedProperties", "#/allOf/0/unevaluatedProperties", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define the property \"a\"",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the given subschema"
+    ]
+  }
+}

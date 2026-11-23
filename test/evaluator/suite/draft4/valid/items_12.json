@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "integer" }
+  },
+  "instance": [ 12345678910111213141516171819202122232425262728293031 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The array items were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

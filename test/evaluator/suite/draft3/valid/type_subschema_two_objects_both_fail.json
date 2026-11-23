@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "properties": { "foo": { "type": "string" } } },
+      { "properties": { "bar": { "type": "integer" } } }
+    ]
+  },
+  "instance": { "foo": 5, "bar": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ "AssertionPropertyTypeStrict", "/type/1/properties/bar/type", "#/type/1/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ false, "AssertionPropertyTypeStrict", "/type/1/properties/bar/type", "#/type/1/properties/bar/type", "/bar" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ "LogicalWhenType", "/type/1/properties", "#/type/1/properties", "" ],
+      [ "AssertionTypeStrict", "/type/1/properties/bar/type", "#/type/1/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/properties/foo/type", "#/type/0/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/type/0/properties", "#/type/0/properties", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/properties/bar/type", "#/type/1/properties/bar/type", "/bar" ],
+      [ false, "LogicalWhenType", "/type/1/properties", "#/type/1/properties", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

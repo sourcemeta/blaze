@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "const": 1 } }
+  },
+  "instance": { "foo": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to equal the integer constant 1",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

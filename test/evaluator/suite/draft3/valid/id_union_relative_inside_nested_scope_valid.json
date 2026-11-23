@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/a/",
+    "properties": {
+      "scope": {
+        "id": "sub/",
+        "type": [
+          { "type": "object", "patternProperties": { "^a": {} } },
+          { "type": "object", "patternProperties": { "^b": {} } }
+        ],
+        "properties": { "v": { "id": "leaf", "type": "integer" } }
+      },
+      "r": { "$ref": "https://example.com/a/sub/leaf" }
+    }
+  },
+  "instance": { "scope": { "v": 5 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/scope/properties/v/type", "https://example.com/a/sub/leaf#/type", "/scope/v" ],
+      [ "LogicalOr", "/properties/scope/type", "https://example.com/a/sub/#/type", "/scope" ],
+      [ "AssertionTypeStrict", "/properties/scope/type/0/type", "https://example.com/a/sub/#/type/0/type", "/scope" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/scope/properties/v/type", "https://example.com/a/sub/leaf#/type", "/scope/v" ],
+      [ true, "AssertionTypeStrict", "/properties/scope/type/0/type", "https://example.com/a/sub/#/type/0/type", "/scope" ],
+      [ true, "LogicalOr", "/properties/scope/type", "https://example.com/a/sub/#/type", "/scope" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/a/#/properties", "" ],
+      [ "LogicalWhenType", "/properties/scope/properties", "https://example.com/a/sub/#/properties", "/scope" ],
+      [ "AssertionTypeStrict", "/properties/scope/properties/v/type", "https://example.com/a/sub/leaf#/type", "/scope/v" ],
+      [ "LogicalOr", "/properties/scope/type", "https://example.com/a/sub/#/type", "/scope" ],
+      [ "AssertionTypeStrict", "/properties/scope/type/0/type", "https://example.com/a/sub/#/type/0/type", "/scope" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/scope/properties/v/type", "https://example.com/a/sub/leaf#/type", "/scope/v" ],
+      [ true, "LogicalWhenType", "/properties/scope/properties", "https://example.com/a/sub/#/properties", "/scope" ],
+      [ true, "AssertionTypeStrict", "/properties/scope/type/0/type", "https://example.com/a/sub/#/type/0/type", "/scope" ],
+      [ true, "LogicalOr", "/properties/scope/type", "https://example.com/a/sub/#/type", "/scope" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/a/#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

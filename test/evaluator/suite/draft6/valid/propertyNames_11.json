@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "enum": [ "foo", "bar", true ] }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to equal one of the 3 declared values",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/propertyNames/enum", "#/propertyNames/enum", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to equal one of the 3 declared values",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  }
+}
