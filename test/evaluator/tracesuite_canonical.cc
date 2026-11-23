@@ -33,10 +33,15 @@ auto declared_dialect(const sourcemeta::core::JSON &schema)
 auto run_canonicalize_test(const std::string &name,
                            const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode,
-                           const std::string &default_dialect) -> void {
+                           const std::string &default_dialect,
+                           const bool assertion_lost) -> void {
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
-  const bool expected_valid{data.at("valid").to_boolean()};
+  // Where canonicalisation loses the assertion, what comes out accepts what
+  // the schema going in refuses. Asserting that, rather than leaving the case
+  // unregistered, keeps the gap in the output and turns the day it is fixed
+  // into a failure that says so
+  const bool expected_valid{data.at("valid").to_boolean() != assertion_lost};
 
   // Canonicalisation can collapse an unsatisfiable schema into a boolean,
   // which has no room for the dialect the document declares, so hold on to
@@ -105,9 +110,8 @@ register_tests(const std::filesystem::path &directory,
 
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
-    if (canonicalization_loses_the_format_assertion(suite_name, name)) {
-      continue;
-    }
+    const auto assertion_lost{
+        canonicalization_loses_the_format_assertion(suite_name, name)};
 
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
@@ -115,12 +119,18 @@ register_tests(const std::filesystem::path &directory,
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
 
-      const auto title{name + mode_suffix};
+      // The name says so too, so that reading the output is enough to see
+      // which cases canonicalisation does not carry
+      const auto title{name + mode_suffix +
+                       (assertion_lost ? "_pending_a_format_assertion_that"
+                                         "_survives_canonicalization"
+                                       : "")};
 
       sourcemeta::core::test_register(
           suite_name, title, __FILE__, __LINE__,
-          [name, test_case, mode, default_dialect]() -> void {
-            run_canonicalize_test(name, test_case, mode, default_dialect);
+          [name, test_case, mode, default_dialect, assertion_lost]() -> void {
+            run_canonicalize_test(name, test_case, mode, default_dialect,
+                                  assertion_lost);
           });
     }
   }

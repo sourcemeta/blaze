@@ -62,11 +62,15 @@ const SKIPPED_FIXTURES = new Map([
   // number is a double, and while the reviver recovers a truncated integer as a
   // `BigInt`, it has no such answer for a real, so those fixtures carry values
   // this port cannot represent at all
+]);
 
-  // These two carry a real written as `3.0`. `JSON.parse` answers with `3`,
-  // and nothing distinguishes that from the integer `3` afterwards, so the
-  // described value reads as an integer where the C++ evaluator reads a
-  // number. The verdict agrees; only the wording cannot
+// Fixtures whose describe wording this port cannot reproduce, though it agrees
+// on everything else. Only the description check stands down, so the verdict
+// and the trace are still held to the same expectations
+const SKIPPED_DESCRIPTIONS = new Map([
+  // A real written as `3.0` comes back from `JSON.parse` as `3`, and nothing
+  // afterwards distinguishes it from the integer `3`, so the described value
+  // reads as an integer where the C++ evaluator reads a number
   ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_none',
     'a real written as `3.0` is indistinguishable from an integer here'],
   ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_selected',
@@ -76,6 +80,10 @@ const SKIPPED_FIXTURES = new Map([
 function skipReason(dialect, fixtureName, testCase) {
   return SKIPPED_FIXTURES.get(`${dialect}/${fixtureName}`) ??
     skippedByRule(testCase);
+}
+
+function skipDescriptions(dialect, fixtureName) {
+  return SKIPPED_DESCRIPTIONS.get(`${dialect}/${fixtureName}`) ?? null;
 }
 
 const suiteDialects = readdirSync(TRACE_SUITE_PATH, { withFileTypes: true })
@@ -113,6 +121,8 @@ for (const dialect of suiteDialects) {
           const modeData = testCase[mode];
           const testName = `${fixtureName}_${mode}`;
           const skip = skipReason(dialect, fixtureName, testCase) ?? false;
+          // The count of described steps is still checked above, so a fixture
+          // standing down from the wording is not standing down from the shape
 
           it(testName, { skip }, () => {
             const template = compileSchema(filePath, {
@@ -198,7 +208,10 @@ for (const dialect of suiteDialects) {
             const expectedDescriptions = modeData.descriptions || [];
             assert.equal(tracePost.length, expectedDescriptions.length,
               `Description count: expected ${expectedDescriptions.length}, got ${tracePost.length}`);
-            for (let index = 0; index < expectedDescriptions.length; index++) {
+            const describeSkip = skipDescriptions(dialect, fixtureName);
+            for (let index = 0;
+                 index < (describeSkip ? 0 : expectedDescriptions.length);
+                 index++) {
               const post = tracePost[index];
               const actual = describeInstruction(
                 post.valid, post.instruction,
