@@ -28,8 +28,7 @@
   "valid": true,
   "fast": {
     "pre": [
-      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
-      [ "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ],
+      [ "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ],
       [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
       [ "LoopItemsTypeStrict", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ],
       [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/tags/type", "#/definitions/narrow/properties/tags/type", "/tags" ],
@@ -38,23 +37,21 @@
       [ "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/wide/type", "" ]
     ],
     "post": [
-      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
       [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
       [ true, "LoopItemsTypeStrict", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ],
       [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/tags/type", "#/definitions/narrow/properties/tags/type", "/tags" ],
       [ true, "AssertionPropertyTypeStrict", "/allOf/1/$ref/properties/alpha/type", "#/definitions/wide/properties/alpha/type", "/alpha" ],
       [ true, "AssertionPropertyTypeStrict", "/allOf/1/$ref/properties/zeta/type", "#/definitions/wide/properties/zeta/type", "/zeta" ],
-      [ true, "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ],
+      [ true, "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ],
       [ true, "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/wide/type", "" ]
     ],
     "descriptions": [
-      "The value was expected to be an object that defines the property \"name\"",
       "The value was expected to be of type string",
       "The array items were expected to be of type string",
       "The value was expected to be of type array",
       "The value was expected to be of type string",
       "The value was expected to be of type string",
-      "The object value was expected to validate against the 8 defined properties subschemas",
+      "The object value was expected to define the required properties and validate against the 8 defined properties subschemas",
       "The value was expected to be of type object"
     ]
   },

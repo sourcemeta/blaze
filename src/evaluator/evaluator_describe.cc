@@ -1136,6 +1136,20 @@ auto describe(const Template &schema_template, const bool valid,
                           {std::to_string(step.children.size() - 1)});
   }
 
+  if (step.type ==
+      sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchRequired) {
+    assert(!step.children.empty());
+    // This one stands for a presence assertion too, so unlike the loops that
+    // only apply subschemas it is reached on a non-object, and that is the one
+    // thing it has to report on its own
+    if (!target.is_object()) {
+      return render_message(message_detail_format(schema_template, step), {});
+    }
+
+    return render_message(message_format(schema_template, step),
+                          {std::to_string(step.children.size())});
+  }
+
   if (step.type == sourcemeta::blaze::InstructionIndex::LoopPropertiesMatch ||
       step.type ==
           sourcemeta::blaze::InstructionIndex::LoopPropertiesMatchClosed) {

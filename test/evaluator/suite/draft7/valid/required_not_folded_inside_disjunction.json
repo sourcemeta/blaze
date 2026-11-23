@@ -1,0 +1,87 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "oneOf": [ { "$ref": "#/definitions/node" }, { "type": "string" } ],
+    "definitions": {
+      "node": {
+        "type": "object",
+        "required": [ "name" ],
+        "properties": {
+          "one": { "type": "string" },
+          "two": { "type": "string" },
+          "three": { "type": "string" },
+          "four": { "type": "string" },
+          "five": { "type": "string" },
+          "six": { "type": "string" },
+          "seven": { "type": "string" },
+          "eight": { "type": "string" },
+          "name": { "type": "string" },
+          "child": { "$ref": "#/definitions/node" }
+        }
+      }
+    }
+  },
+  "instance": { "name": "a", "three": "b" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "ControlJump", "/oneOf/0/$ref", "#/oneOf/0/$ref", "" ],
+      [ "AssertionDefinesStrict", "/oneOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ "LoopPropertiesMatch", "/oneOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/oneOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ "AssertionPropertyTypeStrict", "/oneOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/oneOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/oneOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ true, "AssertionPropertyTypeStrict", "/oneOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ true, "LoopPropertiesMatch", "/oneOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ true, "ControlJump", "/oneOf/0/$ref", "#/oneOf/0/$ref", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 10 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type string but it was of type object",
+      "The object value was expected to validate against one and only one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "ControlJump", "/oneOf/0/$ref", "#/oneOf/0/$ref", "" ],
+      [ "AssertionDefinesStrict", "/oneOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ "LoopPropertiesMatch", "/oneOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ "AssertionTypeStrict", "/oneOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ "AssertionTypeStrict", "/oneOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ "AssertionTypeStrict", "/oneOf/0/$ref/type", "#/definitions/node/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/oneOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ true, "AssertionTypeStrict", "/oneOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ true, "AssertionTypeStrict", "/oneOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ true, "LoopPropertiesMatch", "/oneOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ true, "AssertionTypeStrict", "/oneOf/0/$ref/type", "#/definitions/node/type", "" ],
+      [ true, "ControlJump", "/oneOf/0/$ref", "#/oneOf/0/$ref", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 10 defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type string but it was of type object",
+      "The object value was expected to validate against one and only one of the 2 given subschemas"
+    ]
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/node" } ],
+    "definitions": {
+      "node": {
+        "type": "object",
+        "required": [ "name" ],
+        "properties": {
+          "one": { "type": "string" },
+          "two": { "type": "string" },
+          "three": { "type": "string" },
+          "four": { "type": "string" },
+          "five": { "type": "string" },
+          "six": { "type": "string" },
+          "seven": { "type": "string" },
+          "eight": { "type": "string" },
+          "name": { "type": "string" },
+          "child": { "$ref": "#/definitions/node" }
+        }
+      }
+    }
+  },
+  "instance": { "name": "a", "three": "b", "child": { "name": "c" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "LoopPropertiesMatchRequired", "/allOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ "ControlJump", "/allOf/0/$ref/properties/child/$ref", "#/definitions/node/properties/child/$ref", "/child" ],
+      [ "LoopPropertiesMatchRequired", "/allOf/0/$ref/properties/child/$ref/properties", "#/definitions/node/properties", "/child" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/child/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/child/name" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/child/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/child/name" ],
+      [ true, "LoopPropertiesMatchRequired", "/allOf/0/$ref/properties/child/$ref/properties", "#/definitions/node/properties", "/child" ],
+      [ true, "ControlJump", "/allOf/0/$ref/properties/child/$ref", "#/definitions/node/properties/child/$ref", "/child" ],
+      [ true, "LoopPropertiesMatchRequired", "/allOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to define the required properties and validate against the 10 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to define the required properties and validate against the 10 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ "LoopPropertiesMatch", "/allOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ "ControlJump", "/allOf/0/$ref/properties/child/$ref", "#/definitions/node/properties/child/$ref", "/child" ],
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/properties/child/$ref/required", "#/definitions/node/required", "/child" ],
+      [ "LoopPropertiesMatch", "/allOf/0/$ref/properties/child/$ref/properties", "#/definitions/node/properties", "/child" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/child/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/child/name" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/child/$ref/type", "#/definitions/node/type", "/child" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/node/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/node/required", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/name" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/three/type", "#/definitions/node/properties/three/type", "/three" ],
+      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/properties/child/$ref/required", "#/definitions/node/required", "/child" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/child/$ref/properties/name/type", "#/definitions/node/properties/name/type", "/child/name" ],
+      [ true, "LoopPropertiesMatch", "/allOf/0/$ref/properties/child/$ref/properties", "#/definitions/node/properties", "/child" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/child/$ref/type", "#/definitions/node/type", "/child" ],
+      [ true, "ControlJump", "/allOf/0/$ref/properties/child/$ref", "#/definitions/node/properties/child/$ref", "/child" ],
+      [ true, "LoopPropertiesMatch", "/allOf/0/$ref/properties", "#/definitions/node/properties", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/node/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 10 defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the 10 defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema"
+    ]
+  }
+}
