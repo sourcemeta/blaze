@@ -1,0 +1,101 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/left" }, { "$ref": "#/definitions/right" } ],
+    "definitions": {
+      "left": {
+        "type": "object",
+        "properties": {
+          "one": { "type": "array", "items": { "type": "string" } },
+          "two": { "type": "array", "items": { "type": "string" } },
+          "three": { "type": "array", "items": { "type": "string" } },
+          "four": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "right": {
+        "type": "object",
+        "properties": {
+          "five": { "type": "array", "items": { "type": "string" } },
+          "six": { "type": "array", "items": { "type": "string" } },
+          "seven": { "type": "array", "items": { "type": "string" } },
+          "eight": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    }
+  },
+  "instance": { "one": [ "a" ], "five": [ "b" ] },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsTypeStrict", "/allOf/0/$ref/properties/one/items", "#/definitions/left/properties/one/items", "/one" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/one/type", "#/definitions/left/properties/one/type", "/one" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/left/type", "" ],
+      [ "LoopItemsTypeStrict", "/allOf/1/$ref/properties/five/items", "#/definitions/right/properties/five/items", "/five" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/1/$ref/properties/five/type", "#/definitions/right/properties/five/type", "/five" ],
+      [ "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/right/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsTypeStrict", "/allOf/0/$ref/properties/one/items", "#/definitions/left/properties/one/items", "/one" ],
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/one/type", "#/definitions/left/properties/one/type", "/one" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/left/type", "" ],
+      [ true, "LoopItemsTypeStrict", "/allOf/1/$ref/properties/five/items", "#/definitions/right/properties/five/items", "/five" ],
+      [ true, "AssertionPropertyTypeStrict", "/allOf/1/$ref/properties/five/type", "#/definitions/right/properties/five/type", "/five" ],
+      [ true, "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/right/type", "" ]
+    ],
+    "descriptions": [
+      "The array items were expected to be of type string",
+      "The value was expected to be of type array",
+      "The value was expected to be of type object",
+      "The array items were expected to be of type string",
+      "The value was expected to be of type array",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/definitions/left/properties", "" ],
+      [ "LoopItems", "/allOf/0/$ref/properties/one/items", "#/definitions/left/properties/one/items", "/one" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/one/items/type", "#/definitions/left/properties/one/items/type", "/one/0" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/one/type", "#/definitions/left/properties/one/type", "/one" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/left/type", "" ],
+      [ "ControlJump", "/allOf/1/$ref", "#/allOf/1/$ref", "" ],
+      [ "LogicalWhenType", "/allOf/1/$ref/properties", "#/definitions/right/properties", "" ],
+      [ "LoopItems", "/allOf/1/$ref/properties/five/items", "#/definitions/right/properties/five/items", "/five" ],
+      [ "AssertionTypeStrict", "/allOf/1/$ref/properties/five/items/type", "#/definitions/right/properties/five/items/type", "/five/0" ],
+      [ "AssertionTypeStrict", "/allOf/1/$ref/properties/five/type", "#/definitions/right/properties/five/type", "/five" ],
+      [ "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/right/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/one/items/type", "#/definitions/left/properties/one/items/type", "/one/0" ],
+      [ true, "LoopItems", "/allOf/0/$ref/properties/one/items", "#/definitions/left/properties/one/items", "/one" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/one/type", "#/definitions/left/properties/one/type", "/one" ],
+      [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "#/definitions/left/properties", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/definitions/left/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/1/$ref/properties/five/items/type", "#/definitions/right/properties/five/items/type", "/five/0" ],
+      [ true, "LoopItems", "/allOf/1/$ref/properties/five/items", "#/definitions/right/properties/five/items", "/five" ],
+      [ true, "AssertionTypeStrict", "/allOf/1/$ref/properties/five/type", "#/definitions/right/properties/five/type", "/five" ],
+      [ true, "LogicalWhenType", "/allOf/1/$ref/properties", "#/definitions/right/properties", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/1/$ref/type", "#/definitions/right/type", "" ],
+      [ true, "ControlJump", "/allOf/1/$ref", "#/allOf/1/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The value was expected to be of type array",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The value was expected to be of type array",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

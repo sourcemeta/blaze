@@ -414,6 +414,339 @@ inline auto fuse_numeric_bounds(Instructions &instructions,
   return false;
 }
 
+// An instruction that records what it evaluated, which a later
+// `unevaluatedProperties` or `unevaluatedItems` consults, cannot be moved into
+// a property loop that may decide a child without dispatching to it
+inline auto marks_evaluation(const InstructionIndex type) noexcept -> bool {
+  switch (type) {
+    case InstructionIndex::Evaluate:
+    case InstructionIndex::AssertionPropertyTypeEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrictEvaluate:
+    case InstructionIndex::AssertionPropertyTypeStrictAnyEvaluate:
+    case InstructionIndex::AssertionArrayPrefixEvaluate:
+    case InstructionIndex::LogicalNotEvaluate:
+    case InstructionIndex::LogicalOrEvaluate:
+    case InstructionIndex::LogicalXorEvaluate:
+    case InstructionIndex::LogicalConditionEvaluate:
+    case InstructionIndex::LoopPropertiesEvaluate:
+    case InstructionIndex::LoopPropertiesTypeEvaluate:
+    case InstructionIndex::LoopPropertiesTypeStrictEvaluate:
+    case InstructionIndex::LoopPropertiesTypeStrictAnyEvaluate:
+    case InstructionIndex::LoopPropertiesUnevaluated:
+    case InstructionIndex::LoopPropertiesUnevaluatedExcept:
+    case InstructionIndex::LoopItemsUnevaluated:
+    case InstructionIndex::ControlEvaluate:
+      return true;
+    default:
+      return false;
+  }
+}
+
+inline auto fuses_into_property_loop(const Instruction &instruction) -> bool {
+  if (marks_evaluation(instruction.type) || is_annotation(instruction.type)) {
+    return false;
+  }
+
+  return std::ranges::all_of(instruction.children, fuses_into_property_loop);
+}
+
+// Sibling instructions that all decide something about the properties of the
+// same object, which one property loop could decide in a single pass over it.
+// The names are what the merged loop would match on, `required` are the ones a
+// presence assertion that stays behind already proves are there, and the two
+// flags are what rules a set out: a closed loop among the siblings, or an
+// absorbed instruction carrying a side effect that a loop may skip
+struct ObjectPropertiesFusion {
+  sourcemeta::core::Pointer instance_location;
+  std::vector<std::size_t> indices;
+  std::vector<ValueString> names;
+  std::unordered_set<ValueString> required;
+  std::size_t loops;
+  std::size_t guards;
+  std::size_t accesses;
+  bool closed;
+  bool side_effects;
+};
+
+inline auto
+object_properties_fusion_at(std::vector<ObjectPropertiesFusion> &fusions,
+                            const sourcemeta::core::Pointer &instance_location)
+    -> ObjectPropertiesFusion & {
+  for (auto &fusion : fusions) {
+    if (fusion.instance_location == instance_location) {
+      return fusion;
+    }
+  }
+
+  fusions.push_back({.instance_location = instance_location,
+                     .indices = {},
+                     .names = {},
+                     .required = {},
+                     .loops = 0,
+                     .guards = 0,
+                     .accesses = 0,
+                     .closed = false,
+                     .side_effects = false});
+  return fusions.back();
+}
+
+inline auto object_properties_fusion_name(ObjectPropertiesFusion &fusion,
+                                          const ValueString &name) -> void {
+  if (std::ranges::find(fusion.names, name) == fusion.names.cend()) {
+    fusion.names.push_back(name);
+  }
+}
+
+// Group the instructions of one conjunction by the object they decide
+// something about, without rewriting any of them
+inline auto
+collect_object_properties_fusions(const Instructions &instructions,
+                                  std::vector<ObjectPropertiesFusion> &fusions)
+    -> void {
+  for (std::size_t index = 0; index < instructions.size(); ++index) {
+    const auto &instruction{instructions[index]};
+    switch (instruction.type) {
+      case InstructionIndex::LoopPropertiesMatch: {
+        auto &fusion{object_properties_fusion_at(
+            fusions, instruction.relative_instance_location)};
+        for (const auto &entry :
+             std::get<ValueNamedIndexes>(instruction.value).first) {
+          object_properties_fusion_name(fusion, std::get<2>(entry));
+        }
+
+        fusion.indices.push_back(index);
+        fusion.loops += 1;
+        fusion.side_effects |= !fuses_into_property_loop(instruction);
+        break;
+      }
+
+      // Closedness is a different contract, so a set holding one of these is
+      // left alone rather than merged into an open loop
+      case InstructionIndex::LoopPropertiesMatchClosed:
+        object_properties_fusion_at(fusions,
+                                    instruction.relative_instance_location)
+            .closed = true;
+        break;
+
+      // A presence assertion is not absorbed, as a merged loop cannot enforce
+      // presence without counting what it matched. It stays a sibling, and
+      // only says which of the merged names are resolved anyway
+      case InstructionIndex::AssertionDefines:
+      case InstructionIndex::AssertionDefinesStrict:
+        object_properties_fusion_at(fusions,
+                                    instruction.relative_instance_location)
+            .required.insert(std::get<ValueProperty>(instruction.value).first);
+        break;
+
+      case InstructionIndex::AssertionDefinesAll:
+      case InstructionIndex::AssertionDefinesAllStrict: {
+        auto &fusion{object_properties_fusion_at(
+            fusions, instruction.relative_instance_location)};
+        for (const auto &property :
+             std::get<ValueStringSet>(instruction.value)) {
+          fusion.required.insert(property.first);
+        }
+
+        break;
+      }
+
+      // A presence guard becomes the merged loop's own match on that name, and
+      // its children become what that name's entry holds
+      case InstructionIndex::ControlGroupWhenDefinesDirect: {
+        auto &fusion{object_properties_fusion_at(
+            fusions, instruction.relative_instance_location)};
+        object_properties_fusion_name(
+            fusion, std::get<ValueProperty>(instruction.value).first);
+        fusion.indices.push_back(index);
+        fusion.guards += 1;
+        fusion.side_effects |= !fuses_into_property_loop(instruction);
+        break;
+      }
+
+      default: {
+        if (instruction.relative_instance_location.empty() ||
+            !instruction.relative_instance_location.back().is_property()) {
+          break;
+        }
+
+        auto &fusion{object_properties_fusion_at(
+            fusions, instruction.relative_instance_location.initial())};
+        object_properties_fusion_name(
+            fusion,
+            instruction.relative_instance_location.back().to_property());
+        fusion.indices.push_back(index);
+        fusion.accesses += 1;
+        fusion.side_effects |= !fuses_into_property_loop(instruction);
+        break;
+      }
+    }
+  }
+}
+
+// How many of the merged names a sibling presence assertion already proves are
+// there, which is what the loop versus unroll balance counts as required
+inline auto
+object_properties_fusion_required(const ObjectPropertiesFusion &fusion)
+    -> std::size_t {
+  std::size_t result{0};
+  for (const auto &name : fusion.names) {
+    if (fusion.required.contains(name)) {
+      result += 1;
+    }
+  }
+
+  return result;
+}
+
+// Merging is worth doing when it collapses more than one pass over the object
+// and when the merged counts ask for a loop the same way the compiler asks for
+// one.
+//
+// A set has to hold a loop already. The numeric balance is only the core of
+// `properties_as_loop`: the rest of it asks whether the subschema is reachable
+// from a disjunction and whether any of its properties carries `enum` or
+// `const`, and unrolls whatever the counts say when both hold, so that one
+// comparison can decide the whole branch. That lives in the schema and in the
+// reference graph, neither of which this pass can see. Insisting on a loop
+// means at least one of the subschemas feeding the set was judged to want one,
+// and that the pass never turns a deliberate unroll into a loop
+inline auto is_object_properties_fusable(const ObjectPropertiesFusion &fusion)
+    -> bool {
+  return !fusion.closed && !fusion.side_effects && fusion.loops > 0 &&
+         fusion.loops + fusion.guards + fusion.accesses > 1 &&
+         // Everything absorbed navigates from the object the loop walks, so a
+         // set deeper than the instructions' own base would need its children
+         // rebased onto the loop's target first
+         fusion.instance_location.empty() &&
+         favours_property_loop(fusion.names.size(),
+                               object_properties_fusion_required(fusion));
+}
+
+// The entry a name's work belongs to, creating it if the merged loop does not
+// hold one yet. The entries record which child applies to them, so a new one
+// goes at the end of the children and records that position
+inline auto object_properties_fusion_entry(
+    std::vector<std::pair<ValueString, ValueUnsignedInteger>> &names,
+    Instructions &children, const ValueString &name,
+    const std::size_t extra_index) -> Instructions & {
+  for (const auto &entry : names) {
+    if (entry.first == name) {
+      return children[entry.second].children;
+    }
+  }
+
+  names.emplace_back(name, children.size());
+  children.push_back({.type = InstructionIndex::ControlGroup,
+                      .relative_instance_location = {},
+                      .value = ValueNone{},
+                      .children = {},
+                      .extra_index = extra_index});
+  return children.back().children;
+}
+
+// Collapse the sibling instructions that each walk or resolve into the same
+// object into one loop over it.
+//
+// The merged loop pushes nothing of its own onto the evaluation path, as the
+// siblings it absorbs were all reached from the instructions' own base and go
+// on reporting the schema location they reported before. What the loop it
+// absorbed used to push becomes a prefix on that loop's own entries instead,
+// so that every instruction still answers for where it came from
+inline auto fuse_object_properties(Instructions &instructions,
+                                   InstructionExtras &extra) -> bool {
+  std::vector<ObjectPropertiesFusion> fusions;
+  collect_object_properties_fusions(instructions, fusions);
+
+  for (const auto &fusion : fusions) {
+    if (!is_object_properties_fusable(fusion)) {
+      continue;
+    }
+
+    std::vector<std::pair<ValueString, ValueUnsignedInteger>> names;
+    Instructions children;
+    std::optional<std::size_t> source_index;
+
+    for (const auto index : fusion.indices) {
+      auto &instruction{instructions[index]};
+      if (instruction.type == InstructionIndex::LoopPropertiesMatch) {
+        if (!source_index.has_value()) {
+          source_index = instruction.extra_index;
+        }
+
+        const auto prefix{
+            extra[instruction.extra_index].relative_schema_location};
+        for (const auto &entry :
+             std::get<ValueNamedIndexes>(instruction.value).first) {
+          auto &entry_children{object_properties_fusion_entry(
+              names, children, std::get<2>(entry), instruction.extra_index)};
+          auto &group{instruction.children[std::get<1>(entry)]};
+          for (auto &child : group.children) {
+            duplicate_metadata(child, extra);
+            rebase_anchored(child, extra, prefix);
+            entry_children.push_back(std::move(child));
+          }
+        }
+      } else if (instruction.type ==
+                 InstructionIndex::ControlGroupWhenDefinesDirect) {
+        auto &entry_children{object_properties_fusion_entry(
+            names, children, std::get<ValueProperty>(instruction.value).first,
+            instruction.extra_index)};
+        for (auto &child : instruction.children) {
+          entry_children.push_back(std::move(child));
+        }
+      } else {
+        assert(instruction.relative_instance_location.size() == 1);
+        auto &entry_children{object_properties_fusion_entry(
+            names, children,
+            instruction.relative_instance_location.back().to_property(),
+            instruction.extra_index)};
+        entry_children.push_back(std::move(instruction));
+      }
+    }
+
+    assert(source_index.has_value());
+    assert(!names.empty());
+    const auto extra_index{extra.size()};
+    const auto &source_metadata{extra[source_index.value()]};
+    extra.push_back({.relative_schema_location = {},
+                     .keyword_location = source_metadata.keyword_location,
+                     .schema_resource = source_metadata.schema_resource,
+                     .vocabulary = source_metadata.vocabulary,
+                     .message = source_metadata.message,
+                     .message_detail = source_metadata.message_detail});
+
+    Instruction merged{.type = InstructionIndex::LoopPropertiesMatch,
+                       .relative_instance_location = {},
+                       .value = to_named_indexes(names),
+                       .children = std::move(children),
+                       .extra_index = extra_index};
+
+    // The merged loop stands where the first sibling it absorbed stood, and
+    // every other one goes away
+    Instructions result;
+    result.reserve(instructions.size() - fusion.indices.size() + 1);
+    for (std::size_t index = 0; index < fusion.indices.front(); ++index) {
+      result.push_back(std::move(instructions[index]));
+    }
+
+    result.push_back(std::move(merged));
+
+    for (std::size_t index = fusion.indices.front();
+         index < instructions.size(); ++index) {
+      if (std::ranges::find(fusion.indices, index) != fusion.indices.cend()) {
+        continue;
+      }
+
+      result.push_back(std::move(instructions[index]));
+    }
+
+    instructions = std::move(result);
+    return true;
+  }
+
+  return false;
+}
+
 // A loop whose only child is a type check folds into a single instruction that
 // applies that check to every entry, as the loop type that admits the fusion,
 // the child type that triggers it, and what the two become
@@ -634,12 +967,16 @@ inline auto postprocess(std::vector<Instructions> &targets,
       auto &current_stats{statistics[current_target_index]};
       bool target_changed{false};
 
-      std::vector<std::pair<Instructions *, Instruction *>> worklist;
-      std::vector<std::tuple<Instructions *, std::size_t, Instruction *>> stack;
-      stack.emplace_back(&target, 0, nullptr);
+      // Whether a list is reached through a disjunction or a conditional is
+      // carried down the walk, as what holds for a branch holds for
+      // everything nested inside it
+      std::vector<std::tuple<Instructions *, Instruction *, bool>> worklist;
+      std::vector<std::tuple<Instructions *, std::size_t, Instruction *, bool>>
+          stack;
+      stack.emplace_back(&target, 0, nullptr, false);
 
       while (!stack.empty()) {
-        auto [current, index, owner] = stack.back();
+        auto [current, index, owner, branching] = stack.back();
         stack.pop_back();
 
         while (index < current->size() && (*current)[index].children.empty()) {
@@ -647,15 +984,17 @@ inline auto postprocess(std::vector<Instructions> &targets,
         }
 
         if (index < current->size()) {
-          stack.emplace_back(current, index + 1, owner);
-          stack.emplace_back(&(*current)[index].children, 0,
-                             &(*current)[index]);
+          stack.emplace_back(current, index + 1, owner, branching);
+          stack.emplace_back(&(*current)[index].children, 0, &(*current)[index],
+                             branching ||
+                                 is_disjunction((*current)[index].type) ||
+                                 is_conditional((*current)[index].type));
         } else {
-          worklist.emplace_back(current, owner);
+          worklist.emplace_back(current, owner, branching);
         }
       }
 
-      for (const auto &[current, owner] : worklist) {
+      for (const auto &[current, owner, branching] : worklist) {
         Instructions result;
         result.reserve(current->size());
 
@@ -687,6 +1026,14 @@ inline auto postprocess(std::vector<Instructions> &targets,
                                                 is_disjunction(owner->type)))};
 
         if (!disjoint && fuse_numeric_bounds(*current, extra)) {
+          target_changed = true;
+        }
+
+        // A disjunction branch is unrolled on purpose, so that one comparison
+        // can decide it and the rest of the branch never runs. Merging its
+        // properties into a loop would bury that comparison inside the walk
+        if (!disjoint && !branching &&
+            fuse_object_properties(*current, extra)) {
           target_changed = true;
         }
 

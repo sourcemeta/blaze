@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/narrow" }, { "$ref": "#/definitions/wide" } ],
+    "definitions": {
+      "narrow": {
+        "type": "object",
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "wide": {
+        "type": "object",
+        "properties": {
+          "alpha": { "type": "string" },
+          "beta": { "type": "string" },
+          "gamma": { "type": "string" },
+          "delta": { "type": "string" },
+          "epsilon": { "type": "string" },
+          "zeta": { "type": "string" }
+        }
+      }
+    }
+  },
+  "instance": "x",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
+      [ false, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}
