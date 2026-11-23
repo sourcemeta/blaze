@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "type": [ "integer", "string" ] } }
+  },
+  "instance": { "foo": true },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer, or string but it was of type boolean",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeAny", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer, or string but it was of type boolean",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

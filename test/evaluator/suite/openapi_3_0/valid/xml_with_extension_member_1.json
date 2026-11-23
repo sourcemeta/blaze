@@ -1,0 +1,7 @@
+{
+  "schema": { "xml": { "name": "pet", "x-internal": true } },
+  "instance": { "name": "Rex" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

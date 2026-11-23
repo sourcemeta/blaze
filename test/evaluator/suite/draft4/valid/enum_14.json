@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "string",
+    "minLength": 1,
+    "enum": [ "foo" ]
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStringBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeStringBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal the string constant \"foo\"",
+      "The value was expected to consist of a string of at least 1 character"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ],
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+      [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal the string constant \"foo\"",
+      "The string value \"foo\" was expected to consist of at least 1 character and its length was 3",
+      "The value was expected to be of type string"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "integer", "nullable": true },
+  "instance": 7,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or integer and it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or integer and it was of type integer"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": { "foo": {}, "bar": {} }
+  },
+  "instance": { "foo": 1, "bar": 2, "baz": 3 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactlyStrict", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that only defines properties \"bar\", and \"foo\", but it also defines \"baz\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines \"baz\""
+    ]
+  }
+}

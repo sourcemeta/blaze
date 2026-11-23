@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "xml": {
+      "name": "pet",
+      "namespace": "http://example.com/schema",
+      "prefix": "ex",
+      "attribute": false,
+      "wrapped": true
+    }
+  },
+  "instance": { "name": "Rex" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

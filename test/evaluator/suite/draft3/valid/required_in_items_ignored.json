@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": { "required": true, "type": "string" }
+  },
+  "instance": [ "a", "b" ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsTypeStrict", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsTypeStrict", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The array items were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

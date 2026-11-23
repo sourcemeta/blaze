@@ -1,0 +1,9 @@
+{
+  "schema": {
+    "externalDocs": { "url": "https://example.com/docs", "description": "Find more info here" }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

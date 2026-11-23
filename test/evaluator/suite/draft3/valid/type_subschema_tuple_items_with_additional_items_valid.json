@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "additionalItems": { "type": "string" } },
+      { "type": "array", "minItems": 3 }
+    ],
+    "items": [ { "type": "integer" } ]
+  },
+  "instance": [ 1, 5 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type array",
+      "The array value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type array",
+      "The array value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

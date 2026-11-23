@@ -1,0 +1,8 @@
+{
+  "schema": { "maxItems": 3.0 },
+  "error": {
+    "message": "This keyword was expected to be set to an integer",
+    "base": "",
+    "location": "/maxItems"
+  }
+}

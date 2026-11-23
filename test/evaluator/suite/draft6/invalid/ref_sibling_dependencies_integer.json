@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "n": { "$ref": "#", "dependencies": 1 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an object",
+    "base": "",
+    "location": "/properties/n/dependencies"
+  }
+}

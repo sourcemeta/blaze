@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "bar": { "$ref": "#/definitions/helper" }, "foo": { "enum": [ "foo" ] } },
+    "definitions": { "helper": { "enum": [ "test" ] } }
+  },
+  "instance": { "bar": "test", "foo": "foo" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ "AssertionEqual", "/properties/bar/$ref/enum", "#/definitions/helper/enum", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ true, "AssertionEqual", "/properties/bar/$ref/enum", "#/definitions/helper/enum", "/bar" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal the string constant \"foo\"",
+      "The string value \"test\" was expected to equal the string constant \"test\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ "ControlJump", "/properties/bar/$ref", "#/properties/bar/$ref", "/bar" ],
+      [ "AssertionEqual", "/properties/bar/$ref/enum", "#/definitions/helper/enum", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ true, "AssertionEqual", "/properties/bar/$ref/enum", "#/definitions/helper/enum", "/bar" ],
+      [ true, "ControlJump", "/properties/bar/$ref", "#/properties/bar/$ref", "/bar" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"foo\" was expected to equal the string constant \"foo\"",
+      "The string value \"test\" was expected to equal the string constant \"test\"",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

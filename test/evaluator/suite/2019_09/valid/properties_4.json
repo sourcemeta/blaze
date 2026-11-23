@@ -1,0 +1,71 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "properties": { "kind": { "const": "A" } } },
+    "then": { "properties": { "name": { "type": "string" } } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "kind": "A", "name": "test" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+      [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"A\" was expected to equal the string constant \"A\"",
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+      [ "Annotation", "/if/properties", "#/if/properties", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "AssertionTypeStrict", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/name" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/if/properties/kind/const", "#/if/properties/kind/const", "/kind" ],
+      [ true, "Annotation", "/if/properties", "#/if/properties", "", "kind" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/kind" ],
+      [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ true, "AssertionTypeStrict", "/then/properties/name/type", "#/then/properties/name/type", "/name" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "name" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/name" ],
+      [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"A\" was expected to equal the string constant \"A\"",
+      "The object property \"kind\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type string",
+      "The object property \"name\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

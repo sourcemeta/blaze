@@ -1,0 +1,8 @@
+{
+  "schema": { "anyOf": [ 5 ] },
+  "error": {
+    "message": "This keyword was expected to be set to an array of valid schemas",
+    "base": "",
+    "location": "/anyOf"
+  }
+}

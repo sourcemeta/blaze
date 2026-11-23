@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "pattern": "^x" },
+  "instance": "aaa",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "descriptions": [
+      "The string value \"aaa\" was expected to match the regular expression \"^x\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "descriptions": [
+      "The string value \"aaa\" was expected to match the regular expression \"^x\""
+    ]
+  }
+}

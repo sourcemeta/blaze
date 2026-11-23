@@ -1,0 +1,7 @@
+{
+  "schema": { "multipleOf": 3 },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

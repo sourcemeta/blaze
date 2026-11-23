@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "required": [ "x" ],
+    "$ref": "#/$defs/sub",
+    "$defs": {
+      "sub": {
+        "type": "object",
+        "properties": { "a": { "type": "string" } },
+        "required": [ "a" ]
+      }
+    }
+  },
+  "instance": { "a": "hello" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/$ref/properties", "#/$defs/sub/properties", "" ],
+      [ false, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "The object value was expected to define the property \"x\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "#/$ref", "" ],
+      [ "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+      [ "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+      [ "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+      [ "Annotation", "/$ref/properties", "#/$defs/sub/properties", "" ],
+      [ "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+      [ "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/$ref/required", "#/$defs/sub/required", "" ],
+      [ true, "AssertionTypeStrict", "/$ref/properties/a/type", "#/$defs/sub/properties/a/type", "/a" ],
+      [ true, "Annotation", "/$ref/properties", "#/$defs/sub/properties", "", "a" ],
+      [ true, "LogicalWhenType", "/$ref/properties", "#/$defs/sub/properties", "" ],
+      [ true, "AssertionTypeStrict", "/$ref/type", "#/$defs/sub/type", "" ],
+      [ true, "ControlJump", "/$ref", "#/$ref", "" ],
+      [ false, "AssertionDefines", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"a\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to define the property \"x\""
+    ]
+  }
+}

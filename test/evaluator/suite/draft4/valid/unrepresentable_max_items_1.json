@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maxItems": 99999999999999999999
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

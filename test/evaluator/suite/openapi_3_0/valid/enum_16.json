@@ -1,0 +1,36 @@
+{
+  "schema": { "type": "object", "minProperties": 1, "enum": [ { "foo": 1 } ] },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ],
+      [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+      "The value was expected to consist of an object of at least 1 property"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ],
+      [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+      [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value {\"foo\":1} was expected to equal the object constant {\"foo\":1}",
+      "The object value was expected to contain at least 1 property and it defines 1 of them: \"foo\"",
+      "The value was expected to be of type object"
+    ]
+  }
+}

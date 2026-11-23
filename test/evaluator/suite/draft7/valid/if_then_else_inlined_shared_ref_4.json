@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+      "left": { "$ref": "#/definitions/shared" },
+      "right": { "$ref": "#/definitions/shared" }
+    },
+    "definitions": {
+      "shared": {
+        "if": { "type": "array" },
+        "then": { "items": { "type": "string", "minLength": 1 } }
+      }
+    }
+  },
+  "instance": { "left": [ "x" ] },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/definitions/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/definitions/shared/if/type", "/left" ],
+      [ "LoopItems", "/properties/left/$ref/then/items", "#/definitions/shared/then/items", "/left" ],
+      [ "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/definitions/shared/then/items/type", "/left/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/definitions/shared/if/type", "/left" ],
+      [ true, "AssertionTypeStringBounded", "/properties/left/$ref/then/items/type", "#/definitions/shared/then/items/type", "/left/0" ],
+      [ true, "LoopItems", "/properties/left/$ref/then/items", "#/definitions/shared/then/items", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/definitions/shared/if", "/left" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The value was expected to consist of a string of at least 1 character",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The array value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/definitions/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/definitions/shared/if/type", "/left" ],
+      [ "LoopItems", "/properties/left/$ref/then/items", "#/definitions/shared/then/items", "/left" ],
+      [ "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/definitions/shared/then/items/minLength", "/left/0" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/definitions/shared/then/items/type", "/left/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/definitions/shared/if/type", "/left" ],
+      [ true, "AssertionStringSizeGreater", "/properties/left/$ref/then/items/minLength", "#/definitions/shared/then/items/minLength", "/left/0" ],
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/then/items/type", "#/definitions/shared/then/items/type", "/left/0" ],
+      [ true, "LoopItems", "/properties/left/$ref/then/items", "#/definitions/shared/then/items", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/definitions/shared/if", "/left" ],
+      [ true, "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The string value \"x\" was expected to consist of at least 1 character and its length was 1",
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The array value was expected to validate against the given conditional",
+      "The array value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

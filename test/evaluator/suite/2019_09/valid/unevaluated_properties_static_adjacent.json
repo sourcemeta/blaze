@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": true },
+    "patternProperties": { "^@": true },
+    "additionalProperties": true,
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": 1, "@a": 2, "z": 3 },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "@a" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "z" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"@a\" successfully validated against its pattern property subschema",
+      "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object property \"z\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

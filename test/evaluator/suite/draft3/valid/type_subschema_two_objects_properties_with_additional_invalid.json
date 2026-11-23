@@ -1,0 +1,70 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "additionalProperties": { "type": "integer" } },
+      { "type": "object", "patternProperties": { "^a": { "type": "integer" } } }
+    ],
+    "properties": { "a": { "type": "string" } }
+  },
+  "instance": { "a": "s" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ],
+      [ "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ false, "LoopPropertiesTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ],
+      [ false, "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type object",
+      "The object properties were expected to be of type integer",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties that start with the string \"a\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/a" ],
+      [ "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/0/additionalProperties/type", "#/type/0/additionalProperties/type", "/a" ],
+      [ false, "LoopProperties", "/type/0/additionalProperties", "#/type/0/additionalProperties", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/patternProperties/^a/type", "#/type/1/patternProperties/%5Ea/type", "/a" ],
+      [ false, "LoopPropertiesStartsWith", "/type/1/patternProperties", "#/type/1/patternProperties", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties that start with the string \"a\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

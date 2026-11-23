@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "u": {
+        "id": "https://example.com/union",
+        "type": [
+          { "type": "object", "patternProperties": { "^a": {} } },
+          { "type": "object", "patternProperties": { "^b": {} } }
+        ],
+        "properties": { "k": { "id": "https://example.com/key", "type": "integer" } }
+      },
+      "r1": { "$ref": "https://example.com/union" },
+      "r2": { "$ref": "https://example.com/key" }
+    }
+  },
+  "instance": { "r1": { "k": 5 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ],
+      [ "AssertionPropertyTypeStrict", "/properties/r1/$ref/properties/k/type", "https://example.com/key#/type", "/r1/k" ],
+      [ "LogicalOr", "/properties/r1/$ref/type", "https://example.com/union#/type", "/r1" ],
+      [ "AssertionTypeStrict", "/properties/r1/$ref/type/0/type", "https://example.com/union#/type/0/type", "/r1" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/r1/$ref/properties/k/type", "https://example.com/key#/type", "/r1/k" ],
+      [ true, "AssertionTypeStrict", "/properties/r1/$ref/type/0/type", "https://example.com/union#/type/0/type", "/r1" ],
+      [ true, "LogicalOr", "/properties/r1/$ref/type", "https://example.com/union#/type", "/r1" ],
+      [ true, "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ],
+      [ "LogicalWhenType", "/properties/r1/$ref/properties", "https://example.com/union#/properties", "/r1" ],
+      [ "AssertionTypeStrict", "/properties/r1/$ref/properties/k/type", "https://example.com/key#/type", "/r1/k" ],
+      [ "LogicalOr", "/properties/r1/$ref/type", "https://example.com/union#/type", "/r1" ],
+      [ "AssertionTypeStrict", "/properties/r1/$ref/type/0/type", "https://example.com/union#/type/0/type", "/r1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/r1/$ref/properties/k/type", "https://example.com/key#/type", "/r1/k" ],
+      [ true, "LogicalWhenType", "/properties/r1/$ref/properties", "https://example.com/union#/properties", "/r1" ],
+      [ true, "AssertionTypeStrict", "/properties/r1/$ref/type/0/type", "https://example.com/union#/type/0/type", "/r1" ],
+      [ true, "LogicalOr", "/properties/r1/$ref/type", "https://example.com/union#/type", "/r1" ],
+      [ true, "ControlJump", "/properties/r1/$ref", "https://example.com/root#/properties/r1/$ref", "/r1" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentRequired": { "foo": [ "bar", "baz" ] }
+  },
+  "instance": { "none": true },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\""
+    ]
+  }
+}

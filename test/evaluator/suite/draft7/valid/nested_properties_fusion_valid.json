@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": { "a": { "properties": { "c": { "type": "string", "minLength": 2 } } } }
+  },
+  "instance": { "a": { "c": "xy" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStringBounded", "/properties/a/properties/c/type", "#/properties/a/properties/c/type", "/a/c" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStringBounded", "/properties/a/properties/c/type", "#/properties/a/properties/c/type", "/a/c" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at least 2 characters",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties/a/properties", "#/properties/a/properties", "/a" ],
+      [ "AssertionStringSizeGreater", "/properties/a/properties/c/minLength", "#/properties/a/properties/c/minLength", "/a/c" ],
+      [ "AssertionTypeStrict", "/properties/a/properties/c/type", "#/properties/a/properties/c/type", "/a/c" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/properties/a/properties/c/minLength", "#/properties/a/properties/c/minLength", "/a/c" ],
+      [ true, "AssertionTypeStrict", "/properties/a/properties/c/type", "#/properties/a/properties/c/type", "/a/c" ],
+      [ true, "LogicalWhenType", "/properties/a/properties", "#/properties/a/properties", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xy\" was expected to consist of at least 2 characters and its length was 2",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

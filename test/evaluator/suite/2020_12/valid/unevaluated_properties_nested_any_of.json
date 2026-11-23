@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "unevaluatedProperties": false } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ],
+      [ false, "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define the property \"a\"",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "/a" ],
+      [ false, "LoopPropertiesUnevaluated", "/anyOf/0/unevaluatedProperties", "#/anyOf/0/unevaluatedProperties", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The object value was not expected to define the property \"a\"",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the given subschema"
+    ]
+  }
+}

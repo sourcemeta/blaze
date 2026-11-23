@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "string",
+    "maxLength": 2.0
+  },
+  "instance": "ab",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStringUpper", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStringUpper", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at most 2 characters"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"ab\" was expected to consist of at most 2 characters and its length was 2",
+      "The value was expected to be of type string"
+    ]
+  }
+}

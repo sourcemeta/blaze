@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/a",
+    "type": "object",
+    "properties": { "toB": { "$ref": "https://example.com/b" } },
+    "definitions": {
+      "b": {
+        "id": "https://example.com/b",
+        "type": "object",
+        "properties": { "toC": { "$ref": "https://example.com/c" } }
+      },
+      "c": {
+        "id": "https://example.com/c",
+        "type": "object",
+        "properties": {
+          "toA": { "$ref": "https://example.com/a" },
+          "leaf": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/a#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties", "https://example.com/a#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

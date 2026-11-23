@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "type": "string" }, false ]
+  },
+  "instance": 5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

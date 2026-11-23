@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "string", "nullable": true, "enum": [ "a", null ] },
+  "instance": null,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The null value null was expected to equal one of the 2 declared values",
+      "The value was expected to be of type null, or string and it was of type null"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The null value null was expected to equal one of the 2 declared values",
+      "The value was expected to be of type null, or string and it was of type null"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "type": "boolean" },
+  "instance": "true",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean but it was of type string"
+    ]
+  }
+}

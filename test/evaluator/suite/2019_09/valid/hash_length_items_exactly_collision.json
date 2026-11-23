@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": [ "aa", "bb" ],
+      "additionalProperties": false,
+      "properties": { "aa": { "type": "string" }, "bb": { "type": "string" } }
+    }
+  },
+  "instance": [ { "aa\u0000": "x", "bb\u0000": "y" } ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ false, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"aa\", and \"bb\", but it also defines \"aa\u0000\", and \"bb\u0000\"",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

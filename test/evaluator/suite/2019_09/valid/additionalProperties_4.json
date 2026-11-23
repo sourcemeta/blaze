@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "boolean" } },
+    "patternProperties": { "^bar$": { "type": "integer" } },
+    "additionalProperties": { "type": "string" }
+  },
+  "instance": { "foo": true, "bar": 2, "baz": "qux" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/patternProperties/^bar$/type", "#/patternProperties/%5Ebar$/type", "/bar" ],
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "bar" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/baz" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "baz" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"bar\" successfully validated against its pattern property subschema",
+      "The object properties that match the regular expression \"^bar$\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type boolean",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type string",
+      "The object property \"baz\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

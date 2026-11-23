@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "string", "items": { "allOf": [ { "patternProperties": {} } ] } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/items/allOf/0/patternProperties"
+  }
+}

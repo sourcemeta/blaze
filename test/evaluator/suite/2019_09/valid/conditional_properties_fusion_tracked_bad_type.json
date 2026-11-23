@@ -1,0 +1,70 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "type": "object" },
+    "then": {
+      "type": "object",
+      "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+      "required": [ "a", "b" ],
+      "additionalProperties": false
+    },
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": "x", "b": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ "AssertionPropertyTypeStrictEvaluate", "/then/properties/b/type", "#/then/properties/b/type", "/b" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ],
+      [ true, "AssertionPropertyTypeStrictEvaluate", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ false, "AssertionPropertyTypeStrictEvaluate", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The value was expected to be an object that only defines properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactly", "/then/required", "#/then/required", "" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/a" ],
+      [ "AssertionTypeStrict", "/then/properties/b/type", "#/then/properties/b/type", "/b" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionDefinesExactly", "/then/required", "#/then/required", "" ],
+      [ true, "AssertionTypeStrict", "/then/properties/a/type", "#/then/properties/a/type", "/a" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "a" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/a" ],
+      [ false, "AssertionTypeStrict", "/then/properties/b/type", "#/then/properties/b/type", "/b" ],
+      [ false, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to only define properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the given conditional"
+    ]
+  }
+}

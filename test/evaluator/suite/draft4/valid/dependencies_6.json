@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
+  },
+  "instance": { "none": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\""
+    ]
+  }
+}

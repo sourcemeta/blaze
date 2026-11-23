@@ -1,0 +1,86 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/a",
+    "type": "object",
+    "properties": { "toB": { "$ref": "https://example.com/b" } },
+    "definitions": {
+      "b": {
+        "id": "https://example.com/b",
+        "type": "object",
+        "properties": { "toC": { "$ref": "https://example.com/c" } }
+      },
+      "c": {
+        "id": "https://example.com/c",
+        "type": "object",
+        "properties": {
+          "toA": { "$ref": "https://example.com/a" },
+          "leaf": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "instance": { "toB": { "toC": { "leaf": 1 } } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/toB/$ref", "https://example.com/a#/properties/toB/$ref", "/toB" ],
+      [ "ControlJump", "/properties/toB/$ref/properties/toC/$ref", "https://example.com/b#/properties/toC/$ref", "/toB/toC" ],
+      [ "AssertionPropertyTypeStrict", "/properties/toB/$ref/properties/toC/$ref/properties/leaf/type", "https://example.com/c#/properties/leaf/type", "/toB/toC/leaf" ],
+      [ "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/type", "https://example.com/c#/type", "/toB/toC" ],
+      [ "AssertionTypeStrict", "/properties/toB/$ref/type", "https://example.com/b#/type", "/toB" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/toB/$ref/properties/toC/$ref/properties/leaf/type", "https://example.com/c#/properties/leaf/type", "/toB/toC/leaf" ],
+      [ true, "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/type", "https://example.com/c#/type", "/toB/toC" ],
+      [ true, "ControlJump", "/properties/toB/$ref/properties/toC/$ref", "https://example.com/b#/properties/toC/$ref", "/toB/toC" ],
+      [ true, "AssertionTypeStrict", "/properties/toB/$ref/type", "https://example.com/b#/type", "/toB" ],
+      [ true, "ControlJump", "/properties/toB/$ref", "https://example.com/a#/properties/toB/$ref", "/toB" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/a#/properties", "" ],
+      [ "ControlJump", "/properties/toB/$ref", "https://example.com/a#/properties/toB/$ref", "/toB" ],
+      [ "LogicalWhenType", "/properties/toB/$ref/properties", "https://example.com/b#/properties", "/toB" ],
+      [ "ControlJump", "/properties/toB/$ref/properties/toC/$ref", "https://example.com/b#/properties/toC/$ref", "/toB/toC" ],
+      [ "LogicalWhenType", "/properties/toB/$ref/properties/toC/$ref/properties", "https://example.com/c#/properties", "/toB/toC" ],
+      [ "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/properties/leaf/type", "https://example.com/c#/properties/leaf/type", "/toB/toC/leaf" ],
+      [ "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/type", "https://example.com/c#/type", "/toB/toC" ],
+      [ "AssertionTypeStrict", "/properties/toB/$ref/type", "https://example.com/b#/type", "/toB" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/properties/leaf/type", "https://example.com/c#/properties/leaf/type", "/toB/toC/leaf" ],
+      [ true, "LogicalWhenType", "/properties/toB/$ref/properties/toC/$ref/properties", "https://example.com/c#/properties", "/toB/toC" ],
+      [ true, "AssertionTypeStrict", "/properties/toB/$ref/properties/toC/$ref/type", "https://example.com/c#/type", "/toB/toC" ],
+      [ true, "ControlJump", "/properties/toB/$ref/properties/toC/$ref", "https://example.com/b#/properties/toC/$ref", "/toB/toC" ],
+      [ true, "LogicalWhenType", "/properties/toB/$ref/properties", "https://example.com/b#/properties", "/toB" ],
+      [ true, "AssertionTypeStrict", "/properties/toB/$ref/type", "https://example.com/b#/type", "/toB" ],
+      [ true, "ControlJump", "/properties/toB/$ref", "https://example.com/a#/properties/toB/$ref", "/toB" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/a#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/a#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

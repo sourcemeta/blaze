@@ -1,0 +1,7 @@
+{
+  "schema": { "format": "uri" },
+  "instance": "not a uri at all",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

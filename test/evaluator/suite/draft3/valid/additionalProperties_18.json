@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": { "foo": { "type": "boolean", "required": true } },
+    "patternProperties": { "^[@$_#]": {} },
+    "additionalProperties": false
+  },
+  "instance": { "foo": false, "@bar": "baz" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type object",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to be of type boolean",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

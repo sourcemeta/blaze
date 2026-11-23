@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "if": { "required": [ "flag" ] },
+    "then": { "$ref": "#/$defs/shared" },
+    "else": { "required": [ "a" ] },
+    "properties": { "other": { "$ref": "#/$defs/shared" } },
+    "$defs": {
+      "shared": {
+        "type": "object",
+        "required": [ "a", "b" ],
+        "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+      }
+    }
+  },
+  "instance": { "bar": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"flag\"",
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ "AssertionDefines", "/else/required", "#/else/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefines", "/if/required", "#/if/required", "" ],
+      [ false, "AssertionDefines", "/else/required", "#/else/required", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"flag\"",
+      "The object value was expected to define the property \"a\"",
+      "The object value was expected to validate against the given conditional"
+    ]
+  }
+}

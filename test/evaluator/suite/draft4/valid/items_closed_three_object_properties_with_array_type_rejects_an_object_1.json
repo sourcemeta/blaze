@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "properties": {
+        "a": { "type": "string" },
+        "b": { "type": "string" },
+        "c": { "type": "string" }
+      },
+      "required": [ "a", "b", "c" ],
+      "additionalProperties": false
+    }
+  },
+  "instance": { "a": "s", "b": "s", "c": "s" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type string",
+      "The value was expected to be of type array but it was of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type object"
+    ]
+  }
+}

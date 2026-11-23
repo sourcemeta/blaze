@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "multipleOf": 1, "maximum": 10, "minimum": 0 }
+  },
+  "instance": [ 11 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/items/minimum", "#/items/minimum", "/0" ],
+      [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value 11 was expected to be an integer between 0 and 10",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionDivisible", "/items/multipleOf", "#/items/multipleOf", "/0" ],
+      [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/items/multipleOf", "#/items/multipleOf", "/0" ],
+      [ false, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value 11 was expected to be divisible by the integer 1",
+      "The integer value 11 was expected to be less than or equal to the integer 10",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

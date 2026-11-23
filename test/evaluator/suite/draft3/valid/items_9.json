@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": { "foo": { "properties": { "bar": { "items": { "type": "string" } } } } }
+  },
+  "instance": { "foo": {}, "bar": [] },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

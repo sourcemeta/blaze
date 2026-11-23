@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "required": [ "foo" ]
+  },
+  "instance": "foo bar",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "string" }, "bar": { "type": "integer" } }
+  },
+  "instance": { "bar": 2, "foo": "xxx" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "bar" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"bar\" successfully validated against its property subschema",
+      "The value was expected to be of type string",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

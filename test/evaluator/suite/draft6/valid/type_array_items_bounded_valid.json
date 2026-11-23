@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "items": { "type": "number", "minimum": 1, "maximum": 5 }
+  },
+  "instance": [ 2, 3 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsIntegerBounded", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be a number within the given range",
+      "The value was expected to be of type array"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+      [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+      [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+      [ "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+      [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/0" ],
+      [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+      [ true, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/1" ],
+      [ true, "AssertionGreaterEqual", "/items/minimum", "#/items/minimum", "/1" ],
+      [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/1" ],
+      [ true, "LoopItems", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to be less than or equal to the integer 5",
+      "The integer value 2 was expected to be greater than or equal to the integer 1",
+      "The value was expected to be of type number",
+      "The integer value 3 was expected to be less than or equal to the integer 5",
+      "The integer value 3 was expected to be greater than or equal to the integer 1",
+      "The value was expected to be of type number",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The value was expected to be of type array"
+    ]
+  }
+}

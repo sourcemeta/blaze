@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/ifelse",
+    "if": { "$ref": "#/$defs/always" },
+    "else": { "type": "string" },
+    "$defs": { "always": {} }
+  },
+  "instance": "hi",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ],
+      [ "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/if/$ref", "https://example.com/ifelse#/if/$ref", "" ],
+      [ true, "LogicalCondition", "/if", "https://example.com/ifelse#/if", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given conditional"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "type": "string" }
+  },
+  "instance": [ "foo", 5, "baz" ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ false, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

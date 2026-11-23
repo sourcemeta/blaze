@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": {
+      "$id": "nested",
+      "$recursiveAnchor": true,
+      "items": [ { "$recursiveRef": "#" } ]
+    }
+  },
+  "instance": [ [ 1 ] ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+      [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+      [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ true, "LoopItems", "/items", "https://example.com/schema#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+      [ "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+      [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ "Annotation", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ "LogicalWhenType", "/items", "https://example.com/schema#/items", "" ],
+      [ "Annotation", "/items", "https://example.com/schema#/items", "" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/items/items/0/$recursiveRef", "https://example.com/nested#/items/0/$recursiveRef", "/0/0" ],
+      [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", 0 ],
+      [ true, "Annotation", "/items/items", "https://example.com/nested#/items", "/0", true ],
+      [ true, "AssertionArrayPrefix", "/items/items", "https://example.com/nested#/items", "/0" ],
+      [ true, "LoopItems", "/items", "https://example.com/schema#/items", "" ],
+      [ true, "Annotation", "/items", "https://example.com/schema#/items", "", true ],
+      [ true, "LogicalWhenType", "/items", "https://example.com/schema#/items", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "Every item in the array value was successfully validated",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The value was expected to be of type array"
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "additionalItems": { "type": "string" },
+    "items": [ { "type": "boolean" }, { "type": "integer" } ]
+  },
+  "instance": [ true, 5, "foo", "bar" ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/2" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/3" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first 2 was expected to validate against the given subschema"
+    ]
+  }
+}

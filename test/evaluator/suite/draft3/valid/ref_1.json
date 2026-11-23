@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "definitions": { "string": { "type": "string" } },
+    "extends": { "$ref": "#/definitions/string" }
+  },
+  "instance": 5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+      [ "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/extends/$ref/type", "#/definitions/string/type", "" ],
+      [ false, "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+      [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the given subschema"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "dependentSchemas": {
+      "foo": {
+        "properties": { "foo": { "type": "number" } },
+        "additionalProperties": false
+      }
+    },
+    "unevaluatedProperties": { "type": "integer" }
+  },
+  "instance": { "bar": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionType", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ false, "AssertionType", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionType", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ false, "AssertionType", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ false, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"foo\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  }
+}

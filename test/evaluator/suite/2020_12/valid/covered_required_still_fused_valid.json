@@ -1,0 +1,64 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "p": {
+        "type": "object",
+        "properties": { "x": { "type": "string" }, "y": { "type": "string" } },
+        "required": [ "x", "y" ]
+      }
+    }
+  },
+  "instance": { "p": { "x": "a", "y": "b" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionDefinesAllStrict", "/properties/p/required", "#/properties/p/required", "/p" ],
+      [ "LogicalWhenType", "/properties/p/properties", "#/properties/p/properties", "/p" ],
+      [ "AssertionTypeStrict", "/properties/p/properties/x/type", "#/properties/p/properties/x/type", "/p/x" ],
+      [ "Annotation", "/properties/p/properties", "#/properties/p/properties", "/p" ],
+      [ "AssertionTypeStrict", "/properties/p/properties/y/type", "#/properties/p/properties/y/type", "/p/y" ],
+      [ "Annotation", "/properties/p/properties", "#/properties/p/properties", "/p" ],
+      [ "AssertionTypeStrict", "/properties/p/type", "#/properties/p/type", "/p" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/properties/p/required", "#/properties/p/required", "/p" ],
+      [ true, "AssertionTypeStrict", "/properties/p/properties/x/type", "#/properties/p/properties/x/type", "/p/x" ],
+      [ true, "Annotation", "/properties/p/properties", "#/properties/p/properties", "/p", "x" ],
+      [ true, "AssertionTypeStrict", "/properties/p/properties/y/type", "#/properties/p/properties/y/type", "/p/y" ],
+      [ true, "Annotation", "/properties/p/properties", "#/properties/p/properties", "/p", "y" ],
+      [ true, "LogicalWhenType", "/properties/p/properties", "#/properties/p/properties", "/p" ],
+      [ true, "AssertionTypeStrict", "/properties/p/type", "#/properties/p/type", "/p" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "p" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"x\", and \"y\"",
+      "The value was expected to be of type string",
+      "The object property \"x\" successfully validated against its property subschema",
+      "The value was expected to be of type string",
+      "The object property \"y\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object property \"p\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

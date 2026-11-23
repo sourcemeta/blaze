@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "multipleOf": 1,
+    "maximum": 10,
+    "exclusiveMinimum": 9223372036854775807
+  },
+  "instance": 0,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to be greater than the integer 9223372036854775807"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to be greater than the integer 9223372036854775807"
+    ]
+  }
+}

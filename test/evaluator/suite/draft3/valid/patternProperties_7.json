@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "patternProperties": { "^f": { "patternProperties": { "^b": { "type": "integer" } } } }
+  },
+  "instance": { "foo": { "bar": 2 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^f/patternProperties/^b/type", "#/patternProperties/%5Ef/patternProperties/%5Eb/type", "/foo/bar" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties/^f/patternProperties", "#/patternProperties/%5Ef/patternProperties", "/foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"b\" were expected to validate against the defined pattern property subschema",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

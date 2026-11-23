@@ -1,0 +1,8 @@
+{
+  "schema": { "items": true },
+  "error": {
+    "message": "This keyword was expected to be set to a valid schema",
+    "base": "",
+    "location": "/items"
+  }
+}

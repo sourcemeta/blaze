@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": { "a": { "type": "string" }, "bb": { "type": "string" } },
+    "required": [ "a", "bb" ],
+    "additionalProperties": false
+  },
+  "instance": { "a": "x", "bb": "y" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "AssertionTypeStrict", "/properties/bb/type", "#/properties/bb/type", "/bb" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "AssertionTypeStrict", "/properties/bb/type", "#/properties/bb/type", "/bb" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a\", and \"bb\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

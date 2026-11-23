@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "type": "object",
+    "nullable": true,
+    "properties": { "a": { "type": "string" } }
+  },
+  "instance": { "a": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

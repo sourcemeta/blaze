@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "propertyNames": { "items": { "maxLength": 2 } } }
+  },
+  "instance": { "propertyNames": [ "abc" ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "AssertionStringSizeLess", "/properties/propertyNames/items/maxLength", "#/properties/propertyNames/items/maxLength", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/properties/propertyNames/items/maxLength", "#/properties/propertyNames/items/maxLength", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to consist of at most 2 characters but its length was 3",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "AssertionStringSizeLess", "/properties/propertyNames/items/maxLength", "#/properties/propertyNames/items/maxLength", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeLess", "/properties/propertyNames/items/maxLength", "#/properties/propertyNames/items/maxLength", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to consist of at most 2 characters but its length was 3",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

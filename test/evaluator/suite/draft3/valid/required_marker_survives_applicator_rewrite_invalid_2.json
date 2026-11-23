@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "minLength": 2 } ], "type": "string", "required": true }
+    }
+  },
+  "instance": { "foo": "a" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ],
+      [ false, "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1",
+      "The string value was expected to validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "inner": { "type": "object", "properties": { "x": { "type": "string" } } }
+    }
+  },
+  "instance": { "inner": { "x": "hello" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+      [ "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ],
+      [ "Annotation", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+      [ "AssertionTypeStrict", "/properties/inner/type", "#/properties/inner/type", "/inner" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/inner/properties/x/type", "#/properties/inner/properties/x/type", "/inner/x" ],
+      [ true, "Annotation", "/properties/inner/properties", "#/properties/inner/properties", "/inner", "x" ],
+      [ true, "LogicalWhenType", "/properties/inner/properties", "#/properties/inner/properties", "/inner" ],
+      [ true, "AssertionTypeStrict", "/properties/inner/type", "#/properties/inner/type", "/inner" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "inner" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"x\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object property \"inner\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

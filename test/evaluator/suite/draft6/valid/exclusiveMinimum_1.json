@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 2
+  },
+  "instance": 2.1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The number value 2.1 was expected to be greater than the integer 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreater", "/exclusiveMinimum", "#/exclusiveMinimum", "" ]
+    ],
+    "descriptions": [
+      "The number value 2.1 was expected to be greater than the integer 2"
+    ]
+  }
+}

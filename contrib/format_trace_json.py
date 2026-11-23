@@ -2,16 +2,26 @@
 
 """Formatter for Blaze JSON test files (evaluator traces and output suites).
 
+A file holding an array is formatted as a suite of test entries, and a file
+holding a single object as one entry. A directory is walked for the JSON files
+it holds, so a suite of one fixture per file needs no argument of its own.
+
 Usage:
-    python3 contrib/format_trace_json.py test/evaluator/evaluator_*.json
+    python3 contrib/format_trace_json.py test/evaluator/suite
     python3 contrib/format_trace_json.py test/output/output_standard_basic.json
 """
 
 import json
+import pathlib
 import sys
 
 
 MAX_LINE_LENGTH = 80
+
+TRACE_ENTRY_KEYS = (
+    "description", "schema", "instance", "valid", "fast", "exhaustive"
+)
+ERROR_ENTRY_KEYS = ("description", "schema", "error")
 
 
 def compact_json(value):
@@ -146,54 +156,30 @@ def is_trace_format(test):
             or "pre" in exhaustive or "post" in exhaustive)
 
 
-def format_error_entry(test):
-    """Format a test entry that expects compilation to fail."""
-    lines = []
-    lines.append("  {")
-    lines.append(
-        f"    \"description\": {json.dumps(test['description'])},"
-    )
-    lines.append(
-        f"    \"schema\": {format_json_value(test['schema'], 2)},"
-    )
-    lines.append(
-        f"    \"error\": {format_json_value(test['error'], 2)}"
-    )
-    lines.append("  }")
-    return "\n".join(lines)
+def format_entry_value(test, key, indent_level):
+    """Format the value one key of a test entry holds."""
+    value = test[key]
+    if key in ("description", "valid"):
+        return json.dumps(value)
+    if key in ("fast", "exhaustive"):
+        if is_trace_format(test):
+            return format_trace_mode_section(value, indent_level)
+        return format_output_mode_section(value, indent_level)
+    return format_json_value(value, indent_level)
 
 
-def format_test_entry(test):
-    """Format a single test entry."""
-    if "error" in test:
-        return format_error_entry(test)
+def format_test_entry(test, indent_level):
+    """Format a single test entry, keeping its keys in their canonical order."""
+    spaces = "  " * indent_level
+    order = ERROR_ENTRY_KEYS if "error" in test else TRACE_ENTRY_KEYS
+    keys = [key for key in order if key in test]
 
-    if is_trace_format(test):
-        fmt = format_trace_mode_section
-    else:
-        fmt = format_output_mode_section
-
-    lines = []
-    lines.append("  {")
-    lines.append(
-        f"    \"description\": {json.dumps(test['description'])},"
-    )
-    lines.append(
-        f"    \"schema\": {format_json_value(test['schema'], 2)},"
-    )
-    lines.append(
-        f"    \"instance\": {format_json_value(test['instance'], 2)},"
-    )
-    lines.append(
-        f"    \"valid\": {json.dumps(test['valid'])},"
-    )
-    lines.append(
-        f"    \"fast\": {fmt(test['fast'], 2)},"
-    )
-    lines.append(
-        f"    \"exhaustive\": {fmt(test['exhaustive'], 2)}"
-    )
-    lines.append("  }")
+    lines = [f"{spaces}{{"]
+    for index, key in enumerate(keys):
+        comma = "," if index < len(keys) - 1 else ""
+        formatted = format_entry_value(test, key, indent_level + 1)
+        lines.append(f"{spaces}  {json.dumps(key)}: {formatted}{comma}")
+    lines.append(f"{spaces}}}")
     return "\n".join(lines)
 
 
@@ -202,24 +188,35 @@ def format_file(filepath):
     with open(filepath) as handle:
         data = json.load(handle)
 
-    entries = []
-    for test in data:
-        entries.append(format_test_entry(test))
-
-    result = "[\n" + ",\n".join(entries) + "\n]\n"
+    if isinstance(data, list):
+        entries = [format_test_entry(test, 1) for test in data]
+        result = "[\n" + ",\n".join(entries) + "\n]\n"
+    else:
+        result = format_test_entry(data, 0) + "\n"
 
     with open(filepath, "w") as handle:
         handle.write(result)
 
 
+def json_files(path):
+    """The JSON files a command line argument names."""
+    target = pathlib.Path(path)
+    if target.is_dir():
+        return sorted(target.rglob("*.json"))
+    if target.is_file():
+        return [target]
+    raise FileNotFoundError(path)
+
+
 def main():
     if len(sys.argv) < 2:
-        print(f"Usage: {sys.argv[0]} <file.json>...", file=sys.stderr)
+        print(f"Usage: {sys.argv[0]} <file.json|directory>...", file=sys.stderr)
         sys.exit(1)
 
-    for filepath in sys.argv[1:]:
-        print(f"Formatting {filepath}")
-        format_file(filepath)
+    for path in sys.argv[1:]:
+        print(f"Formatting {path}")
+        for filepath in json_files(path):
+            format_file(filepath)
 
 
 if __name__ == "__main__":

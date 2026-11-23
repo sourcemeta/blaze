@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "maximum": 2,
+    "exclusiveMaximum": true
+  },
+  "instance": 2,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to be less than the integer 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2 was expected to be less than the integer 2"
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "string" } ]
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

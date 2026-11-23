@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": "not-an-array"
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a valid schema or to an array of them",
+    "base": "",
+    "location": "/items"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "maxLength": 2 },
+  "instance": "xx",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2"
+    ]
+  }
+}

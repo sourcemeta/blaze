@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": { "a": { "type": "string", "required": true }, "b": { "required": true } }
+  },
+  "instance": { "a": "hello" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"a\", and \"b\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"a\", and \"b\""
+    ]
+  }
+}

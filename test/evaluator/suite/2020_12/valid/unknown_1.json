@@ -1,0 +1,17 @@
+{
+  "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "fooBar": "baz" },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/fooBar", "#/fooBar", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/fooBar", "#/fooBar", "", "baz" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"fooBar\" was collected as the annotation \"baz\""
+    ]
+  }
+}

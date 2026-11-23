@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } }
+    ],
+    "properties": {
+      "foo": {
+        "id": "https://example.com/inner",
+        "type": [
+          { "type": "object", "patternProperties": { "^x": {} } },
+          { "type": "object", "patternProperties": { "^y": {} } }
+        ],
+        "properties": { "deep": { "id": "https://example.com/deepest", "type": "integer" } }
+      }
+    }
+  },
+  "instance": "notobject",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "https://example.com/root#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "https://example.com/root#/type/0/type", "" ],
+      [ "AssertionTypeStrict", "/type/1/type", "https://example.com/root#/type/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/type", "https://example.com/root#/type/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/type", "https://example.com/root#/type/1/type", "" ],
+      [ false, "LogicalOr", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object but it was of type string",
+      "The value was expected to be of type object but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "https://example.com/root#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "https://example.com/root#/type/0/type", "" ],
+      [ "AssertionTypeStrict", "/type/1/type", "https://example.com/root#/type/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/type", "https://example.com/root#/type/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/type", "https://example.com/root#/type/1/type", "" ],
+      [ false, "LogicalOr", "/type", "https://example.com/root#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object but it was of type string",
+      "The value was expected to be of type object but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalItems": { "type": "number" },
+    "unevaluatedItems": { "type": "string" }
+  },
+  "instance": [ "x", 1 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ false, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ false, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The value was expected to be of type string but it was of type integer",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

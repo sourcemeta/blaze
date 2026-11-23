@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "string", "$defs": { "Name": { "type": "string" } } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/$defs"
+  }
+}

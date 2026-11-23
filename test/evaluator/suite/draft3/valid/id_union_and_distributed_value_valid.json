@@ -1,0 +1,60 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "u": {
+        "id": "https://example.com/union",
+        "type": [
+          { "type": "object", "patternProperties": { "^a": {} } },
+          { "type": "object", "patternProperties": { "^b": {} } }
+        ],
+        "properties": { "k": { "id": "https://example.com/key", "type": "integer" } }
+      },
+      "r1": { "$ref": "https://example.com/union" },
+      "r2": { "$ref": "https://example.com/key" }
+    }
+  },
+  "instance": { "u": { "k": 5 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/u/properties/k/type", "https://example.com/key#/type", "/u/k" ],
+      [ "LogicalOr", "/properties/u/type", "https://example.com/union#/type", "/u" ],
+      [ "AssertionTypeStrict", "/properties/u/type/0/type", "https://example.com/union#/type/0/type", "/u" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/u/properties/k/type", "https://example.com/key#/type", "/u/k" ],
+      [ true, "AssertionTypeStrict", "/properties/u/type/0/type", "https://example.com/union#/type/0/type", "/u" ],
+      [ true, "LogicalOr", "/properties/u/type", "https://example.com/union#/type", "/u" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalWhenType", "/properties/u/properties", "https://example.com/union#/properties", "/u" ],
+      [ "AssertionTypeStrict", "/properties/u/properties/k/type", "https://example.com/key#/type", "/u/k" ],
+      [ "LogicalOr", "/properties/u/type", "https://example.com/union#/type", "/u" ],
+      [ "AssertionTypeStrict", "/properties/u/type/0/type", "https://example.com/union#/type/0/type", "/u" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/u/properties/k/type", "https://example.com/key#/type", "/u/k" ],
+      [ true, "LogicalWhenType", "/properties/u/properties", "https://example.com/union#/properties", "/u" ],
+      [ true, "AssertionTypeStrict", "/properties/u/type/0/type", "https://example.com/union#/type/0/type", "/u" ],
+      [ true, "LogicalOr", "/properties/u/type", "https://example.com/union#/type", "/u" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

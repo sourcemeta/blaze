@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "allOf": [ { "items": [ { "type": "string" } ] } ],
+    "unevaluatedItems": { "type": "boolean" }
+  },
+  "instance": [ "foo", true ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type boolean",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+      [ "Annotation", "/allOf/0/items", "#/allOf/0/items", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/items/0/type", "#/allOf/0/items/0/type", "/0" ],
+      [ true, "Annotation", "/allOf/0/items", "#/allOf/0/items", "", 0 ],
+      [ true, "AssertionArrayPrefixEvaluate", "/allOf/0/items", "#/allOf/0/items", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the given subschema",
+      "The value was expected to be of type boolean",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "array",
+    "minItems": 2.0
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an integer",
+    "base": "",
+    "location": "/minItems"
+  }
+}

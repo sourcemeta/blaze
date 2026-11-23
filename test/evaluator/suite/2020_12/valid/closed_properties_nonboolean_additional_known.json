@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": {}, "b": {}, "c": {}, "d": {}, "e": {}, "f": {} },
+    "additionalProperties": { "enum": [] }
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

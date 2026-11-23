@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

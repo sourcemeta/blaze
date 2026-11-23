@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "n": {
+        "disallow": [
+          {
+            "type": [
+              { "type": "object", "patternProperties": { "^a": {} } },
+              { "type": "object", "patternProperties": { "^b": {} } }
+            ],
+            "properties": { "bad": { "id": "https://example.com/bad", "type": "integer" } }
+          }
+        ]
+      },
+      "r": { "$ref": "https://example.com/bad" }
+    }
+  },
+  "instance": { "n": { "bad": 5 } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "AssertionPropertyTypeStrict", "/disallow/0/properties/bad/type", "https://example.com/bad#/type", "/n/bad" ],
+      [ "LogicalOr", "/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/disallow/0/properties/bad/type", "https://example.com/bad#/type", "/n/bad" ],
+      [ true, "AssertionTypeStrict", "/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ true, "LogicalOr", "/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ false, "LogicalNot", "/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ "LogicalWhenType", "/properties/disallow/0/properties", "https://example.com/root#/properties/n/disallow/0/properties", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/properties/bad/type", "https://example.com/bad#/type", "/n/bad" ],
+      [ "LogicalOr", "/properties/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ "AssertionTypeStrict", "/properties/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/disallow/0/properties/bad/type", "https://example.com/bad#/type", "/n/bad" ],
+      [ true, "LogicalWhenType", "/properties/disallow/0/properties", "https://example.com/root#/properties/n/disallow/0/properties", "/n" ],
+      [ true, "AssertionTypeStrict", "/properties/disallow/0/type/0/type", "https://example.com/root#/properties/n/disallow/0/type/0/type", "/n" ],
+      [ true, "LogicalOr", "/properties/disallow/0/type", "https://example.com/root#/properties/n/disallow/0/type", "/n" ],
+      [ false, "LogicalNot", "/properties/disallow/0", "https://example.com/root#/properties/n/disallow/0", "/n" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", "integer", "null" ]
+  },
+  "instance": [],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, integer, or string but it was of type array"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, integer, or string but it was of type array"
+    ]
+  }
+}

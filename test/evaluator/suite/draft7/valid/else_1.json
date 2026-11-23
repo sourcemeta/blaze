@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "else": { "multipleOf": 5 }
+  },
+  "instance": 3,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

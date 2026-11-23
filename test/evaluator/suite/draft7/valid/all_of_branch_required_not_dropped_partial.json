@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "p": {
+        "allOf": [
+          {
+            "type": "object",
+            "properties": { "x": { "type": "string", "maxLength": 4 } }
+          },
+          { "type": "object", "required": [ "d", "e" ] }
+        ]
+      }
+    }
+  },
+  "instance": { "p": { "d": 1 } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties/p/allOf/0/properties", "#/properties/p/allOf/0/properties", "/p" ],
+      [ "AssertionDefinesAllStrict", "/properties/p/allOf/1/required", "#/properties/p/allOf/1/required", "/p" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties/p/allOf/0/properties", "#/properties/p/allOf/0/properties", "/p" ],
+      [ false, "AssertionDefinesAllStrict", "/properties/p/allOf/1/required", "#/properties/p/allOf/1/required", "/p" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas",
+      "The value was expected to be an object that defines properties \"d\", and \"e\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/p/allOf", "#/properties/p/allOf", "/p" ],
+      [ "LogicalWhenType", "/properties/p/allOf/0/properties", "#/properties/p/allOf/0/properties", "/p" ],
+      [ "AssertionTypeStrict", "/properties/p/allOf/0/type", "#/properties/p/allOf/0/type", "/p" ],
+      [ "AssertionDefinesAllStrict", "/properties/p/allOf/1/required", "#/properties/p/allOf/1/required", "/p" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties/p/allOf/0/properties", "#/properties/p/allOf/0/properties", "/p" ],
+      [ true, "AssertionTypeStrict", "/properties/p/allOf/0/type", "#/properties/p/allOf/0/type", "/p" ],
+      [ false, "AssertionDefinesAllStrict", "/properties/p/allOf/1/required", "#/properties/p/allOf/1/required", "/p" ],
+      [ false, "LogicalAnd", "/properties/p/allOf", "#/properties/p/allOf", "/p" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The value was expected to be an object that defines properties \"d\", and \"e\"",
+      "The object value was expected to validate against the 4 given subschemas",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "patternProperties": { "^f": { "type": "integer" } }
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"foo\" successfully validated against its pattern property subschema",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "properties": { "a": true, "b": true },
+    "dependentSchemas": { "a": { "$ref": "#/$defs/common" }, "b": { "$ref": "#/$defs/common" } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1, "allowed": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeEvaluate", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value defined the property \"a\"",
+      "Because the object value defined \"a\", it was also expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "ControlJump", "/dependentSchemas/a/$ref", "#/dependentSchemas/a/$ref", "" ],
+      [ "LogicalWhenType", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ false, "LogicalWhenType", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "" ],
+      [ false, "ControlJump", "/dependentSchemas/a/$ref", "#/dependentSchemas/a/$ref", "" ],
+      [ false, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ false, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value defined the property \"a\"",
+      "Because the object value defined \"a\", it was also expected to validate against the corresponding subschemas"
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "disallow": "number" },
+  "instance": "x",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type number"
+    ]
+  }
+}

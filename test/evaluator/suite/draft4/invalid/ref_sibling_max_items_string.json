@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "n": { "$ref": "#", "maxItems": "1" } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an integer",
+    "base": "",
+    "location": "/properties/n/maxItems"
+  }
+}

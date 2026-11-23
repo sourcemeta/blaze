@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalItems": { "type": "string" }
+  },
+  "instance": [ "foo", "bar", "baz" ],
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

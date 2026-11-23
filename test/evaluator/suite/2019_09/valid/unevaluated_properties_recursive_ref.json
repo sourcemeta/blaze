@@ -1,0 +1,82 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com",
+    "$recursiveAnchor": true,
+    "$ref": "tree",
+    "properties": { "name": true },
+    "$defs": {
+      "tree": {
+        "$id": "tree",
+        "$recursiveAnchor": true,
+        "properties": { "branches": { "unevaluatedProperties": false, "$recursiveRef": "#" } }
+      }
+    }
+  },
+  "instance": { "branches": { "name": "x" } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
+      [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
+      [ "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
+      [ "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ]
+    ],
+    "post": [
+      [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
+      [ true, "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
+      [ true, "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
+      [ true, "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ]
+    ],
+    "descriptions": [
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object value was not expected to define unevaluated properties",
+      "The instance location was marked as evaluated"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlResourceJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ "LogicalWhenType", "/$ref/properties", "https://example.com/tree#/properties", "" ],
+      [ "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
+      [ "ControlResourceJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
+      [ "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
+      [ "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
+      [ "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
+      [ "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
+      [ "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
+      [ "Annotation", "/$ref/properties", "https://example.com/tree#/properties", "" ],
+      [ "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
+      [ true, "ControlResourceJump", "/$ref/properties/branches/$recursiveRef/$ref", "https://example.com/#/$ref", "/branches" ],
+      [ true, "Annotation", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches", "name" ],
+      [ true, "Evaluate", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches/name" ],
+      [ true, "LogicalWhenType", "/$ref/properties/branches/$recursiveRef/properties", "https://example.com/#/properties", "/branches" ],
+      [ true, "ControlDynamicAnchorJump", "/$ref/properties/branches/$recursiveRef", "https://example.com/tree#/properties/branches/$recursiveRef", "/branches" ],
+      [ true, "LoopPropertiesUnevaluated", "/$ref/properties/branches/unevaluatedProperties", "https://example.com/tree#/properties/branches/unevaluatedProperties", "/branches" ],
+      [ true, "Annotation", "/$ref/properties", "https://example.com/tree#/properties", "", "branches" ],
+      [ true, "Evaluate", "/$ref/properties", "https://example.com/tree#/properties", "/branches" ],
+      [ true, "LogicalWhenType", "/$ref/properties", "https://example.com/tree#/properties", "" ],
+      [ true, "ControlResourceJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object property \"name\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the first subschema in scope that declared a recursive anchor",
+      "The object value was not expected to define unevaluated properties",
+      "The object property \"branches\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

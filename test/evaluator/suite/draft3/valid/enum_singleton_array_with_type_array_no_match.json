@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "array",
+    "enum": [ [ 1 ] ]
+  },
+  "instance": [ 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The array value [2] was expected to equal the array constant [1]"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The array value [2] was expected to equal the array constant [1]"
+    ]
+  }
+}

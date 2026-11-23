@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "divisibleBy": 1,
+    "minimum": 0,
+    "exclusiveMinimum": true,
+    "maximum": 10,
+    "exclusiveMaximum": true
+  },
+  "instance": 10,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 10 was expected to be an integer between 1 and 9"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ],
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 10 was expected to be divisible by the integer 1",
+      "The integer value 10 was expected to be less than the integer 10"
+    ]
+  }
+}

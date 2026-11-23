@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "contains": { "type": "string" }
+  },
+  "instance": [ 1, "bar", 3 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type string",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The value was expected to be of type string",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  }
+}

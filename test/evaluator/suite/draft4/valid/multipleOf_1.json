@@ -1,0 +1,7 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 3 },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

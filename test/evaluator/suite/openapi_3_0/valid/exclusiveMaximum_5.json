@@ -1,0 +1,27 @@
+{
+  "schema": { "maximum": 5, "exclusiveMaximum": true },
+  "instance": 5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be less than the integer 5"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be less than the integer 5"
+    ]
+  }
+}

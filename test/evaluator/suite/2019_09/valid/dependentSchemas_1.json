@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": {
+      "foo": { "required": [ "bar", "baz" ] },
+      "qux": { "required": [ "extra" ] }
+    }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

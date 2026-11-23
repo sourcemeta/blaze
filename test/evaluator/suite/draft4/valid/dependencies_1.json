@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "dependencies": { "foo": [ "bar", "baz" ], "qux": { "required": [ "extra" ] } }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

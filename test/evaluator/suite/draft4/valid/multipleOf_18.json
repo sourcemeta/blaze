@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "multipleOf": 99999999999999999999999999999999999
+  },
+  "instance": 299999999999999999999999999999999998,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 299999999999999999999999999999999998 was expected to be divisible by the integer 99999999999999999999999999999999999"
+    ]
+  }
+}

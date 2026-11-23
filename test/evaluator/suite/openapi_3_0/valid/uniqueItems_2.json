@@ -1,0 +1,7 @@
+{
+  "schema": { "uniqueItems": false },
+  "instance": [],
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

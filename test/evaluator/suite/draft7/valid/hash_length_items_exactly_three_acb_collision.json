@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": [ "aa", "bb", "cc" ],
+      "additionalProperties": false,
+      "properties": {
+        "aa": { "type": "string" },
+        "bb": { "type": "string" },
+        "cc": { "type": "string" }
+      }
+    }
+  },
+  "instance": [ { "aa": "x", "cc\u0000": "z", "bb": "y" } ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ false, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "", null ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0", null ],
+      [ false, "LoopItems", "/items", "#/items", "", null ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"aa\", \"bb\", and \"cc\", but it also defines \"cc\u0000\"",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

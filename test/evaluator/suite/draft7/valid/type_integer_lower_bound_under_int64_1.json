@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "integer",
+    "minimum": 0
+  },
+  "instance": -12345678901234567890123456789012345678901234,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerLowerBound", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer above the given minimum"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value -12345678901234567890123456789012345678901234 was expected to be greater than or equal to the integer 0"
+    ]
+  }
+}

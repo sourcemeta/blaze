@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+  },
+  "instance": { "foo": true, "bar": false, "baz": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines \"baz\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\", but it also defines \"baz\""
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100
+  },
+  "instance": 200,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerBoundedStrict", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerBoundedStrict", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLessEqual", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 200 was expected to be less than or equal to the integer 100"
+    ]
+  }
+}

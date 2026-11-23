@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "n": { "$ref": "#", "definitions": { "x": 1 } } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an object whose values are valid schemas",
+    "base": "",
+    "location": "/properties/n/definitions"
+  }
+}

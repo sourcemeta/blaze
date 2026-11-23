@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "n": { "$ref": "#/x-definitions/S", "maxLength": 1.5 } },
+    "x-definitions": { "S": { "type": "string" } }
+  },
+  "instance": { "n": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/n/$ref/type", "#/x-definitions/S/type", "/n" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/n/$ref/type", "#/x-definitions/S/type", "/n" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/n/$ref", "#/properties/n/$ref", "/n" ],
+      [ "AssertionTypeStrict", "/properties/n/$ref/type", "#/x-definitions/S/type", "/n" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/n/$ref/type", "#/x-definitions/S/type", "/n" ],
+      [ false, "ControlJump", "/properties/n/$ref", "#/properties/n/$ref", "/n" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

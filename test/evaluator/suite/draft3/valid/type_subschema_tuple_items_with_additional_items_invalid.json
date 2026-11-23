@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "array", "additionalItems": { "type": "string" } },
+      { "type": "array", "minItems": 3 }
+    ],
+    "items": [ { "type": "integer" } ]
+  },
+  "instance": "x",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "AssertionTypeArrayBounded", "/type/1/type", "#/type/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ false, "AssertionTypeArrayBounded", "/type/1/type", "#/type/1/type", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type string",
+      "The value was expected to consist of an array of at least 3 items",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type/0/type", "#/type/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/type", "#/type/1/type", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type string",
+      "The value was expected to be of type array but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

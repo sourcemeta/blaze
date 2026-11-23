@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "string", "minLength": 2 } }
+  },
+  "instance": { "foo": "ab" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at least 2 characters",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"ab\" was expected to consist of at least 2 characters and its length was 2",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

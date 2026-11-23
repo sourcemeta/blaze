@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "allOf": [ { "$ref": "#/definitions/foo" } ] },
+    "definitions": { "foo": { "$ref": "#/definitions/bar" }, "bar": {} }
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+      [ "ControlJump", "/propertyNames/allOf/0/$ref", "#/propertyNames/allOf/0/$ref", "/foo" ],
+      [ "ControlJump", "/propertyNames/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/propertyNames/allOf/0/$ref/$ref", "#/definitions/foo/$ref", "/foo" ],
+      [ true, "ControlJump", "/propertyNames/allOf/0/$ref", "#/propertyNames/allOf/0/$ref", "/foo" ],
+      [ true, "LogicalAnd", "/propertyNames/allOf", "#/propertyNames/allOf", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given subschema",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  }
+}

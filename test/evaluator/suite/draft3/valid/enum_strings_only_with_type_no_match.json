@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "enum": [ "foo", "bar", "baz" ]
+  },
+  "instance": "qux",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAnyStringHash", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"qux\" was expected to equal one of the given declared values"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqualsAny", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"qux\" was expected to equal one of the following values: \"bar\", \"baz\", and \"foo\""
+    ]
+  }
+}

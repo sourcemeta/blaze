@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "type": "string" }, false ]
+  },
+  "instance": "foo",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ "AssertionFail", "/allOf/1", "#/allOf/1", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ false, "AssertionFail", "/allOf/1", "#/allOf/1", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ "AssertionFail", "/allOf/1", "#/allOf/1", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ false, "AssertionFail", "/allOf/1", "#/allOf/1", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "No instance is expected to succeed against the false schema",
+      "The string value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

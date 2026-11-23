@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "not": {
+      "required": [ "blocked" ],
+      "properties": { "hidden": true },
+      "if": false,
+      "then": { "$ref": "#" }
+    },
+    "unevaluatedProperties": false
+  },
+  "instance": { "blocked": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ "AssertionDefines", "/not/required", "#/not/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ true, "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ true, "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was expected to define the property \"blocked\"",
+      "The object value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ "LogicalWhenType", "/not/properties", "#/not/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "/not/if", "#/not/if", "" ],
+      [ true, "LogicalCondition", "/not/if", "#/not/if", "" ],
+      [ true, "AssertionDefines", "/not/required", "#/not/required", "" ],
+      [ true, "LogicalWhenType", "/not/properties", "#/not/properties", "" ],
+      [ false, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was expected to define the property \"blocked\"",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to not validate against the given subschema"
+    ]
+  }
+}

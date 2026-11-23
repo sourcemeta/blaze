@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^f": { "type": "string" } }
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ false, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ false, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

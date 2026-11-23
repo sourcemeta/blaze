@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "n": { "$ref": "#", "minLength": -1 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a non-negative number",
+    "base": "",
+    "location": "/properties/n/minLength"
+  }
+}

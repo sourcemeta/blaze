@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": { "foo": { "$ref": "https://example.com" } }
+  },
+  "instance": { "foo": { "foo": 1 } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com/#/type", "/foo/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com/#/type", "/foo/foo" ],
+      [ false, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo/foo" ],
+      [ false, "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ],
+      [ "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com/#/properties", "/foo" ],
+      [ "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com/#/type", "/foo/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/foo/$ref/properties/foo/$ref/type", "https://example.com/#/type", "/foo/foo" ],
+      [ false, "ControlJump", "/properties/foo/$ref/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo/foo" ],
+      [ false, "LogicalWhenType", "/properties/foo/$ref/properties", "https://example.com/#/properties", "/foo" ],
+      [ false, "ControlJump", "/properties/foo/$ref", "https://example.com/#/properties/foo/$ref", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

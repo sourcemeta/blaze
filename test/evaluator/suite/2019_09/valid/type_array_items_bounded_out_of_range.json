@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "items": { "type": "number", "minimum": 1, "maximum": 5 }
+  },
+  "instance": [ 99 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ false, "LoopItemsIntegerBounded", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be a number within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+      [ "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/items/type", "#/items/type", "/0" ],
+      [ false, "AssertionLessEqual", "/items/maximum", "#/items/maximum", "/0" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The integer value 99 was expected to be less than or equal to the integer 5",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

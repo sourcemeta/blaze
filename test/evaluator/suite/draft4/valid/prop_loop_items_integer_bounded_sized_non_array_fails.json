@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "scores": {
+        "type": "array",
+        "items": { "type": "number", "minimum": 0, "maximum": 100 },
+        "minItems": 1
+      }
+    }
+  },
+  "instance": { "scores": "hello" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+    ],
+    "post": [
+      [ false, "LoopItemsIntegerBoundedSized", "/properties", "#/properties", "/scores" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be a number within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/scores/type", "#/properties/scores/type", "/scores" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/scores/type", "#/properties/scores/type", "/scores" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type string",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "schema": { "anyOf": [ { "type": "string", "nullable": true }, { "type": "integer" } ] },
+  "instance": null,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, integer, or string and it was of type null"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrictAny", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string and it was of type null",
+      "The value was expected to be of type integer but it was of type null",
+      "The null value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

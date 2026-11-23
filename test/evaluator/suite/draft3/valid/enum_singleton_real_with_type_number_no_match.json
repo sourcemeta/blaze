@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "number",
+    "enum": [ 3.14 ]
+  },
+  "instance": 2.71,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The number value 2.71 was expected to equal the number constant 3.14"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The number value 2.71 was expected to equal the number constant 3.14"
+    ]
+  }
+}

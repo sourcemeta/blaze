@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "object",
+    "properties": {
+      "a_property_name_that_is_definitely_over_thirty_two_chars_one": { "type": "string" },
+      "a_property_name_that_is_definitely_over_thirty_two_chars_two": { "type": "string" }
+    },
+    "required": [ "a_property_name_that_is_definitely_over_thirty_two_chars_one", "a_property_name_that_is_definitely_over_thirty_two_chars_two" ],
+    "additionalProperties": false
+  },
+  "instance": {
+    "WRONG_KEY_alpha_alpha_alpha_alpha_alpha_alpha": "x",
+    "WRONG_KEY_bravo_bravo_bravo_bravo_bravo_bravo": "y"
+  },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesExactly", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a_property_name_that_is_definitely_over_thirty_two_chars_one\", and \"a_property_name_that_is_definitely_over_thirty_two_chars_two\", but it also defines \"WRONG_KEY_alpha_alpha_alpha_alpha_alpha_alpha\", and \"WRONG_KEY_bravo_bravo_bravo_bravo_bravo_bravo\""
+    ]
+  }
+}

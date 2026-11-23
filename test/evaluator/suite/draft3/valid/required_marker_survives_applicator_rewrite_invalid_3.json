@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "minLength": 2 } ], "type": "string", "required": true }
+    }
+  },
+  "instance": { "foo": 5 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ true, "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ false, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The integer value was expected to validate against the given subschema",
+      "The value was expected to be of type string but it was of type integer",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

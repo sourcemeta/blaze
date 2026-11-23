@@ -1,0 +1,8 @@
+{
+  "schema": { "properties": { "a": true } },
+  "error": {
+    "message": "This keyword was expected to be set to an object whose values are valid schemas",
+    "base": "",
+    "location": "/properties"
+  }
+}

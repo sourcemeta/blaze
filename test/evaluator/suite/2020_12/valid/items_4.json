@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "type": "string" },
+    "prefixItems": [ { "type": "boolean" }, { "type": "integer" } ]
+  },
+  "instance": [ true, 5 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type integer",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+      [ "Annotation", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionType", "/prefixItems/1/type", "#/prefixItems/1/type", "/1" ],
+      [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 1 ],
+      [ true, "Annotation", "/prefixItems", "#/prefixItems", "", true ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The value was expected to be of type integer",
+      "The first 2 items of the array value successfully validated against the given positional subschemas",
+      "Every item of the array value validated against the given positional subschemas",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "readOnly": true
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/readOnly", "#/readOnly", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/readOnly", "#/readOnly", "", true ]
+    ],
+    "descriptions": [
+      "The instance was considered read-only"
+    ]
+  }
+}

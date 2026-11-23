@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "value": { "$ref": "#/x-definitions/Alias" } },
+    "x-definitions": {
+      "Alias": { "$ref": "#/x-definitions/Terminal" },
+      "Terminal": { "type": "string" }
+    }
+  },
+  "instance": { "value": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/value/$ref/$ref/type", "#/x-definitions/Terminal/type", "/value" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/value/$ref/$ref/type", "#/x-definitions/Terminal/type", "/value" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/value/$ref", "#/properties/value/$ref", "/value" ],
+      [ "ControlJump", "/properties/value/$ref/$ref", "#/x-definitions/Alias/$ref", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/$ref/$ref/type", "#/x-definitions/Terminal/type", "/value" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/value/$ref/$ref/type", "#/x-definitions/Terminal/type", "/value" ],
+      [ false, "ControlJump", "/properties/value/$ref/$ref", "#/x-definitions/Alias/$ref", "/value" ],
+      [ false, "ControlJump", "/properties/value/$ref", "#/properties/value/$ref", "/value" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

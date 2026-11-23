@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "bar": { "type": "string" },
+      "foo": { "type": "string", "enum": [ "baz" ] }
+    }
+  },
+  "instance": { "bar": "foo", "foo": "baz" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "descriptions": [
+      "The string value \"baz\" was expected to equal the string constant \"baz\"",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionEqual", "/properties/foo/enum", "#/properties/foo/enum", "/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value \"baz\" was expected to equal the string constant \"baz\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

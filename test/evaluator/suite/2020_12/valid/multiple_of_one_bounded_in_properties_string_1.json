@@ -1,0 +1,23 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "multipleOf": 1, "maximum": 10, "minimum": 0 } }
+  },
+  "instance": { "a": "x" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

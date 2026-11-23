@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "patternProperties": { "^[a-z]+$": { "type": "string" } },
+    "additionalProperties": false
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegexClosed", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^[a-z]+$/type", "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^[a-z]+$/type", "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo" ],
+      [ true, "LoopPropertiesRegexClosed", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties were expected to match the regular expression \"^[a-z]+$\" and validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^[a-z]+$/type", "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^[a-z]+$/type", "#/patternProperties/%5E%5Ba-z%5D+$/type", "/foo" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties that match the regular expression \"^[a-z]+$\" were expected to validate against the defined pattern property subschema",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

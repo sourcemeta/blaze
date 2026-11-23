@@ -1,0 +1,7 @@
+{
+  "schema": { "pattern": "^x" },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

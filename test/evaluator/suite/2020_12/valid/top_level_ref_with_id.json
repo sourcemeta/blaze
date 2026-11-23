@@ -1,0 +1,22 @@
+{
+  "schema": {
+    "$id": "https://www.example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/test",
+    "$defs": { "test": {} }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/$ref", "https://www.example.com/#/$ref", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against the referenced schema"
+    ]
+  }
+}

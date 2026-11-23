@@ -1,0 +1,8 @@
+{
+  "schema": { "externalDocs": "x" },
+  "error": {
+    "message": "This keyword was expected to be set to an object",
+    "base": "",
+    "location": "/externalDocs"
+  }
+}

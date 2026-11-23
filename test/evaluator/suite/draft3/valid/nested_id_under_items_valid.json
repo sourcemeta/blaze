@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "arr": {
+        "type": "array",
+        "items": { "id": "https://example.com/item", "type": "integer" }
+      },
+      "r": { "$ref": "https://example.com/item" }
+    }
+  },
+  "instance": { "arr": [ 1, 2 ], "r": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/item#/type", "/r" ],
+      [ "LoopItemsTypeStrict", "/properties/arr/items", "https://example.com/root#/properties/arr/items", "/arr" ],
+      [ "AssertionPropertyTypeStrict", "/properties/arr/type", "https://example.com/root#/properties/arr/type", "/arr" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/r/$ref/type", "https://example.com/item#/type", "/r" ],
+      [ true, "LoopItemsTypeStrict", "/properties/arr/items", "https://example.com/root#/properties/arr/items", "/arr" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/arr/type", "https://example.com/root#/properties/arr/type", "/arr" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The array items were expected to be of type integer",
+      "The value was expected to be of type array"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/item#/type", "/r" ],
+      [ "LoopItems", "/properties/arr/items", "https://example.com/root#/properties/arr/items", "/arr" ],
+      [ "AssertionTypeStrict", "/properties/arr/items/type", "https://example.com/item#/type", "/arr/0" ],
+      [ "AssertionTypeStrict", "/properties/arr/items/type", "https://example.com/item#/type", "/arr/1" ],
+      [ "AssertionTypeStrict", "/properties/arr/type", "https://example.com/root#/properties/arr/type", "/arr" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/r/$ref/type", "https://example.com/item#/type", "/r" ],
+      [ true, "ControlJump", "/properties/r/$ref", "https://example.com/root#/properties/r/$ref", "/r" ],
+      [ true, "AssertionTypeStrict", "/properties/arr/items/type", "https://example.com/item#/type", "/arr/0" ],
+      [ true, "AssertionTypeStrict", "/properties/arr/items/type", "https://example.com/item#/type", "/arr/1" ],
+      [ true, "LoopItems", "/properties/arr/items", "https://example.com/root#/properties/arr/items", "/arr" ],
+      [ true, "AssertionTypeStrict", "/properties/arr/type", "https://example.com/root#/properties/arr/type", "/arr" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The value was expected to be of type array",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

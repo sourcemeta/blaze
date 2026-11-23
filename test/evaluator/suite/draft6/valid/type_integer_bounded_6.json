@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "minimum": 0,
+    "maximum": 100
+  },
+  "instance": 3.5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer within the given range"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ "AssertionType", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ false, "AssertionType", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The number value 3.5 was expected to be less than or equal to the integer 100",
+      "The number value 3.5 was expected to be greater than or equal to the integer 0",
+      "The value was expected to be of type integer but it was of type number"
+    ]
+  }
+}

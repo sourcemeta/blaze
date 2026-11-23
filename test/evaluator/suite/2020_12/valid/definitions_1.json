@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/definitions/middle",
+    "definitions": {
+      "middle": { "$ref": "#/definitions/string" },
+      "string": { "type": "string" }
+    }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "#/$ref", "" ],
+      [ "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+      [ "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/$ref/type", "#/definitions/string/type", "" ],
+      [ true, "ControlJump", "/$ref/$ref", "#/definitions/middle/$ref", "" ],
+      [ true, "ControlJump", "/$ref", "#/$ref", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the referenced schema"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "left": { "$ref": "#/$defs/shared" },
+      "right": { "$ref": "#/$defs/shared" }
+    },
+    "$defs": {
+      "shared": {
+        "if": { "type": "array" },
+        "then": { "if": { "minItems": 1 }, "then": { "maxItems": 3 } }
+      }
+    }
+  },
+  "instance": { "left": [ "x" ] },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+      [ "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+      [ "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ true, "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+      [ true, "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The array value was expected to contain at least 1 item and its size was 1",
+      "The array value was expected to contain at most 3 items and its size was 1",
+      "The array value was expected to validate against the given conditional",
+      "The array value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+      [ "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+      [ "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/left/$ref/if/type", "#/$defs/shared/if/type", "/left" ],
+      [ true, "AssertionArraySizeGreater", "/properties/left/$ref/then/if/minItems", "#/$defs/shared/then/if/minItems", "/left" ],
+      [ true, "AssertionArraySizeLess", "/properties/left/$ref/then/then/maxItems", "#/$defs/shared/then/then/maxItems", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/then/if", "#/$defs/shared/then/if", "/left" ],
+      [ true, "LogicalCondition", "/properties/left/$ref/if", "#/$defs/shared/if", "/left" ],
+      [ true, "ControlJump", "/properties/left/$ref", "#/properties/left/$ref", "/left" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "left" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The array value was expected to contain at least 1 item and its size was 1",
+      "The array value was expected to contain at most 3 items and its size was 1",
+      "The array value was expected to validate against the given conditional",
+      "The array value was expected to validate against the given conditional",
+      "The array value was expected to validate against the referenced schema",
+      "The object property \"left\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

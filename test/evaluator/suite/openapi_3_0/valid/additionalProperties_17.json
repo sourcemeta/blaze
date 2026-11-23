@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "items": {
+      "type": "object",
+      "required": [ "foo", "bar" ],
+      "additionalProperties": false,
+      "properties": { "foo": { "type": "boolean" }, "bar": { "type": "boolean" } }
+    }
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type boolean"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

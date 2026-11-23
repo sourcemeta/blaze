@@ -1,0 +1,7 @@
+{
+  "schema": { "nullable": true },
+  "instance": 42,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

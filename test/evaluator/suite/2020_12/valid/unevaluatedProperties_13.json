@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "foo": { "type": "object" } },
+    "allOf": [ { "properties": { "bar": true } } ],
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": {}, "bar": {} },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/properties", "#/allOf/0/properties", "", "bar" ],
+      [ true, "LogicalWhenType", "/allOf/0/properties", "#/allOf/0/properties", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"bar\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The value was expected to be of type object",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

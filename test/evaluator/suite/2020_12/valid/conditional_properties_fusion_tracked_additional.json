@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "object" },
+    "then": {
+      "type": "object",
+      "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+      "required": [ "a", "b" ],
+      "additionalProperties": false
+    },
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": "x", "b": "y", "c": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ false, "AssertionDefinesExactlyStrict", "/then/required", "#/then/required", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The value was expected to be an object that only defines properties \"a\", and \"b\", but it also defines \"c\"",
+      "The object value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionDefinesExactly", "/then/required", "#/then/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ false, "AssertionDefinesExactly", "/then/required", "#/then/required", "" ],
+      [ false, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to only define properties \"a\", and \"b\", but it also defines \"c\"",
+      "The object value was expected to validate against the given conditional"
+    ]
+  }
+}

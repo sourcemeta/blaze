@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "boolean",
+    "enum": [ true ]
+  },
+  "instance": true,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The boolean value true was expected to equal the boolean constant true"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/enum", "#/enum", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The boolean value true was expected to equal the boolean constant true",
+      "The value was expected to be of type boolean"
+    ]
+  }
+}

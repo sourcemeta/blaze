@@ -1,0 +1,8 @@
+{
+  "schema": { "maximum": 5, "exclusiveMaximum": 5 },
+  "error": {
+    "message": "This keyword was expected to be set to a boolean",
+    "base": "",
+    "location": "/exclusiveMaximum"
+  }
+}

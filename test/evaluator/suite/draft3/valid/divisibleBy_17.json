@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "divisibleBy": 99999999999999999999999999999999999
+  },
+  "instance": 299999999999999999999999999999999997,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "descriptions": [
+      "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/divisibleBy", "#/divisibleBy", "" ]
+    ],
+    "descriptions": [
+      "The integer value 299999999999999999999999999999999997 was expected to be divisible by the integer 99999999999999999999999999999999999"
+    ]
+  }
+}

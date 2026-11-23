@@ -1,0 +1,39 @@
+{
+  "schema": { "oneOf": [ { "type": "string" }, { "type": "integer" } ] },
+  "instance": true,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type boolean",
+      "The value was expected to be of type integer but it was of type boolean",
+      "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ false, "AssertionTypeStrict", "/oneOf/1/type", "#/oneOf/1/type", "" ],
+      [ false, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type boolean",
+      "The value was expected to be of type integer but it was of type boolean",
+      "The boolean value was expected to validate against one and only one of the 2 given subschemas"
+    ]
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": { "type": "integer", "required": true },
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": { "type": "integer", "required": true }
+    }
+  },
+  "instance": {
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 12345678910111213141516171819202122232425262728293031,
+    "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 12345678910111213141516171819202122232425262728293031
+  },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type integer",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "#/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ],
+      [ "AssertionTypeStrict", "/properties/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy/type", "#/properties/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy/type", "/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "#/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ],
+      [ true, "AssertionTypeStrict", "/properties/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy/type", "#/properties/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy/type", "/yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", and \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

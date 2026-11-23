@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "integer", "nullable": true, "minimum": 5 },
+  "instance": 7,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 7 was expected to be greater than or equal to the integer 5",
+      "The value was expected to be of type null, or integer and it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 7 was expected to be greater than or equal to the integer 5",
+      "The value was expected to be of type null, or integer and it was of type integer"
+    ]
+  }
+}

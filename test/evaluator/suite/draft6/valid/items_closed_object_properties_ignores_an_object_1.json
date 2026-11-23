@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": {
+      "type": "object",
+      "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+      "required": [ "a", "b" ],
+      "additionalProperties": false
+    }
+  },
+  "instance": { "a": "s", "b": "s" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItemsPropertiesExactlyTypeStrictHash", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type string"
+    ]
+  },
+  "exhaustive": {}
+}

@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "minLength": 2 },
+  "instance": "xx",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at least 2 characters and its length was 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at least 2 characters and its length was 2"
+    ]
+  }
+}

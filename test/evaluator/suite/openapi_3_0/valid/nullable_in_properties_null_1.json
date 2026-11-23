@@ -1,0 +1,30 @@
+{
+  "schema": { "properties": { "a": { "type": "string", "nullable": true } } },
+  "instance": { "a": null },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrictAny", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrictAny", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string and it was of type null"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrictAny", "/properties/a/type", "#/properties/a/type", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string and it was of type null",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

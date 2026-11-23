@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "a": {
+        "properties": { "hop": { "$ref": "https://example.com/mid#/properties/y" } }
+      },
+      "m": {
+        "id": "https://example.com/mid",
+        "properties": { "y": { "$ref": "https://example.com/leaf" } }
+      },
+      "l": { "id": "https://example.com/leaf", "type": "integer" }
+    }
+  },
+  "instance": { "a": { "hop": "x" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/a/properties/hop/$ref/$ref/type", "https://example.com/leaf#/type", "/a/hop" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/a/properties/hop/$ref/$ref/type", "https://example.com/leaf#/type", "/a/hop" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalWhenType", "/properties/a/properties", "https://example.com/root#/properties/a/properties", "/a" ],
+      [ "ControlJump", "/properties/a/properties/hop/$ref", "https://example.com/root#/properties/a/properties/hop/$ref", "/a/hop" ],
+      [ "ControlJump", "/properties/a/properties/hop/$ref/$ref", "https://example.com/mid#/properties/y/$ref", "/a/hop" ],
+      [ "AssertionTypeStrict", "/properties/a/properties/hop/$ref/$ref/type", "https://example.com/leaf#/type", "/a/hop" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/a/properties/hop/$ref/$ref/type", "https://example.com/leaf#/type", "/a/hop" ],
+      [ false, "ControlJump", "/properties/a/properties/hop/$ref/$ref", "https://example.com/mid#/properties/y/$ref", "/a/hop" ],
+      [ false, "ControlJump", "/properties/a/properties/hop/$ref", "https://example.com/root#/properties/a/properties/hop/$ref", "/a/hop" ],
+      [ false, "LogicalWhenType", "/properties/a/properties", "https://example.com/root#/properties/a/properties", "/a" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

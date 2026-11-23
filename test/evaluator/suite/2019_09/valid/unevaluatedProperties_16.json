@@ -1,0 +1,80 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "$ref": "#/$defs/test" },
+    "$defs": {
+      "test": {
+        "if": { "required": [ "bar" ] },
+        "then": { "properties": { "baz": true } },
+        "properties": { "bar": true },
+        "unevaluatedProperties": false
+      }
+    }
+  },
+  "instance": { "foo": { "bar": 1, "baz": 2 } },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+      [ "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+      [ "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+      [ true, "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+      [ true, "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"bar\"",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+      [ "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+      [ "LogicalWhenType", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo" ],
+      [ "Annotation", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo" ],
+      [ "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+      [ "LogicalWhenType", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
+      [ "Annotation", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/additionalProperties/$ref/if/required", "#/$defs/test/if/required", "/foo" ],
+      [ true, "Annotation", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo", "baz" ],
+      [ true, "Evaluate", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo/baz" ],
+      [ true, "LogicalWhenType", "/additionalProperties/$ref/then/properties", "#/$defs/test/then/properties", "/foo" ],
+      [ true, "LogicalCondition", "/additionalProperties/$ref/if", "#/$defs/test/if", "/foo" ],
+      [ true, "Annotation", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo", "bar" ],
+      [ true, "LogicalWhenType", "/additionalProperties/$ref/properties", "#/$defs/test/properties", "/foo" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/additionalProperties/$ref/unevaluatedProperties", "#/$defs/test/unevaluatedProperties", "/foo" ],
+      [ true, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"bar\"",
+      "The object property \"baz\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object property \"bar\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define unevaluated properties",
+      "The object value was expected to validate against the referenced schema",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "patternProperties": { "^p": { "id": "https://example.com/pat", "type": "integer" } },
+    "properties": { "r": { "$ref": "https://example.com/pat" } }
+  },
+  "instance": { "px": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^p/type", "https://example.com/pat#/type", "/px" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^p/type", "https://example.com/pat#/type", "/px" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"p\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^p/type", "https://example.com/pat#/type", "/px" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^p/type", "https://example.com/pat#/type", "/px" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "https://example.com/root#/patternProperties", "" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"p\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

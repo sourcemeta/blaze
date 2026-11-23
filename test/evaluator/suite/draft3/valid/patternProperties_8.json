@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "patternProperties": { "^@": {} },
+    "additionalProperties": { "type": "string" }
+  },
+  "instance": { "@foo": 1, "bar": "baz" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

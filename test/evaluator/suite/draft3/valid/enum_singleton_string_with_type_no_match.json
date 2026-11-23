@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "string",
+    "enum": [ "foo" ]
+  },
+  "instance": "bar",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"bar\" was expected to equal the string constant \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionEqual", "/enum", "#/enum", "" ]
+    ],
+    "descriptions": [
+      "The string value \"bar\" was expected to equal the string constant \"foo\""
+    ]
+  }
+}

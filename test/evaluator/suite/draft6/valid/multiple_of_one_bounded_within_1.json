@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "multipleOf": 1,
+    "maximum": 10,
+    "minimum": 0
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be an integer between 0 and 10"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+      [ "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLessEqual", "/maximum", "#/maximum", "" ],
+      [ true, "AssertionGreaterEqual", "/minimum", "#/minimum", "" ],
+      [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be less than or equal to the integer 10",
+      "The integer value 5 was expected to be greater than or equal to the integer 0",
+      "The integer value 5 was expected to be divisible by the integer 1"
+    ]
+  }
+}

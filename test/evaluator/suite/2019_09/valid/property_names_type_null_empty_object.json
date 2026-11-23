@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": { "type": "null" }
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "post": [
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The object is empty and no properties were expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "post": [
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The object is empty and no properties were expected to validate against the given subschema"
+    ]
+  }
+}

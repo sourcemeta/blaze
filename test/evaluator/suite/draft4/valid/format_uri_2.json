@@ -1,0 +1,7 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "uri" },
+  "instance": "https://www.example.com",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "t": { "id": "https://example.com/t", "type": "integer" },
+      "x": {
+        "id": "https://example.com/x",
+        "$ref": "https://example.com/t",
+        "type": "string"
+      }
+    }
+  },
+  "instance": { "t": "s" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/t/type", "https://example.com/t#/type", "/t" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/t/type", "https://example.com/t#/type", "/t" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/t/type", "https://example.com/t#/type", "/t" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/t/type", "https://example.com/t#/type", "/t" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

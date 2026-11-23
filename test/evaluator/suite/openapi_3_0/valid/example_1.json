@@ -1,0 +1,7 @@
+{
+  "schema": { "example": { "name": "Rex", "petType": "dog" } },
+  "instance": { "name": "Fluffy", "petType": "cat" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

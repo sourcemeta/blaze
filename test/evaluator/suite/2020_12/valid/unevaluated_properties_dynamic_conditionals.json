@@ -1,0 +1,106 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "properties": { "foo": true } },
+    "then": { "properties": { "bar": true } },
+    "anyOf": [ { "patternProperties": { "^@": true } } ],
+    "dependentSchemas": { "foo": { "additionalProperties": true } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": 1, "bar": 2, "@a": 3 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"foo\", it was also expected to validate against the corresponding subschemas",
+      "The instance location was marked as evaluated",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
+      [ "Annotation", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ "Annotation", "/if/properties", "#/if/properties", "" ],
+      [ "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
+      [ "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ "Annotation", "/then/properties", "#/then/properties", "" ],
+      [ "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "", "@a" ],
+      [ true, "LoopPropertiesRegex", "/anyOf/0/patternProperties", "#/anyOf/0/patternProperties", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "foo" ],
+      [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "bar" ],
+      [ true, "Annotation", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "", "@a" ],
+      [ true, "LoopPropertiesEvaluate", "/dependentSchemas/foo/additionalProperties", "#/dependentSchemas/foo/additionalProperties", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "Annotation", "/if/properties", "#/if/properties", "", "foo" ],
+      [ true, "Evaluate", "/if/properties", "#/if/properties", "/foo" ],
+      [ true, "LogicalWhenType", "/if/properties", "#/if/properties", "" ],
+      [ true, "Annotation", "/then/properties", "#/then/properties", "", "bar" ],
+      [ true, "Evaluate", "/then/properties", "#/then/properties", "/bar" ],
+      [ true, "LogicalWhenType", "/then/properties", "#/then/properties", "" ],
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"@a\" successfully validated against its pattern property subschema",
+      "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object property \"bar\" successfully validated against the additional properties subschema",
+      "The object property \"@a\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"foo\", it was also expected to validate against the corresponding subschemas",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object property \"bar\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given conditional",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

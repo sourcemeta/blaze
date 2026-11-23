@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } }
+    ],
+    "properties": { "foo": { "id": "https://example.com/dup", "type": "integer" } }
+  },
+  "instance": { "foo": "hi" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/dup#/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/dup#/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "https://example.com/dup#/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/foo/type", "https://example.com/dup#/type", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": { "allOf": [ { "type": "object" }, { "required": [ "foo", "bar" ] } ] },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ true, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define properties \"bar\", and \"foo\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/type", "#/allOf/0/type", "" ],
+      [ true, "AssertionDefinesAll", "/allOf/1/required", "#/allOf/1/required", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define properties \"bar\", and \"foo\"",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

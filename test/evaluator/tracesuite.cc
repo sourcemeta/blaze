@@ -7,6 +7,7 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include "evaluator_utils.h"
+#include "tracesuite.h"
 
 #include <cassert>     // assert
 #include <cstdint>     // std::uint8_t
@@ -15,7 +16,7 @@
 #include <map>         // std::map
 #include <string>      // std::string
 #include <string_view> // std::string_view
-#include <utility>     // std::move, std::unreachable
+#include <utility>     // std::pair, std::unreachable
 
 static auto to_instruction_index(const std::string_view name)
     -> sourcemeta::blaze::InstructionIndex {
@@ -189,20 +190,15 @@ auto run_error_test(const sourcemeta::core::JSON &data,
 
 // Schemas whose keywords the official meta-schema rejects, which the compiler
 // refuses rather than silently ignores
-static auto register_error_tests(const std::filesystem::path &path,
-                                 const std::string &suite_name,
-                                 const std::string &metaschema,
-                                 const std::string &default_dialect) -> void {
+static auto register_error_tests(
+    const std::filesystem::path &directory, const std::string &suite_name,
+    const std::string &metaschema, const std::string &default_dialect,
+    const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
   // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
-  auto suite{sourcemeta::core::read_json(path)};
-  assert(suite.is_array());
+  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  for (const auto &test_case : suite.as_array()) {
-    assert(test_case.is_object());
-    assert(test_case.defines("description"));
-    assert(test_case.defines("error"));
-    const auto &description{test_case.at("description").to_string()};
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Error, base_dialect, default_dialect)) {
 
     // Whether a schema is well-formed is a property of its dialect rather than
     // of the mode it compiles in, so both modes have to refuse the same ones
@@ -212,7 +208,7 @@ static auto register_error_tests(const std::filesystem::path &path,
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
       sourcemeta::core::test_register(
-          suite_name, description + mode_suffix, __FILE__, __LINE__,
+          suite_name, name + mode_suffix, __FILE__, __LINE__,
           [test_case, metaschema, default_dialect, mode]() -> void {
             run_error_test(test_case, metaschema, default_dialect, mode);
           });
@@ -220,22 +216,16 @@ static auto register_error_tests(const std::filesystem::path &path,
   }
 }
 
-static auto register_tests(const std::filesystem::path &path,
-                           const std::string &suite_name,
-                           const std::string &metaschema,
-                           const std::string &default_dialect) -> void {
+static auto
+register_tests(const std::filesystem::path &directory,
+               const std::string &suite_name, const std::string &metaschema,
+               const std::string &default_dialect,
+               const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
   // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", path.string().c_str());
-  auto suite{sourcemeta::core::read_json(path)};
-  assert(suite.is_array());
+  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  for (const auto &test_case : suite.as_array()) {
-    assert(test_case.is_object());
-    assert(test_case.defines("description"));
-    const auto &description{test_case.at("description").to_string()};
-
-    assert(test_case.defines("fast"));
-    assert(test_case.defines("exhaustive"));
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Trace, base_dialect, default_dialect)) {
 
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
@@ -243,10 +233,7 @@ static auto register_tests(const std::filesystem::path &path,
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
 
-      const auto title{description +
-                       (mode == sourcemeta::blaze::Mode::FastValidation
-                            ? "_fast"
-                            : "_exhaustive")};
+      const auto title{name + "_" + mode_key};
 
       sourcemeta::core::test_register(
           suite_name, title, __FILE__, __LINE__,
@@ -260,6 +247,8 @@ static auto register_tests(const std::filesystem::path &path,
 
 auto main(int argc, char **argv) -> int {
   try {
+    const std::filesystem::path suite{TRACE_SUITE_PATH};
+
     // The two dated OpenAPI 3.0 dialects answer with the same Schema Object
     // definition, so one suite says what both of them mean. What differs
     // between the documents they come from describes the rest of an OpenAPI
@@ -270,71 +259,65 @@ auto main(int argc, char **argv) -> int {
           std::pair<const char *, const char *>{
               "2021_09_28",
               "tag:spec.openapis.org,2021-09-28:oas/3.0/dialect"}}) {
-      register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                         "evaluator_openapi_3_0.json",
+      register_tests(suite / "openapi_3_0" / "valid",
                      std::string{"Evaluator_trace_OpenAPI_3_0_"} + label,
-                     dialect, dialect);
-      register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                               "evaluator_openapi_3_0_invalid.json",
-                           std::string{"Evaluator_error_OpenAPI_3_0_"} + label,
-                           dialect, dialect);
+                     dialect, dialect,
+                     sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+      register_error_tests(
+          suite / "openapi_3_0" / "invalid",
+          std::string{"Evaluator_error_OpenAPI_3_0_"} + label, dialect, dialect,
+          sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
     }
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_openapi_3_1.json",
+    register_tests(suite / "openapi_3_1" / "valid",
                    "Evaluator_trace_OpenAPI_3_1",
-                   "https://spec.openapis.org/oas/3.1/dialect/base", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_openapi_3_2.json",
+                   "https://spec.openapis.org/oas/3.1/dialect/base", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "openapi_3_2" / "valid",
                    "Evaluator_trace_OpenAPI_3_2",
-                   "https://spec.openapis.org/oas/3.2/dialect/2025-09-17", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft7.json",
-                   "Evaluator_trace_draft7",
-                   "http://json-schema.org/draft-07/schema#", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_draft7_invalid.json",
-                         "Evaluator_error_draft7",
-                         "http://json-schema.org/draft-07/schema#", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_2019_09.json",
-                   "Evaluator_trace_2019_09",
-                   "https://json-schema.org/draft/2019-09/schema", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_2019_09_invalid.json",
-                         "Evaluator_error_2019_09",
-                         "https://json-schema.org/draft/2019-09/schema", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft6.json",
-                   "Evaluator_trace_draft6",
-                   "http://json-schema.org/draft-06/schema#", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_draft6_invalid.json",
-                         "Evaluator_error_draft6",
-                         "http://json-schema.org/draft-06/schema#", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_2020_12.json",
-                   "Evaluator_trace_2020_12",
-                   "https://json-schema.org/draft/2020-12/schema", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_2020_12_invalid.json",
-                         "Evaluator_error_2020_12",
-                         "https://json-schema.org/draft/2020-12/schema", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft4.json",
-                   "Evaluator_trace_draft4",
-                   "http://json-schema.org/draft-04/schema#", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_draft4_invalid.json",
-                         "Evaluator_error_draft4",
-                         "http://json-schema.org/draft-04/schema#", "");
-    register_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                       "evaluator_draft3.json",
-                   "Evaluator_trace_draft3",
-                   "http://json-schema.org/draft-03/schema#", "");
-    register_error_tests(std::filesystem::path{TRACE_SUITE_PATH} /
-                             "evaluator_draft3_invalid.json",
-                         "Evaluator_error_draft3",
-                         "http://json-schema.org/draft-03/schema#", "");
+                   "https://spec.openapis.org/oas/3.2/dialect/2025-09-17", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "draft7" / "valid", "Evaluator_trace_draft7",
+                   "http://json-schema.org/draft-07/schema#", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
+    register_error_tests(
+        suite / "draft7" / "invalid", "Evaluator_error_draft7",
+        "http://json-schema.org/draft-07/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
+    register_tests(suite / "2019_09" / "valid", "Evaluator_trace_2019_09",
+                   "https://json-schema.org/draft/2019-09/schema", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_error_tests(
+        suite / "2019_09" / "invalid", "Evaluator_error_2019_09",
+        "https://json-schema.org/draft/2019-09/schema", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_tests(suite / "draft6" / "valid", "Evaluator_trace_draft6",
+                   "http://json-schema.org/draft-06/schema#", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
+    register_error_tests(
+        suite / "draft6" / "invalid", "Evaluator_error_draft6",
+        "http://json-schema.org/draft-06/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
+    register_tests(suite / "2020_12" / "valid", "Evaluator_trace_2020_12",
+                   "https://json-schema.org/draft/2020-12/schema", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_error_tests(
+        suite / "2020_12" / "invalid", "Evaluator_error_2020_12",
+        "https://json-schema.org/draft/2020-12/schema", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_tests(suite / "draft4" / "valid", "Evaluator_trace_draft4",
+                   "http://json-schema.org/draft-04/schema#", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+    register_error_tests(
+        suite / "draft4" / "invalid", "Evaluator_error_draft4",
+        "http://json-schema.org/draft-04/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+    register_tests(suite / "draft3" / "valid", "Evaluator_trace_draft3",
+                   "http://json-schema.org/draft-03/schema#", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
+    register_error_tests(
+        suite / "draft3" / "invalid", "Evaluator_error_draft3",
+        "http://json-schema.org/draft-03/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
   } catch (const std::exception &error) {
     // NOLINTNEXTLINE(modernize-use-std-print)
     std::fprintf(stderr, "Error: %s\n", error.what());

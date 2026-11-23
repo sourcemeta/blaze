@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "items": { "type": "number", "minimum": 1, "maximum": 5 }
+  },
+  "instance": "hello",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array but it was of type string"
+    ]
+  }
+}

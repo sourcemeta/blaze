@@ -1,0 +1,69 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "properties": { "a": true, "b": true },
+    "dependentSchemas": { "a": { "$ref": "#/$defs/common" }, "b": { "$ref": "#/$defs/common" } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1, "allowed": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionPropertyTypeEvaluate", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeEvaluate", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value defined the property \"a\"",
+      "Because the object value defined \"a\", it was also expected to validate against the corresponding subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "ControlJump", "/dependentSchemas/a/$ref", "#/dependentSchemas/a/$ref", "" ],
+      [ "LogicalWhenType", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "AssertionType", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ "Annotation", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "" ],
+      [ "Evaluate", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/dependentSchemas/a/$ref/properties/allowed/type", "#/$defs/common/properties/allowed/type", "/allowed" ],
+      [ true, "Annotation", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "", "allowed" ],
+      [ true, "Evaluate", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "/allowed" ],
+      [ true, "LogicalWhenType", "/dependentSchemas/a/$ref/properties", "#/$defs/common/properties", "" ],
+      [ true, "ControlJump", "/dependentSchemas/a/$ref", "#/dependentSchemas/a/$ref", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"allowed\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value defined the property \"a\"",
+      "Because the object value defined \"a\", it was also expected to validate against the corresponding subschemas",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

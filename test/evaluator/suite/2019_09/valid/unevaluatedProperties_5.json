@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": true,
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": "baz" },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

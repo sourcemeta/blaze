@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": "boolean"
+  },
+  "instance": true,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type boolean but it was of type boolean"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type boolean but it was of type boolean"
+    ]
+  }
+}

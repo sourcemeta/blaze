@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "patternProperties": { "^@": true },
+    "additionalProperties": { "type": "string" }
+  },
+  "instance": { "@foo": 1, "bar": "baz" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "@foo" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "bar" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"@foo\" successfully validated against its pattern property subschema",
+      "The object properties that match the regular expression \"^@\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type string",
+      "The object property \"bar\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

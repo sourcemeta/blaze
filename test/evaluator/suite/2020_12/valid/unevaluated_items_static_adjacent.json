@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ true ],
+    "items": true,
+    "contains": true,
+    "unevaluatedItems": false
+  },
+  "instance": [ 1, 2 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ "Annotation", "/prefixItems", "#/prefixItems", "" ],
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/prefixItems", "#/prefixItems", "", 0 ],
+      [ true, "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The item at index 1 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

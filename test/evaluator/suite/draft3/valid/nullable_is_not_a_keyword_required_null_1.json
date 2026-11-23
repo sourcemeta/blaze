@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "nullable": true,
+    "properties": { "a": { "type": "string", "required": true } }
+  },
+  "instance": null,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"a\""
+    ]
+  }
+}

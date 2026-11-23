@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "object", "nullable": true, "maxProperties": 1 },
+  "instance": { "a": 1, "b": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 1 property but it defines 2 of them: \"a\", and \"b\""
+    ]
+  }
+}

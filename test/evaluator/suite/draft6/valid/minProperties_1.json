@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "minProperties": 1
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of an object of at least 1 property"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at least 1 property and it defines 1 of them: \"foo\"",
+      "The value was expected to be of type object"
+    ]
+  }
+}

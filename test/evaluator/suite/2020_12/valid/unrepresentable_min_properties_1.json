@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "minProperties": 99999999999999999999
+  },
+  "instance": {},
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than object, as no object has enough properties to satisfy a minimum size that large"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/minProperties", "#/minProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than object, as no object has enough properties to satisfy a minimum size that large"
+    ]
+  }
+}

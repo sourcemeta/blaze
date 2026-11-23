@@ -1,0 +1,75 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "array",
+    "items": [ { "type": "integer" } ],
+    "not": { "contains": { "const": 999 } },
+    "unevaluatedItems": false
+  },
+  "instance": [ 1 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LogicalNotEvaluate", "/not", "#/not", "" ],
+      [ "LoopContains", "/not/contains", "#/not/contains", "" ],
+      [ "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ false, "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+      [ false, "LoopContains", "/not/contains", "#/not/contains", "" ],
+      [ true, "LogicalNotEvaluate", "/not", "#/not", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The integer value 1 was expected to equal the integer constant 999",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to not validate against the given subschema",
+      "The value was expected to be of type array",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "LogicalNotEvaluate", "/not", "#/not", "" ],
+      [ "LoopContains", "/not/contains", "#/not/contains", "" ],
+      [ "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "AssertionArrayPrefixEvaluate", "/items", "#/items", "" ],
+      [ false, "AssertionEqual", "/not/contains/const", "#/not/contains/const", "/0" ],
+      [ false, "LoopContains", "/not/contains", "#/not/contains", "" ],
+      [ true, "LogicalNotEvaluate", "/not", "#/not", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "Every item in the array value was successfully validated",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The integer value 1 was expected to equal the integer constant 999",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to not validate against the given subschema",
+      "The value was expected to be of type array",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": {
+      "foo": {
+        "type": "object",
+        "properties": { "bar": { "enum": [ "baz" ], "required": true } }
+      }
+    }
+  },
+  "instance": { "foo": "bar" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionDefinesStrict", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesStrict", "/properties/foo/properties", "#/properties/foo/properties", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"bar\"",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

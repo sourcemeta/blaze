@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "type": "string",
+    "additionalProperties": { "patternProperties": { "a": {} } }
+  },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/additionalProperties/patternProperties"
+  }
+}

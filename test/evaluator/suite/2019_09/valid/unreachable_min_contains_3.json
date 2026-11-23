@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contains": { "type": "integer" },
+    "minContains": 99999999999999999999,
+    "unevaluatedItems": false
+  },
+  "instance": [ 1, 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of a type other than array, as no array has enough matching items to satisfy a minimum count that large"
+    ]
+  }
+}

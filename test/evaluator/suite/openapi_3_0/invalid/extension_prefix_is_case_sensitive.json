@@ -1,0 +1,8 @@
+{
+  "schema": { "X-Foo": 1 },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/X-Foo"
+  }
+}

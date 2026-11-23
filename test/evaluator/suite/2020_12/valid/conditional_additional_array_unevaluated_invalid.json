@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "additionalProperties": true },
+    "unevaluatedProperties": false,
+    "unevaluatedItems": { "type": "integer" }
+  },
+  "instance": [ { "a": 1 } ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
+    ],
+    "post": [
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the given conditional",
+      "The value was expected to be of type integer but it was of type object",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ]
+    ],
+    "post": [
+      [ true, "LogicalConditionEvaluate", "/if", "#/if", "" ],
+      [ false, "AssertionType", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the given conditional",
+      "The value was expected to be of type integer but it was of type object",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

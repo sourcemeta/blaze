@@ -1,0 +1,58 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "required": [ "foo", "bar", "baz" ],
+    "additionalProperties": false,
+    "properties": {
+      "foo": { "type": "integer" },
+      "bar": { "type": "integer" },
+      "baz": { "type": "integer" }
+    }
+  },
+  "instance": { "foo": 1, "bar": 2, "baz": 3 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ],
+      [ "LoopPropertiesType", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactlyStrictHash3", "/required", "#/required", "" ],
+      [ true, "LoopPropertiesType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that only defines the 3 given properties",
+      "The object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ "AssertionType", "/properties/baz/type", "#/properties/baz/type", "/baz" ],
+      [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionType", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ true, "AssertionType", "/properties/baz/type", "#/properties/baz/type", "/baz" ],
+      [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", \"baz\", and \"foo\"",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

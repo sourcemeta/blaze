@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "array",
+    "contains": { "anyOf": [ { "type": "integer" }, { "$ref": "#" } ] },
+    "unevaluatedItems": false
+  },
+  "instance": [],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  }
+}

@@ -10,7 +10,7 @@ import { compileSchema } from './compile.mjs';
 import { INSTRUCTION_NAMES, ANNOTATION_OPCODES } from './opcodes.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TRACE_SUITE_PATH = join(__dirname, '..', '..', 'test', 'evaluator');
+const TRACE_SUITE_PATH = join(__dirname, '..', '..', 'test', 'evaluator', 'suite');
 
 function resolveInstructionType(name) {
   const opcode = INSTRUCTION_NAMES[name];
@@ -29,36 +29,48 @@ const SUITE_DEFAULT_DIALECTS = {
 };
 
 // This port is a JavaScript evaluator, not a compiler: it borrows the C++
-// compiler to obtain a template. The `_invalid` suites assert which schemas
-// that compiler refuses, which exercises nothing here
-const suiteFiles = readdirSync(TRACE_SUITE_PATH)
-  .filter(file => file.startsWith('evaluator_') && file.endsWith('.json') &&
-                  !file.endsWith('_invalid.json'))
+// compiler to obtain a template. The `invalid` directory of a dialect asserts
+// which schemas that compiler refuses, which exercises nothing here, so only
+// the `valid` one is read
+const suiteDialects = readdirSync(TRACE_SUITE_PATH, { withFileTypes: true })
+  .filter(entry => entry.isDirectory())
+  .map(entry => entry.name)
   .sort();
 
-for (const file of suiteFiles) {
-  const suiteName = basename(file, '.json');
-  const filePath = join(TRACE_SUITE_PATH, file);
-  console.log(`-- Loading: ${file} (${suiteName})`);
-  const tests = JSON.parse(readFileSync(filePath, 'utf8'), reviver);
-  console.log(`   ${tests.length} test entries`);
+for (const dialect of suiteDialects) {
+  const suiteName = `evaluator_${dialect}`;
+  const directory = join(TRACE_SUITE_PATH, dialect, 'valid');
+  const fixtures = readdirSync(directory)
+    .filter(file => file.endsWith('.json'))
+    .sort();
+
+  // A directory that holds none is a mistake rather than an empty suite, the
+  // same way the C++ suite refuses one: a fixture left in the wrong place
+  // would otherwise never run, and nobody would notice
+  if (fixtures.length === 0) {
+    throw new Error(`No fixtures found at ${directory}`);
+  }
+
+  console.log(`-- Loading: ${dialect} (${fixtures.length} fixtures)`);
 
   const dialects = SUITE_DEFAULT_DIALECTS[suiteName] ?? [[null, undefined]];
 
   for (const [label, defaultDialect] of dialects) {
     describe(label === null ? suiteName : `${suiteName}_${label}`, () => {
-      for (let testIndex = 0; testIndex < tests.length; testIndex++) {
-        const testCase = tests[testIndex];
+      for (const fixture of fixtures) {
+        const filePath = join(directory, fixture);
+        const fixtureName = basename(fixture, '.json');
+        const testCase = JSON.parse(readFileSync(filePath, 'utf8'), reviver);
 
         for (const mode of ['fast', 'exhaustive']) {
           if (!testCase[mode]) continue;
           const modeData = testCase[mode];
-          const testName = `${testCase.description}_${mode}`;
+          const testName = `${fixtureName}_${mode}`;
 
           it(testName, () => {
             const template = compileSchema(filePath, {
               mode,
-              path: `/${testIndex}/schema`,
+              path: '/schema',
               defaultDialect
             });
 
@@ -154,7 +166,7 @@ for (const file of suiteFiles) {
             it(`${testName}_callbackless`, () => {
               const template = compileSchema(filePath, {
                 mode,
-                path: `/${testIndex}/schema`,
+                path: '/schema',
                 defaultDialect
               });
 

@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": "object",
+    "properties": { "v": { "type": "integer" } },
+    "dependencies": {
+      "a": {
+        "id": "https://example.com/dep",
+        "properties": { "nested": { "$ref": "https://example.com/root" } }
+      }
+    }
+  },
+  "instance": { "a": 1, "nested": { "v": "x" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ "ControlJump", "/dependencies/a/properties/nested/$ref", "https://example.com/dep#/properties/nested/$ref", "/nested" ],
+      [ "AssertionPropertyTypeStrict", "/dependencies/a/properties/nested/$ref/properties/v/type", "https://example.com/root#/properties/v/type", "/nested/v" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/dependencies/a/properties/nested/$ref/properties/v/type", "https://example.com/root#/properties/v/type", "/nested/v" ],
+      [ false, "ControlJump", "/dependencies/a/properties/nested/$ref", "https://example.com/dep#/properties/nested/$ref", "/nested" ],
+      [ false, "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the referenced schema",
+      "The object value defined the property \"a\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ],
+      [ "LogicalWhenType", "/dependencies/a/properties", "https://example.com/dep#/properties", "" ],
+      [ "ControlJump", "/dependencies/a/properties/nested/$ref", "https://example.com/dep#/properties/nested/$ref", "/nested" ],
+      [ "LogicalWhenType", "/dependencies/a/properties/nested/$ref/properties", "https://example.com/root#/properties", "/nested" ],
+      [ "AssertionTypeStrict", "/dependencies/a/properties/nested/$ref/properties/v/type", "https://example.com/root#/properties/v/type", "/nested/v" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/dependencies/a/properties/nested/$ref/properties/v/type", "https://example.com/root#/properties/v/type", "/nested/v" ],
+      [ false, "LogicalWhenType", "/dependencies/a/properties/nested/$ref/properties", "https://example.com/root#/properties", "/nested" ],
+      [ false, "ControlJump", "/dependencies/a/properties/nested/$ref", "https://example.com/dep#/properties/nested/$ref", "/nested" ],
+      [ false, "LogicalWhenType", "/dependencies/a/properties", "https://example.com/dep#/properties", "" ],
+      [ false, "LogicalWhenDefines", "/dependencies", "https://example.com/root#/dependencies", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value defined the property \"a\""
+    ]
+  }
+}

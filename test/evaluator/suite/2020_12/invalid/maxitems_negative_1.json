@@ -1,0 +1,8 @@
+{
+  "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "maxItems": -1 },
+  "error": {
+    "message": "This keyword was expected to be set to a non-negative number",
+    "base": "",
+    "location": "/maxItems"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "type": "object",
+    "nullable": true,
+    "properties": { "child": { "$ref": "#" } }
+  },
+  "instance": { "child": { "child": "x" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ false, "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ false, "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or object but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ "LogicalWhenType", "/properties/child/$ref/properties", "#/properties", "/child" ],
+      [ "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/properties/child/$ref/properties/child/$ref/type", "#/type", "/child/child" ],
+      [ false, "ControlJump", "/properties/child/$ref/properties/child/$ref", "#/properties/child/$ref", "/child/child" ],
+      [ false, "LogicalWhenType", "/properties/child/$ref/properties", "#/properties", "/child" ],
+      [ false, "ControlJump", "/properties/child/$ref", "#/properties/child/$ref", "/child" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or object but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

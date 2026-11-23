@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "properties": {
+      "foo": { "$schema": "http://json-schema.org/draft-07/schema#", "type": "string" }
+    }
+  },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/properties/foo/$schema"
+  }
+}

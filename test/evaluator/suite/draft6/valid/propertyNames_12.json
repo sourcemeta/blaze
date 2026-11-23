@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "oneOf": [ { "enum": [ "foo", "bar", "baz" ] }, { "type": "string" } ] }
+  },
+  "instance": { "foo": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+      [ "AssertionEqualsAnyStringHash", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAnyStringHash", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ],
+      [ false, "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to equal one of the given declared values",
+      "The property name \"foo\" was expected to validate against one and only one of the 2 given subschemas",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+      [ "AssertionEqualsAny", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/propertyNames/oneOf/0/enum", "#/propertyNames/oneOf/0/enum", "/foo" ],
+      [ false, "LogicalXor", "/propertyNames/oneOf", "#/propertyNames/oneOf", "/foo" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to equal one of the 3 declared values",
+      "The property name \"foo\" was expected to validate against one and only one of the 2 given subschemas",
+      "The object value was expected to validate the property names \"foo\" against the given subschema"
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "maximum": 0.5,
+    "exclusiveMaximum": true
+  },
+  "instance": 0.5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.5 was expected to be less than the number 0.5"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionLess", "/maximum", "#/maximum", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.5 was expected to be less than the number 0.5"
+    ]
+  }
+}

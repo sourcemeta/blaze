@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [ "string", { "properties": { "foo": { "type": "integer" } } } ]
+  },
+  "instance": { "foo": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "AssertionPropertyTypeStrict", "/type/1/properties/foo/type", "#/type/1/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ false, "AssertionPropertyTypeStrict", "/type/1/properties/foo/type", "#/type/1/properties/foo/type", "/foo" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type object",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ "LogicalWhenType", "/type/1/properties", "#/type/1/properties", "" ],
+      [ "AssertionTypeStrict", "/type/1/properties/foo/type", "#/type/1/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ],
+      [ false, "AssertionTypeStrict", "/type/1/properties/foo/type", "#/type/1/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/type/1/properties", "#/type/1/properties", "" ],
+      [ false, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type object",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

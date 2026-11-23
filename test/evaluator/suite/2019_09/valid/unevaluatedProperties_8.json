@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "not": { "not": { "properties": { "foo": true } } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "foo": "bar" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalNot", "/not/not", "#/not/not", "" ],
+      [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ]
+    ],
+    "post": [
+      [ false, "LogicalNot", "/not/not", "#/not/not", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ],
+      [ false, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to not validate against the given subschema",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was not expected to define the property \"foo\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "LogicalNot", "/not/not", "#/not/not", "" ],
+      [ "LogicalWhenType", "/not/not/properties", "#/not/not/properties", "" ],
+      [ "Annotation", "/not/not/properties", "#/not/not/properties", "" ],
+      [ "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/not/not/properties", "#/not/not/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/not/not/properties", "#/not/not/properties", "" ],
+      [ false, "LogicalNot", "/not/not", "#/not/not", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/foo" ],
+      [ false, "LoopProperties", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was expected to not validate against the given subschema",
+      "The object value was not expected to define the property \"foo\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

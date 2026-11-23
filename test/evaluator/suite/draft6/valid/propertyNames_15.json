@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": { "stringType": { "type": "string" } },
+    "additionalProperties": { "$ref": "#/definitions/stringType" },
+    "propertyNames": { "$ref": "#/definitions/stringType" }
+  },
+  "instance": { "foo": 123 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/propertyNames/$ref", "#/propertyNames/$ref", "/foo" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ false, "AssertionTypeStrict", "/additionalProperties/$ref/type", "#/definitions/stringType/type", "/foo" ],
+      [ false, "ControlJump", "/additionalProperties/$ref", "#/additionalProperties/$ref", "/foo" ],
+      [ false, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate the property names \"foo\" against the given subschema",
+      "The value was expected to be of type string but it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

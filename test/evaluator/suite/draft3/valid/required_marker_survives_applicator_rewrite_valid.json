@@ -1,0 +1,57 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": { "extends": [ { "minLength": 2 } ], "type": "string", "required": true }
+    }
+  },
+  "instance": { "foo": "ab" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ true, "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The string value \"ab\" was expected to consist of at least 2 characters and its length was 2",
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ true, "AssertionStringSizeGreater", "/properties/foo/extends/0/minLength", "#/properties/foo/extends/0/minLength", "/foo" ],
+      [ true, "LogicalAnd", "/properties/foo/extends", "#/properties/foo/extends", "/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The string value \"ab\" was expected to consist of at least 2 characters and its length was 2",
+      "The string value was expected to validate against the given subschema",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

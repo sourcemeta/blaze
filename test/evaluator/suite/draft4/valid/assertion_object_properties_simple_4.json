@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": { "x": { "type": "string" }, "y": { "type": "integer" } }
+  },
+  "instance": { "x": "hello", "y": 42 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ "AssertionTypeStrict", "/properties/y/type", "#/properties/y/type", "/y" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/x/type", "#/properties/x/type", "/x" ],
+      [ true, "AssertionTypeStrict", "/properties/y/type", "#/properties/y/type", "/y" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

@@ -56,9 +56,9 @@ target_link_libraries(sourcemeta_blaze_evaluator_annotation_suite_unit PRIVATE s
 
 # Evaluator trace suite (JSON-driven trace tests)
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite
-  SOURCES tracesuite.cc)
+  SOURCES tracesuite.cc tracesuite.h)
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_unit
-  PRIVATE TRACE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
+  PRIVATE TRACE_SUITE_PATH="${PROJECT_SOURCE_DIR}/test/evaluator/suite")
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE sourcemeta::blaze::compiler)
@@ -66,9 +66,9 @@ target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_unit PRIVATE source
 
 # Evaluator trace suite with canonicalization (JSON-driven)
 sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator_trace_suite_canonical
-  SOURCES tracesuite_canonical.cc)
+  SOURCES tracesuite_canonical.cc tracesuite.h)
 target_compile_definitions(sourcemeta_blaze_evaluator_trace_suite_canonical_unit
-  PRIVATE TRACE_SUITE_CANONICAL_PATH="${PROJECT_SOURCE_DIR}/test/evaluator")
+  PRIVATE TRACE_SUITE_CANONICAL_PATH="${PROJECT_SOURCE_DIR}/test/evaluator/suite")
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::core::json)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::core::jsonschema)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::compiler)

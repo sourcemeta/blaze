@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" }, { "type": "boolean" } ]
+  },
+  "instance": [ 5, true ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/1/type", "#/items/1/type", "/1" ],
+      [ true, "Annotation", "/items", "#/items", "", 1 ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type boolean",
+      "The first 2 items of the array value successfully validated against the given positional subschemas",
+      "Every item in the array value was successfully validated",
+      "The first 2 items of the array value were expected to validate against the corresponding subschemas"
+    ]
+  }
+}

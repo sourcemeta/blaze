@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": { "type": "integer" }
+  },
+  "instance": { "bar": 2, "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesType", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ "Annotation", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "bar" ],
+      [ true, "AssertionType", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object property \"bar\" successfully validated against the additional properties subschema",
+      "The value was expected to be of type integer",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

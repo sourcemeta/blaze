@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [
+      { "type": "object" },
+      {
+        "properties": { "foo": { "required": true }, "bar": { "required": true } }
+      }
+    ]
+  },
+  "instance": { "foo": 1, "baz": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+      [ "AssertionDefinesAll", "/extends/1/properties", "#/extends/1/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+      [ false, "AssertionDefinesAll", "/extends/1/properties", "#/extends/1/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define properties \"bar\", and \"foo\" but did not define \"bar\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+      [ "AssertionDefinesAll", "/extends/1/properties", "#/extends/1/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/extends/0/type", "#/extends/0/type", "" ],
+      [ false, "AssertionDefinesAll", "/extends/1/properties", "#/extends/1/properties", "" ],
+      [ false, "LogicalAnd", "/extends", "#/extends", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The object value was expected to define properties \"bar\", and \"foo\" but did not define \"bar\"",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}

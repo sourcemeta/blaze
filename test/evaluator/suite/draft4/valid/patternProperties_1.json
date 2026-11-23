@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": {}
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

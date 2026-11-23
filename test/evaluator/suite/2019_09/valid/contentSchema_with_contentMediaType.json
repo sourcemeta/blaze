@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "application/json",
+    "contentSchema": { "type": "string" }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ],
+      [ "Annotation", "/contentSchema", "#/contentSchema", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "application/json" ],
+      [ true, "Annotation", "/contentSchema", "#/contentSchema", "", {"type": "string"} ]
+    ],
+    "descriptions": [
+      "The content media type of the instance was \"application/json\"",
+      "When decoded, the instance was expected to validate against the schema {\"type\":\"string\"}"
+    ]
+  }
+}

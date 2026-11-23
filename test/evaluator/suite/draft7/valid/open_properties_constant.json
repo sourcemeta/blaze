@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "a1": { "const": 0 },
+      "b2": { "const": 1 },
+      "c3": { "const": 2 },
+      "d4": { "const": 3 },
+      "e5": { "const": 4 },
+      "f6": { "const": 5 }
+    }
+  },
+  "instance": { "a1": 0, "f6": 5, "zz": true },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ true, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to equal the integer constant 0",
+      "The integer value 5 was expected to equal the integer constant 5",
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/a1/const", "#/properties/a1/const", "/a1" ],
+      [ true, "AssertionEqual", "/properties/f6/const", "#/properties/f6/const", "/f6" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 0 was expected to equal the integer constant 0",
+      "The integer value 5 was expected to equal the integer constant 5",
+      "The object value was expected to validate against the 6 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

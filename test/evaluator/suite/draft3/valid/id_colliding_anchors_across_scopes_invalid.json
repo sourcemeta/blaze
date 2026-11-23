@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "properties": {
+      "s1": {
+        "id": "https://example.com/one",
+        "properties": { "a": { "id": "#tag", "type": "integer" }, "r": { "$ref": "#tag" } }
+      },
+      "s2": {
+        "id": "https://example.com/two",
+        "properties": { "a": { "id": "#tag", "type": "string" }, "r": { "$ref": "#tag" } }
+      }
+    }
+  },
+  "instance": { "s1": { "r": "x" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "LogicalWhenType", "/properties/s1/properties", "https://example.com/one#/properties", "/s1" ],
+      [ "ControlJump", "/properties/s1/properties/r/$ref", "https://example.com/one#/properties/r/$ref", "/s1/r" ],
+      [ "AssertionTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/s1/properties/r/$ref/type", "https://example.com/one#/properties/a/type", "/s1/r" ],
+      [ false, "ControlJump", "/properties/s1/properties/r/$ref", "https://example.com/one#/properties/r/$ref", "/s1/r" ],
+      [ false, "LogicalWhenType", "/properties/s1/properties", "https://example.com/one#/properties", "/s1" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "additionalProperties": { "type": "number" }
+  },
+  "instance": { "bar": 2, "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "" ]
+    ],
+    "descriptions": [
+      "The object properties were expected to be of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ "AssertionTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "AssertionTypeStrictAny", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The value was expected to be of type number",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

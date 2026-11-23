@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": { "a": { "type": "string" }, "b": { "type": "integer" } }
+  },
+  "instance": { "a": "hello" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"a\", and \"b\""
+    ]
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "if": { "type": "string" },
+    "then": { "$ref": "#/definitions/library" },
+    "else": { "type": "integer" },
+    "definitions": { "library": { "minLength": 2, "maxLength": 10 } }
+  },
+  "instance": "abcde",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+      [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+      [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value \"abcde\" was expected to consist of at most 10 characters and its length was 5",
+      "The string value \"abcde\" was expected to consist of at least 2 characters and its length was 5",
+      "The string value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+      [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionStringSizeLess", "/then/$ref/maxLength", "#/definitions/library/maxLength", "" ],
+      [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/definitions/library/minLength", "" ],
+      [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value \"abcde\" was expected to consist of at most 10 characters and its length was 5",
+      "The string value \"abcde\" was expected to consist of at least 2 characters and its length was 5",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given conditional"
+    ]
+  }
+}

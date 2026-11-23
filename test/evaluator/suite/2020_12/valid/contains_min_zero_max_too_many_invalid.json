@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "const": 1 },
+    "minContains": 0,
+    "maxContains": 1
+  },
+  "instance": [ 1, 1 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The array value was expected to contain up to 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ "Annotation", "/contains", "#/contains", "" ],
+      [ "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+      [ "Annotation", "/contains", "#/contains", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/0" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 0 ],
+      [ true, "AssertionEqual", "/contains/const", "#/contains/const", "/1" ],
+      [ true, "Annotation", "/contains", "#/contains", "", 1 ],
+      [ false, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The item at index 1 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain up to 1 item that validates against the given subschema"
+    ]
+  }
+}

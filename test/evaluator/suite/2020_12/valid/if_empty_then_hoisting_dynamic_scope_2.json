@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "value" ],
+    "properties": {
+      "value": {
+        "$id": "https://example.com/dynamic-wrapper",
+        "if": { "$comment": "always true" },
+        "then": { "$id": "second_scope", "$ref": "start" },
+        "$defs": {
+          "outer_thingy": { "$dynamicAnchor": "thingy", "type": "null" },
+          "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+          "thingy": { "$id": "inner_scope", "$dynamicAnchor": "thingy", "type": "string" }
+        }
+      }
+    }
+  },
+  "instance": { "value": null },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ],
+      [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"value\"",
+      "The value was expected to be of type null",
+      "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+      [ "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/value/then/$ref/$dynamicRef/type", "https://example.com/dynamic-wrapper#/$defs/outer_thingy/type", "/value" ],
+      [ true, "ControlDynamicAnchorJump", "/properties/value/then/$ref/$dynamicRef", "https://example.com/start#/$dynamicRef", "/value" ],
+      [ true, "ControlJump", "/properties/value/then/$ref", "https://example.com/second_scope#/$ref", "/value" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"value\"",
+      "The value was expected to be of type null",
+      "The null value was expected to validate against the first subschema in scope that declared the dynamic anchor \"thingy\"",
+      "The null value was expected to validate against the referenced schema",
+      "The object property \"value\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

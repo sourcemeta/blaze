@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": [
+      { "properties": { "foo": { "type": "string" } } },
+      { "properties": { "bar": { "type": "integer" } } }
+    ]
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "LogicalOr", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentRequired": { "foo": [ "bar", "baz" ], "qux": [ "extra" ] }
+  },
+  "instance": { "foo": 1, "bar": 2, "baz": 3 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "descriptions": [
+      "Because the object value defined \"foo\", it was also expected to define \"bar\", and \"baz\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependentRequired", "#/dependentRequired", "" ]
+    ],
+    "descriptions": [
+      "Because the object value defined \"foo\", it was also expected to define \"bar\", and \"baz\""
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "foo": { "type": "boolean", "required": true },
+        "bar": { "type": "boolean", "required": true }
+      }
+    }
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

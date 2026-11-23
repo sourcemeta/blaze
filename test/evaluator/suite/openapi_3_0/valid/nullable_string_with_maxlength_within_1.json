@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "string", "nullable": true, "maxLength": 2 },
+  "instance": "xx",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2",
+      "The value was expected to be of type null, or string and it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeLess", "/maxLength", "#/maxLength", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"xx\" was expected to consist of at most 2 characters and its length was 2",
+      "The value was expected to be of type null, or string and it was of type string"
+    ]
+  }
+}

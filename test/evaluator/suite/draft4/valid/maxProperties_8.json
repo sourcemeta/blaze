@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "maxProperties": 0 },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 0 properties and it defines 0 of them"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectSizeLess", "/maxProperties", "#/maxProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at most 0 properties and it defines 0 of them"
+    ]
+  }
+}

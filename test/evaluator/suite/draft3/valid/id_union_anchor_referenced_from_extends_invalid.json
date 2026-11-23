@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/root",
+    "type": [
+      { "type": "object", "patternProperties": { "^a": {} } },
+      { "type": "object", "patternProperties": { "^b": {} } }
+    ],
+    "properties": { "foo": { "id": "#tag", "type": "integer" } },
+    "extends": [ { "properties": { "r": { "$ref": "#tag" } } } ]
+  },
+  "instance": { "foo": "x" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/root#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/foo/type", "https://example.com/root#/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "https://example.com/root#/extends", "" ],
+      [ "LogicalWhenType", "/extends/0/properties", "https://example.com/root#/extends/0/properties", "" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "https://example.com/root#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/extends/0/properties", "https://example.com/root#/extends/0/properties", "" ],
+      [ true, "LogicalAnd", "/extends", "https://example.com/root#/extends", "" ],
+      [ false, "AssertionTypeStrict", "/properties/foo/type", "https://example.com/root#/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/root#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the given subschema",
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

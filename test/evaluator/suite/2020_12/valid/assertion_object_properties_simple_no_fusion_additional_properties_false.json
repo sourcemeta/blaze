@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "a": { "type": "string" } },
+    "additionalProperties": false
+  },
+  "instance": { "a": "hello" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

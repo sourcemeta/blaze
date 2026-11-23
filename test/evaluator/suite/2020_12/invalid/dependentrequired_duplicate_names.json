@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "dependentRequired": { "a": [ "b", "b" ] }
+  },
+  "error": {
+    "message": "Every value of this keyword was expected to be an array of unique property names",
+    "base": "",
+    "location": "/dependentRequired"
+  }
+}

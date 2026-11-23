@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "properties": { "allowed": { "type": "integer" } } } },
+    "properties": { "a": true, "b": true },
+    "dependentSchemas": { "a": { "$ref": "#/$defs/common" }, "b": { "$ref": "#/$defs/common" } },
+    "unevaluatedProperties": false
+  },
+  "instance": { "allowed": 2 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/allowed" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/allowed" ],
+      [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"a\", or \"b\"",
+      "The object value was not expected to define the property \"allowed\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/allowed" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/unevaluatedProperties", "#/unevaluatedProperties", "/allowed" ],
+      [ false, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"a\", or \"b\"",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define the property \"allowed\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

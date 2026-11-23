@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://example.com/dir/root.json",
+    "type": "object",
+    "properties": { "down": { "$ref": "leaf.json" } },
+    "definitions": {
+      "l": {
+        "id": "leaf.json",
+        "type": "object",
+        "properties": {
+          "up": { "$ref": "https://example.com/dir/root.json" },
+          "n": { "type": "integer" }
+        }
+      }
+    }
+  },
+  "instance": { "down": { "up": { "down": { "n": "x" } } } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down" ],
+      [ "ControlJump", "/properties/down/$ref/properties/up/$ref", "https://example.com/dir/leaf.json#/properties/up/$ref", "/down/up" ],
+      [ "ControlJump", "/properties/down/$ref/properties/up/$ref/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down/up/down" ],
+      [ "AssertionPropertyTypeStrict", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties/n/type", "https://example.com/dir/leaf.json#/properties/n/type", "/down/up/down/n" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyTypeStrict", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties/n/type", "https://example.com/dir/leaf.json#/properties/n/type", "/down/up/down/n" ],
+      [ false, "ControlJump", "/properties/down/$ref/properties/up/$ref/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down/up/down" ],
+      [ false, "ControlJump", "/properties/down/$ref/properties/up/$ref", "https://example.com/dir/leaf.json#/properties/up/$ref", "/down/up" ],
+      [ false, "ControlJump", "/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the referenced schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "https://example.com/dir/root.json#/properties", "" ],
+      [ "ControlJump", "/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down" ],
+      [ "LogicalWhenType", "/properties/down/$ref/properties", "https://example.com/dir/leaf.json#/properties", "/down" ],
+      [ "ControlJump", "/properties/down/$ref/properties/up/$ref", "https://example.com/dir/leaf.json#/properties/up/$ref", "/down/up" ],
+      [ "LogicalWhenType", "/properties/down/$ref/properties/up/$ref/properties", "https://example.com/dir/root.json#/properties", "/down/up" ],
+      [ "ControlJump", "/properties/down/$ref/properties/up/$ref/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down/up/down" ],
+      [ "LogicalWhenType", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties", "https://example.com/dir/leaf.json#/properties", "/down/up/down" ],
+      [ "AssertionTypeStrict", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties/n/type", "https://example.com/dir/leaf.json#/properties/n/type", "/down/up/down/n" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties/n/type", "https://example.com/dir/leaf.json#/properties/n/type", "/down/up/down/n" ],
+      [ false, "LogicalWhenType", "/properties/down/$ref/properties/up/$ref/properties/down/$ref/properties", "https://example.com/dir/leaf.json#/properties", "/down/up/down" ],
+      [ false, "ControlJump", "/properties/down/$ref/properties/up/$ref/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down/up/down" ],
+      [ false, "LogicalWhenType", "/properties/down/$ref/properties/up/$ref/properties", "https://example.com/dir/root.json#/properties", "/down/up" ],
+      [ false, "ControlJump", "/properties/down/$ref/properties/up/$ref", "https://example.com/dir/leaf.json#/properties/up/$ref", "/down/up" ],
+      [ false, "LogicalWhenType", "/properties/down/$ref/properties", "https://example.com/dir/leaf.json#/properties", "/down" ],
+      [ false, "ControlJump", "/properties/down/$ref", "https://example.com/dir/root.json#/properties/down/$ref", "/down" ],
+      [ false, "LogicalWhenType", "/properties", "https://example.com/dir/root.json#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

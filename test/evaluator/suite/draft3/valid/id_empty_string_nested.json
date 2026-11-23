@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "id": "https://www.example.com",
+    "definitions": { "test": { "id": "", "type": "string" } },
+    "extends": { "$ref": "#/definitions/test" }
+  },
+  "instance": "foo bar",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "https://www.example.com/#/extends", "" ],
+      [ "ControlJump", "/extends/$ref", "https://www.example.com/#/extends/$ref", "" ],
+      [ "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com/#/definitions/test/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/extends/$ref/type", "https://www.example.com/#/definitions/test/type", "" ],
+      [ true, "ControlJump", "/extends/$ref", "https://www.example.com/#/extends/$ref", "" ],
+      [ true, "LogicalAnd", "/extends", "https://www.example.com/#/extends", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the given subschema"
+    ]
+  }
+}

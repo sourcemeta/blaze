@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": [ "string", { "type": "number" } ]
+  },
+  "instance": true,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+      [ "LogicalNot", "/disallow/1", "#/disallow/1", "" ],
+      [ "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+      [ false, "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ],
+      [ true, "LogicalNot", "/disallow/1", "#/disallow/1", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type string",
+      "The value was expected to be of type number but it was of type boolean",
+      "The boolean value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+      [ "LogicalNot", "/disallow/1", "#/disallow/1", "" ],
+      [ "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ],
+      [ false, "AssertionTypeStrictAny", "/disallow/1/type", "#/disallow/1/type", "" ],
+      [ true, "LogicalNot", "/disallow/1", "#/disallow/1", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type string",
+      "The value was expected to be of type number but it was of type boolean",
+      "The boolean value was expected to not validate against the given subschema"
+    ]
+  }
+}

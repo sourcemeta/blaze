@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "dependentSchemas": { "foo": { "required": [ "bar" ] }, "baz": { "required": [ "qux" ] } }
+  },
+  "instance": { "foo": 1, "bar": 2, "baz": 3, "qux": 4 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"qux\"",
+      "The object value defined the property \"baz\"",
+      "The object value was expected to define the property \"bar\"",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+      [ "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefines", "/dependentSchemas/baz/required", "#/dependentSchemas/baz/required", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "AssertionDefines", "/dependentSchemas/foo/required", "#/dependentSchemas/foo/required", "" ],
+      [ true, "LogicalWhenDefines", "/dependentSchemas", "#/dependentSchemas", "" ],
+      [ true, "LogicalWhenType", "/dependentSchemas", "#/dependentSchemas", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to define the property \"qux\"",
+      "The object value defined the property \"baz\"",
+      "The object value was expected to define the property \"bar\"",
+      "The object value defined the property \"foo\"",
+      "Because the object value defined \"baz\", and \"foo\", it was also expected to validate against the corresponding subschemas"
+    ]
+  }
+}

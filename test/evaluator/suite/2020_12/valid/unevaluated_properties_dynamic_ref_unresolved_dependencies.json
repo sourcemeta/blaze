@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "#test",
+    "unevaluatedProperties": false,
+    "$defs": {
+      "foo": {
+        "$id": "nested",
+        "$dynamicAnchor": "test",
+        "properties": { "foo": true }
+      },
+      "bar": { "$dynamicAnchor": "test", "$ref": "#/$defs/foo" }
+    }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+      [ "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the first subschema in scope that declared the dynamic anchor \"test\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+      [ "ControlResourceJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
+      [ "LogicalWhenType", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
+      [ "Annotation", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
+      [ "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
+      [ "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "", "foo" ],
+      [ true, "Evaluate", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "/foo" ],
+      [ true, "LogicalWhenType", "/$dynamicRef/$ref/properties", "https://example.com/nested#/properties", "" ],
+      [ true, "ControlResourceJump", "/$dynamicRef/$ref", "https://example.com/#/$defs/bar/$ref", "" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/#/$dynamicRef", "" ],
+      [ true, "LoopPropertiesUnevaluated", "/unevaluatedProperties", "https://example.com/#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the first subschema in scope that declared the dynamic anchor \"test\"",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

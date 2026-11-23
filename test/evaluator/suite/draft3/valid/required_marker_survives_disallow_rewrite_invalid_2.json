@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "disallow": [ "null" ],
+        "extends": [ { "minLength": 2 } ],
+        "required": true
+      }
+    }
+  },
+  "instance": { "foo": null },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "AssertionNotTypeStrictAny", "/properties/foo/disallow", "#/properties/foo/disallow", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionNotTypeStrictAny", "/properties/foo/disallow", "#/properties/foo/disallow", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to NOT be of type null but it was of type null"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionNotTypeStrictAny", "/properties/foo/disallow", "#/properties/foo/disallow", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/properties", "#/properties", "" ],
+      [ false, "AssertionNotTypeStrictAny", "/properties/foo/disallow", "#/properties/foo/disallow", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to NOT be of type null but it was of type null",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

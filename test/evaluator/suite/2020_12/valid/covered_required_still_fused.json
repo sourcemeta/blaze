@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "p": {
+        "type": "object",
+        "properties": { "x": { "type": "string" }, "y": { "type": "string" } },
+        "required": [ "x", "y" ]
+      }
+    }
+  },
+  "instance": { "p": { "x": "a" } },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "AssertionObjectPropertiesSimple", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the defined property subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionDefinesAllStrict", "/properties/p/required", "#/properties/p/required", "/p" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/properties/p/required", "#/properties/p/required", "/p" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"x\", and \"y\"",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

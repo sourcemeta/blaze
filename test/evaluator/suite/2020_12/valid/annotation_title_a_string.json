@@ -1,0 +1,21 @@
+{
+  "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "title": "x" },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/title", "#/title", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "#/title", "", "x" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"x\""
+    ]
+  }
+}

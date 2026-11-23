@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "uniqueItems": true },
+  "instance": [ 2, 1, 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+    ],
+    "descriptions": [
+      "The array value contained the following duplicates: 2"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+    ],
+    "post": [
+      [ false, "AssertionUnique", "/uniqueItems", "#/uniqueItems", "" ]
+    ],
+    "descriptions": [
+      "The array value contained the following duplicates: 2"
+    ]
+  }
+}

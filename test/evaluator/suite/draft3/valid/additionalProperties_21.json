@@ -1,0 +1,71 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "foo": { "type": "integer", "required": true },
+        "bar": { "type": "integer", "required": true },
+        "baz": { "type": "integer", "required": true }
+      }
+    }
+  },
+  "instance": [
+    {
+      "foo": 12345678910111213141516171819202122232425262728293031,
+      "bar": 12345678910111213141516171819202122232425262728293031,
+      "baz": 12345678910111213141516171819202122232425262728293031
+    }
+  ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "LoopPropertiesExactlyTypeStrictHash", "/items/properties", "#/items/properties", "/0" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesExactlyTypeStrictHash", "/items/properties", "#/items/properties", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type integer",
+      "The value was expected to be of type object",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionDefinesExactly", "/items/properties", "#/items/properties", "/0" ],
+      [ "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+      [ "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ],
+      [ "AssertionTypeStrict", "/items/properties/baz/type", "#/items/properties/baz/type", "/0/baz" ],
+      [ "AssertionTypeStrict", "/items/properties/foo/type", "#/items/properties/foo/type", "/0/foo" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/items/properties", "#/items/properties", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ],
+      [ true, "AssertionTypeStrict", "/items/properties/baz/type", "#/items/properties/baz/type", "/0/baz" ],
+      [ true, "AssertionTypeStrict", "/items/properties/foo/type", "#/items/properties/foo/type", "/0/foo" ],
+      [ true, "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopPropertiesExcept", "/items/additionalProperties", "#/items/additionalProperties", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", \"baz\", and \"foo\"",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was not expected to define additional properties",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

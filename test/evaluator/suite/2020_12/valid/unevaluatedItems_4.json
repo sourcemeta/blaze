@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "type": "string" },
+    "unevaluatedItems": { "type": "boolean" }
+  },
+  "instance": [ "foo" ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

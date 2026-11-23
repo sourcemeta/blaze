@@ -1,0 +1,33 @@
+{
+  "schema": { "type": "integer", "maximum": 5, "exclusiveMaximum": true },
+  "instance": 4,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 4 was expected to be less than the integer 5",
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionLess", "/maximum", "#/maximum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionLess", "/maximum", "#/maximum", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 4 was expected to be less than the integer 5",
+      "The value was expected to be of type integer"
+    ]
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "contains": { "type": "integer" } } },
+    "anyOf": [ { "$ref": "#/$defs/common" }, { "$ref": "#/$defs/common" } ],
+    "unevaluatedItems": false
+  },
+  "instance": [],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ]
+    ],
+    "post": [
+      [ false, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ false, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ false, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ false, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ false, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against the referenced schema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against the referenced schema",
+      "The array value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

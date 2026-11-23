@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": true },
+    "contains": { "$ref": "#" },
+    "minContains": 0,
+    "unevaluatedProperties": false
+  },
+  "instance": [],
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

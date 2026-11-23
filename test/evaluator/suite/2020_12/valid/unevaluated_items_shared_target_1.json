@@ -1,0 +1,74 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "common": { "contains": { "type": "integer" } } },
+    "anyOf": [ { "$ref": "#/$defs/common" }, { "$ref": "#/$defs/common" } ],
+    "unevaluatedItems": false
+  },
+  "instance": [ 1 ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ true, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The value was expected to be of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ "Annotation", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ "Annotation", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/anyOf/0/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ true, "Annotation", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "", 0 ],
+      [ true, "LoopContains", "/anyOf/0/$ref/contains", "#/$defs/common/contains", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ true, "AssertionType", "/anyOf/1/$ref/contains/type", "#/$defs/common/contains/type", "/0" ],
+      [ true, "Annotation", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "", 0 ],
+      [ true, "LoopContains", "/anyOf/1/$ref/contains", "#/$defs/common/contains", "" ],
+      [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer",
+      "The item at index 0 of the array value successfully validated against the containment check subschema",
+      "The array value was expected to contain at least 1 item that validates against the given subschema",
+      "The array value was expected to validate against the referenced schema",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

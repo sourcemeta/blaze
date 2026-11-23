@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "propertyNames": { "items": { "pattern": "^a" } } }
+  },
+  "instance": { "propertyNames": [ "b" ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "AssertionRegex", "/properties/propertyNames/items/pattern", "#/properties/propertyNames/items/pattern", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/properties/propertyNames/items/pattern", "#/properties/propertyNames/items/pattern", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ]
+    ],
+    "descriptions": [
+      "The string value \"b\" was expected to match the regular expression \"^a\"",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ "AssertionRegex", "/properties/propertyNames/items/pattern", "#/properties/propertyNames/items/pattern", "/propertyNames/0" ]
+    ],
+    "post": [
+      [ false, "AssertionRegex", "/properties/propertyNames/items/pattern", "#/properties/propertyNames/items/pattern", "/propertyNames/0" ],
+      [ false, "LoopItemsFrom", "/properties/propertyNames/items", "#/properties/propertyNames/items", "/propertyNames" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"b\" was expected to match the regular expression \"^a\"",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

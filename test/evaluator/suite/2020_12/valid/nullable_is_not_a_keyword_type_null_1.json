@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "nullable": true
+  },
+  "instance": null,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type null"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/nullable", "#/nullable", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/nullable", "#/nullable", "", true ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"nullable\" was collected as the annotation true",
+      "The value was expected to be of type string but it was of type null"
+    ]
+  }
+}

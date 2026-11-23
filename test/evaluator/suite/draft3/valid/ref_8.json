@@ -1,0 +1,27 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "definitions": {
+      "foo": { "additionalProperties": { "$ref": "#/definitions/bar" } },
+      "bar": { "additionalProperties": { "$ref": "#/definitions/foo" } }
+    },
+    "extends": { "$ref": "#/definitions/foo" }
+  },
+  "instance": true,
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/extends", "#/extends", "" ],
+      [ "ControlJump", "/extends/$ref", "#/extends/$ref", "" ]
+    ],
+    "post": [
+      [ true, "ControlJump", "/extends/$ref", "#/extends/$ref", "" ],
+      [ true, "LogicalAnd", "/extends", "#/extends", "" ]
+    ],
+    "descriptions": [
+      "The boolean value was expected to validate against the referenced schema",
+      "The boolean value was expected to validate against the given subschema"
+    ]
+  }
+}

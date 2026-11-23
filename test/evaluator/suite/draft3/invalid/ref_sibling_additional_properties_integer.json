@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "properties": { "n": { "$ref": "#", "additionalProperties": 1 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a valid schema",
+    "base": "",
+    "location": "/properties/n/additionalProperties"
+  }
+}

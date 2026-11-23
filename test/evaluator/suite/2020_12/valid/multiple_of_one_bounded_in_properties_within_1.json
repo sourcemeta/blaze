@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "multipleOf": 1, "maximum": 10, "minimum": 0 } }
+  },
+  "instance": { "a": 5 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/properties/a/minimum", "#/properties/a/minimum", "/a" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be an integer between 0 and 10"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionDivisible", "/properties/a/multipleOf", "#/properties/a/multipleOf", "/a" ],
+      [ "AssertionLessEqual", "/properties/a/maximum", "#/properties/a/maximum", "/a" ],
+      [ "AssertionGreaterEqual", "/properties/a/minimum", "#/properties/a/minimum", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/properties/a/multipleOf", "#/properties/a/multipleOf", "/a" ],
+      [ true, "AssertionLessEqual", "/properties/a/maximum", "#/properties/a/maximum", "/a" ],
+      [ true, "AssertionGreaterEqual", "/properties/a/minimum", "#/properties/a/minimum", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be divisible by the integer 1",
+      "The integer value 5 was expected to be less than or equal to the integer 10",
+      "The integer value 5 was expected to be greater than or equal to the integer 0",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

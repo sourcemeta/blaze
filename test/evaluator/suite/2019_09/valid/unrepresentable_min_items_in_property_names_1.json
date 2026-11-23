@@ -1,0 +1,10 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "propertyNames": { "minItems": 99999999999999999999 }
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {},
+  "exhaustive": {}
+}

@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "if": true,
+    "then": { "multipleOf": 5 },
+    "else": { "multipleOf": 8 }
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be divisible by the integer 5"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/then/multipleOf", "#/then/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be divisible by the integer 5"
+    ]
+  }
+}

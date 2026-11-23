@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "n": { "$ref": "#", "minItems": 1.5 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to an integer",
+    "base": "",
+    "location": "/properties/n/minItems"
+  }
+}

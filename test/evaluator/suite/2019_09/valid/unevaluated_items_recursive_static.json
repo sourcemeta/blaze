@@ -1,0 +1,66 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$id": "https://example.com",
+    "$ref": "test",
+    "$recursiveAnchor": true,
+    "unevaluatedItems": false,
+    "$defs": {
+      "test": { "$id": "test", "$recursiveAnchor": true, "items": [ { "$ref": "#" } ] }
+    }
+  },
+  "instance": [ [] ],
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
+      [ "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
+      [ true, "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the referenced schema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the referenced schema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
+      [ "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
+      [ "Annotation", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ "Annotation", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionArrayPrefixEvaluate", "/$ref/items/0/$ref/items", "https://example.com/test#/items", "/0" ],
+      [ true, "ControlJump", "/$ref/items/0/$ref", "https://example.com/test#/items/0/$ref", "/0" ],
+      [ true, "Annotation", "/$ref/items", "https://example.com/test#/items", "", 0 ],
+      [ true, "Annotation", "/$ref/items", "https://example.com/test#/items", "", true ],
+      [ true, "AssertionArrayPrefixEvaluate", "/$ref/items", "https://example.com/test#/items", "" ],
+      [ true, "ControlJump", "/$ref", "https://example.com/#/$ref", "" ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the referenced schema",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "Every item in the array value was successfully validated",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the referenced schema",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

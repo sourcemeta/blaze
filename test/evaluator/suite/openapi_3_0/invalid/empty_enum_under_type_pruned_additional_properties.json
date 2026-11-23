@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "string", "additionalProperties": { "enum": [] } },
+  "error": {
+    "message": "This keyword was expected to be set to a non-empty array of values",
+    "base": "",
+    "location": "/additionalProperties/enum"
+  }
+}

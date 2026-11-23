@@ -1,0 +1,8 @@
+{
+  "schema": { "type": "object", "propertyNames": { "maxLength": 2 } },
+  "error": {
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/propertyNames"
+  }
+}

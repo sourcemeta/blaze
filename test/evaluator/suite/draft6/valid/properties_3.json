@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "foo": { "type": "integer" } }
+  },
+  "instance": { "foo": 1.1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type number",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

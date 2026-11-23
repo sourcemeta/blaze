@@ -1,0 +1,78 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "value", "legacy" ],
+    "properties": {
+      "value": {
+        "$id": "https://example.com/dynamic-wrapper",
+        "if": {
+          "$id": "first_scope",
+          "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "number" } }
+        },
+        "then": {
+          "$id": "second_scope",
+          "$ref": "start",
+          "$defs": { "thingy": { "$dynamicAnchor": "thingy", "type": "null" } }
+        },
+        "$defs": {
+          "start": { "$id": "start", "$dynamicRef": "inner_scope#thingy" },
+          "thingy": { "$id": "inner_scope", "$dynamicAnchor": "thingy", "type": "string" }
+        }
+      },
+      "legacy": { "$ref": "https://example.com/legacy" }
+    },
+    "$defs": {
+      "legacy": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "id": "https://example.com/legacy",
+        "extends": [ { "type": "string" }, { "minLength": 2 } ]
+      }
+    }
+  },
+  "instance": { "value": null, "legacy": "a" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+      [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+      [ false, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+      "The value was expected to be of type string",
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+      [ "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+      [ "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+      [ "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/legacy/$ref/extends/0/type", "https://example.com/legacy#/extends/0/type", "/legacy" ],
+      [ false, "AssertionStringSizeGreater", "/properties/legacy/$ref/extends/1/minLength", "https://example.com/legacy#/extends/1/minLength", "/legacy" ],
+      [ false, "LogicalAnd", "/properties/legacy/$ref/extends", "https://example.com/legacy#/extends", "/legacy" ],
+      [ false, "ControlJump", "/properties/legacy/$ref", "#/properties/legacy/$ref", "/legacy" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"legacy\", and \"value\"",
+      "The value was expected to be of type string",
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1",
+      "The string value was expected to validate against the 2 given subschemas",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

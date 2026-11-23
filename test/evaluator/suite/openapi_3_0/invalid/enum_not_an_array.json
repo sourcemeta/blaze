@@ -1,0 +1,8 @@
+{
+  "schema": { "enum": 1 },
+  "error": {
+    "message": "This keyword was expected to be set to an array",
+    "base": "",
+    "location": "/enum"
+  }
+}

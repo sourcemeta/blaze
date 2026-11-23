@@ -1,0 +1,33 @@
+{
+  "schema": { "not": { "type": "string", "nullable": true } },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionTypeStrictAny", "/not/type", "#/not/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/not/type", "#/not/type", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalNot", "/not", "#/not", "" ],
+      [ "AssertionTypeStrictAny", "/not/type", "#/not/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrictAny", "/not/type", "#/not/type", "" ],
+      [ true, "LogicalNot", "/not", "#/not", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or string but it was of type integer",
+      "The integer value was expected to not validate against the given subschema"
+    ]
+  }
+}

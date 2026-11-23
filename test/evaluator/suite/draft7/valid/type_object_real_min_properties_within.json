@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "minProperties": 2.0
+  },
+  "instance": { "a": 1, "b": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeObjectBounded", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of an object of at least 2 properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionObjectSizeGreater", "/minProperties", "#/minProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to contain at least 2 properties and it defines 2 of them: \"a\", and \"b\"",
+      "The value was expected to be of type object"
+    ]
+  }
+}

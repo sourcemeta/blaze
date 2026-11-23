@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": true },
+    "contains": { "$ref": "#" },
+    "minContains": 0,
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "Evaluate", "/properties", "#/properties", "/a" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Evaluate", "/properties", "#/properties", "/a" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The instance location was marked as evaluated",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "Evaluate", "/properties", "#/properties", "/a" ],
+      [ "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "Evaluate", "/properties", "#/properties", "/a" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesUnevaluatedExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"a\" successfully validated against its property subschema",
+      "The instance location was marked as evaluated",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

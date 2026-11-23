@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$id": "https://example.com/schema",
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "additionalProperties": {
+      "$id": "nested",
+      "$recursiveAnchor": true,
+      "minimum": 1,
+      "additionalProperties": { "$recursiveRef": "#" }
+    }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+      [ "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to be greater than or equal to the integer 1",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ],
+      [ "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+      [ "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionGreaterEqual", "/additionalProperties/minimum", "https://example.com/nested#/minimum", "/foo" ],
+      [ true, "Annotation", "/additionalProperties", "https://example.com/schema#/additionalProperties", "", "foo" ],
+      [ true, "LoopProperties", "/additionalProperties", "https://example.com/schema#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to be greater than or equal to the integer 1",
+      "The object property \"foo\" successfully validated against the additional properties subschema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentEncoding": "base64"
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {},
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/contentEncoding", "#/contentEncoding", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contentEncoding", "#/contentEncoding", "", "base64" ]
+    ],
+    "descriptions": [
+      "The content encoding of the instance was \"base64\""
+    ]
+  }
+}

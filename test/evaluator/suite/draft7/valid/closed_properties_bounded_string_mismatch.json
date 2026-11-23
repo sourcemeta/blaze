@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "string", "minLength": 2 } }
+  },
+  "instance": { "foo": "a" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStringBounded", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ false, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to consist of a string of at least 2 characters",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ]
+    ],
+    "post": [
+      [ false, "AssertionStringSizeGreater", "/properties/foo/minLength", "#/properties/foo/minLength", "/foo" ],
+      [ false, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a\" was expected to consist of at least 2 characters but its length was 1",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

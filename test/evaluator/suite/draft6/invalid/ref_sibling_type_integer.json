@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "n": { "$ref": "#", "type": 123 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a known type name, or to a non-empty array of unique ones",
+    "base": "",
+    "location": "/properties/n/type"
+  }
+}

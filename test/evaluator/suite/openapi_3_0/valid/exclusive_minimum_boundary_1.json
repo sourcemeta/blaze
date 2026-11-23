@@ -1,0 +1,27 @@
+{
+  "schema": { "type": "integer", "minimum": 5, "exclusiveMinimum": true },
+  "instance": 5,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeIntegerLowerBoundStrict", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an integer above the given minimum"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionGreater", "/minimum", "#/minimum", "" ]
+    ],
+    "post": [
+      [ false, "AssertionGreater", "/minimum", "#/minimum", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be greater than the integer 5"
+    ]
+  }
+}

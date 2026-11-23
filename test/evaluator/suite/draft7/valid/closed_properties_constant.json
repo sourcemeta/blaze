@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "foo": { "const": 1 } }
+  },
+  "instance": { "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ true, "LoopPropertiesMatchClosed", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqual", "/properties/foo/const", "#/properties/foo/const", "/foo" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The integer value 1 was expected to equal the integer constant 1",
+      "The object value was expected to validate against the single defined property subschema",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

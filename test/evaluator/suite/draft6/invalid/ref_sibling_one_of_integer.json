@@ -1,0 +1,11 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "properties": { "n": { "$ref": "#", "oneOf": 1 } }
+  },
+  "error": {
+    "message": "This keyword was expected to be set to a non-empty array of valid schemas",
+    "base": "",
+    "location": "/properties/n/oneOf"
+  }
+}

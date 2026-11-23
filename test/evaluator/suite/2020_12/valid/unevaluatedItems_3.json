@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "prefixItems": [ { "type": "boolean" } ] }, true ],
+    "unevaluatedItems": false
+  },
+  "instance": [ 1, 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+      [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean but it was of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array value was not expected to define the item at index 0",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/anyOf/0/prefixItems/0/type", "#/anyOf/0/prefixItems/0/type", "/0" ],
+      [ false, "AssertionArrayPrefixEvaluate", "/anyOf/0/prefixItems", "#/anyOf/0/prefixItems", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean but it was of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array value was not expected to define the item at index 0",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "o$": { "type": "integer" }, "^f": { "type": "integer" } }
+  },
+  "instance": { "bar": 2, "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type integer",
+      "The object properties that match the regular expression \"o$\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^f/type", "#/patternProperties/%5Ef/type", "/foo" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ true, "AssertionTypeStrict", "/patternProperties/o$/type", "#/patternProperties/o$/type", "/foo" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object properties that start with the string \"f\" were expected to validate against the defined pattern property subschema",
+      "The value was expected to be of type integer",
+      "The object properties that match the regular expression \"o$\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

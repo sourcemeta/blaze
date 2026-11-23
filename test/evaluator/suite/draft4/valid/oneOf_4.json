@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "oneOf": [ { "type": "number" } ]
+  },
+  "instance": 3.14,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrictAny", "/oneOf/0/type", "#/oneOf/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The number value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalXor", "/oneOf", "#/oneOf", "" ],
+      [ "AssertionTypeStrictAny", "/oneOf/0/type", "#/oneOf/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/oneOf/0/type", "#/oneOf/0/type", "" ],
+      [ true, "LogicalXor", "/oneOf", "#/oneOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type number",
+      "The number value was expected to validate against the given subschema"
+    ]
+  }
+}
