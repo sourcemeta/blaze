@@ -28,7 +28,8 @@ auto declared_dialect(const sourcemeta::core::JSON &schema)
              : sourcemeta::core::JSON::String{};
 }
 
-auto run_canonicalize_test(const sourcemeta::core::JSON &data,
+auto run_canonicalize_test(const std::string &name,
+                           const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode,
                            const std::string &default_dialect) -> void {
   auto schema{data.at("schema")};
@@ -50,7 +51,8 @@ auto run_canonicalize_test(const sourcemeta::core::JSON &data,
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, mode, dialect)};
+      sourcemeta::blaze::default_schema_compiler, mode, dialect, "", "",
+      fixture_tweaks(name, data))};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -85,8 +87,8 @@ register_tests(const std::filesystem::path &directory,
 
       sourcemeta::core::test_register(
           suite_name, title, __FILE__, __LINE__,
-          [test_case, mode, default_dialect]() -> void {
-            run_canonicalize_test(test_case, mode, default_dialect);
+          [name, test_case, mode, default_dialect]() -> void {
+            run_canonicalize_test(name, test_case, mode, default_dialect);
           });
     }
   }

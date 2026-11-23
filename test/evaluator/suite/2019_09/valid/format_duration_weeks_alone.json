@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "duration"
+  },
+  "instance": "P1W",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"P1W\" was expected to represent a valid RFC 3339 duration"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "duration" ]
+    ],
+    "descriptions": [
+      "The string value \"P1W\" was expected to represent a valid RFC 3339 duration",
+      "The logical type of the instance was expected to be \"duration\""
+    ]
+  }
+}

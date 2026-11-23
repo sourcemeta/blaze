@@ -1,0 +1,28 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "format": "ipv4" },
+  "instance": "192.168.01.1",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"192.168.01.1\" was expected to represent a valid IPv4 address"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"192.168.01.1\" was expected to represent a valid IPv4 address"
+    ]
+  }
+}

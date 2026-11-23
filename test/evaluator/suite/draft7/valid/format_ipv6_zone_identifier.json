@@ -1,0 +1,28 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "format": "ipv6" },
+  "instance": "fe80::1%eth0",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"fe80::1%eth0\" was expected to represent a valid IPv6 address"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"fe80::1%eth0\" was expected to represent a valid IPv6 address"
+    ]
+  }
+}

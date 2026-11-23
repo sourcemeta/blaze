@@ -1,8 +1,11 @@
 #include <sourcemeta/blaze/compiler.h>
+
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/options.h>
+
+#include "tweaks.h"
 
 #include <chrono>      // std::chrono
 #include <cstdlib>     // EXIT_SUCCESS, EXIT_FAILURE
@@ -64,6 +67,7 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("default-dialect", {"d"});
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
+  register_tweak_options(options);
 
   try {
     options.parse(argc, argv);
@@ -77,7 +81,9 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
-                 "[--path <pointer>] <schema.json>\n";
+                 "[--path <pointer>] [--format-assertion] "
+                 "[--annotations <keyword>]... [--no-annotations] "
+                 "<schema.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -94,6 +100,8 @@ auto main(int argc, char **argv) noexcept -> int {
     default_dialect = options.at("default-dialect").front();
     std::cerr << "Default dialect: " << default_dialect << "\n";
   }
+
+  const auto tweaks{tweaks_from_options(options, std::cerr)};
 
   try {
     std::vector<std::pair<std::string, std::filesystem::path>>
@@ -149,7 +157,8 @@ auto main(int argc, char **argv) noexcept -> int {
     const auto compile_start{std::chrono::high_resolution_clock::now()};
     const auto schema_template{sourcemeta::blaze::compile(
         document, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+        "", tweaks)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{
         std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -

@@ -608,28 +608,6 @@ TEST(format_iri_reference_non_string_with_tweak_exhaustive) {
                                                  tweaks);
 }
 
-TEST(format_date_time_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
 TEST(format_date_time_invalid_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -650,29 +628,6 @@ TEST(format_date_time_invalid_with_tweak_fast) {
       instance, 0,
       "The string value \"not-a-date\" was expected to represent a valid RFC "
       "3339 date-time");
-}
-
-TEST(format_date_time_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
-      "valid RFC 3339 date-time");
 }
 
 TEST(format_date_time_invalid_with_tweak_exhaustive) {

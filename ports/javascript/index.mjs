@@ -10,7 +10,6 @@ import {
 
 const JSON_VERSION = 19;
 const DEPTH_LIMIT = 300;
-const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
 function buildJsonPointer(tokens, length) {
   if (length === 0) return '';
@@ -1373,14 +1372,33 @@ function AssertionTypeIntegerLowerBoundStrict(instruction, instance, depth, temp
   return __result;
 };
 
+// This port carries no string format validators yet.
+//
+// Refusing is deliberate. This instruction used to ignore the format it was
+// handed and ask whether the string was a URI, which answered every other
+// format wrongly. A refusal is visible where a wrong verdict is not
+//
+// TODO: implement the formats and dispatch on the one the instruction names
+const STRING_FORMAT_NAMES = [
+  'URI', 'URIReference', 'URITemplate', 'IRI', 'IRIReference', 'Email',
+  'IDNEmail', 'IPv4', 'IPv6', 'Hostname', 'IDNHostname', 'DateTime', 'Date',
+  'Time', 'PartialTime', 'Duration', 'JSONPointer', 'RelativeJSONPointer',
+  'UUID', 'Regex', 'Color', 'Base64'
+];
+
+function refuseStringType(type) {
+  const name = STRING_FORMAT_NAMES[type];
+  throw new Error('This port has no validator for the ' +
+    (name === undefined ? `string format of index ${type}` : `${name} format`));
+}
+
 function AssertionStringType(instruction, instance, depth, template, evaluator) {
   const target = evaluator.propertyTarget !== undefined
     ? evaluator.propertyTarget : resolveInstance(instance, instruction[2]);
   if (typeof target !== 'string') return true;
-  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  const __result = URI_REGEX.test(target);
-  if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
-  return __result;
+  // Refusing before the callback is pushed is what keeps the throw from
+  // leaving an unmatched trace event, and the state behind it, on the evaluator
+  return refuseStringType(instruction[6]);
 };
 
 function AssertionPropertyType(instruction, instance, depth, template, evaluator) {
@@ -3667,7 +3685,7 @@ function AssertionStringType_fast(instruction, instance, depth, template, evalua
   const target = evaluator.propertyTarget !== undefined
     ? evaluator.propertyTarget : resolveInstance(instance, instruction[2]);
   if (typeof target !== 'string') return true;
-  return URI_REGEX.test(target);
+  return refuseStringType(instruction[6]);
 }
 
 function AssertionPropertyType_fast(instruction, instance, depth, template, evaluator) {

@@ -6,6 +6,8 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+#include "tweaks.h"
+
 #include <algorithm>  // std::sort, std::max
 #include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE
 #include <filesystem> // std::filesystem::path
@@ -39,6 +41,7 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("fast", {"f"});
   options.option("dialect", {"d"});
+  register_tweak_options(options);
 
   try {
     options.parse(argc, argv);
@@ -50,7 +53,9 @@ auto main(int argc, char **argv) noexcept -> int {
   const auto &positional{options.positional()};
   if (positional.size() < 2) {
     std::cerr << "Usage: " << argv[0]
-              << " [--fast] [--dialect <uri>] <schema.json> <instance.json>\n";
+              << " [--fast] [--dialect <uri>] [--format-assertion]"
+                 " [--annotations <keyword>]... [--no-annotations]"
+                 " <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -66,10 +71,15 @@ auto main(int argc, char **argv) noexcept -> int {
   try {
     const auto schema{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+    // Reaching the same instructions a fixture asks for means taking the
+    // same knobs the suites can set
+    const auto tweaks{tweaks_from_options(options, std::cerr)};
+
+    const auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler,
+                                   mode, default_dialect, "", "", tweaks)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 

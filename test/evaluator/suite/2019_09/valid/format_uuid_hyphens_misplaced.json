@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "uuid"
+  },
+  "instance": "f81d4fae7-dec-11d0-a765-00a0c91e6bf6",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"f81d4fae7-dec-11d0-a765-00a0c91e6bf6\" was expected to represent a valid UUID"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"f81d4fae7-dec-11d0-a765-00a0c91e6bf6\" was expected to represent a valid UUID"
+    ]
+  }
+}
