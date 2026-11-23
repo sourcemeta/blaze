@@ -2218,16 +2218,8 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchRequired) {
   // holds each of them once. Short-circuiting on a failing child leaves the
   // count short, which costs nothing, as the verdict is already false
   ValueUnsignedInteger matched{0};
-  // The loop already holds each property's value, so a child that only looks at
-  // that value is decided here, rather than dispatched to and left to find the
-  // property in the object a second time. The evaluation-marking variants of
-  // those assertions are deliberately absent, as skipping them would skip the
-  // marker. Some of them compare against the property name rather than the
-  // value while `propertyNames` is being evaluated, which cannot reach here, as
-  // that evaluation hands its children a null instance that this loop's
-  // precondition rejects. Children are evaluated at `depth + 1`, which the
-  // direct path does not route through the depth check. Every condition holds
-  // for every child, so decide once rather than per property
+  // Children are decided against the value this loop holds under exactly the
+  // conditions `LoopPropertiesMatch` sets out, which this mirrors
   const auto direct_children{!HasCallback && depth < DEPTH_LIMIT};
   for (const auto &entry : target.as_object()) {
     const auto *match{named_index(value.first, entry.first, entry.hash)};
