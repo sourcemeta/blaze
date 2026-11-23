@@ -10,7 +10,6 @@ import {
 
 const JSON_VERSION = 19;
 const DEPTH_LIMIT = 300;
-const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
 function buildJsonPointer(tokens, length) {
   if (length === 0) return '';
@@ -1373,12 +1372,24 @@ function AssertionTypeIntegerLowerBoundStrict(instruction, instance, depth, temp
   return __result;
 };
 
+// This port carries no string format validators yet.
+//
+// Refusing is deliberate. This instruction used to ignore the format it was
+// handed and ask whether the string was a URI, which answered every other
+// format wrongly. A refusal is visible where a wrong verdict is not
+//
+// TODO: implement the formats and dispatch on the one the instruction names
+function refuseStringType(type) {
+  throw new Error(
+    `This port has no validator for the string format of index ${type}`);
+}
+
 function AssertionStringType(instruction, instance, depth, template, evaluator) {
   const target = evaluator.propertyTarget !== undefined
     ? evaluator.propertyTarget : resolveInstance(instance, instruction[2]);
   if (typeof target !== 'string') return true;
   if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  const __result = URI_REGEX.test(target);
+  const __result = refuseStringType(instruction[6]);
   if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
   return __result;
 };
@@ -3667,7 +3678,7 @@ function AssertionStringType_fast(instruction, instance, depth, template, evalua
   const target = evaluator.propertyTarget !== undefined
     ? evaluator.propertyTarget : resolveInstance(instance, instruction[2]);
   if (typeof target !== 'string') return true;
-  return URI_REGEX.test(target);
+  return refuseStringType(instruction[6]);
 }
 
 function AssertionPropertyType_fast(instruction, instance, depth, template, evaluator) {

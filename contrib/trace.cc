@@ -11,6 +11,7 @@
 #include <filesystem> // std::filesystem::path
 #include <iostream>   // std::cerr, std::cout
 #include <map>        // std::map
+#include <optional>   // std::optional
 #include <utility>    // std::pair
 #include <vector>     // std::vector
 
@@ -39,6 +40,7 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("fast", {"f"});
   options.option("dialect", {"d"});
+  options.flag("format-assertion", {});
 
   try {
     options.parse(argc, argv);
@@ -50,7 +52,8 @@ auto main(int argc, char **argv) noexcept -> int {
   const auto &positional{options.positional()};
   if (positional.size() < 2) {
     std::cerr << "Usage: " << argv[0]
-              << " [--fast] [--dialect <uri>] <schema.json> <instance.json>\n";
+              << " [--fast] [--dialect <uri>] [--format-assertion]"
+                 " <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -66,10 +69,18 @@ auto main(int argc, char **argv) noexcept -> int {
   try {
     const auto schema{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+    // Reaching the same instructions a fixture asks for means taking the
+    // same knobs the suites can set
+    std::optional<sourcemeta::blaze::Tweaks> tweaks;
+    if (options.contains("format-assertion")) {
+      tweaks.emplace().format_assertion = true;
+    }
+
+    const auto schema_template{
+        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                   sourcemeta::core::schema_resolver,
+                                   sourcemeta::blaze::default_schema_compiler,
+                                   mode, default_dialect, "", "", tweaks)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 

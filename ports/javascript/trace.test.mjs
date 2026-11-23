@@ -32,6 +32,43 @@ const SUITE_DEFAULT_DIALECTS = {
 // compiler to obtain a template. The `invalid` directory of a dialect asserts
 // which schemas that compiler refuses, which exercises nothing here, so only
 // the `valid` one is read
+// What this port cannot run, and why.
+//
+// A skip with no reason is indistinguishable from a bug nobody noticed, so
+// every one of them carries its own. Two mechanisms, because the reasons come
+// at two different scales:
+//
+//   - A rule, for a whole class of fixture. Naming each of these individually
+//     would mean hundreds of entries that all say the same thing.
+//   - A name, for the one-offs that no rule describes.
+//
+// Either way the suite still reports the test, as skipped rather than passed,
+// so nothing quietly disappears from the count.
+
+// TODO: this port carries no string format validators, so every fixture that
+// asks the compiler to turn `format` into an assertion is skipped. Drop this
+// rule once the formats land
+function skippedByRule(testCase) {
+  if (testCase.tweaks && testCase.tweaks.formatAssertion) {
+    return 'this port carries no string format validators';
+  }
+
+  return null;
+}
+
+// Keyed by `<dialect>/<fixture>`, since a fixture name repeats across dialects
+const SKIPPED_FIXTURES = new Map([
+  // TODO: high-precision reals belong here as they are ported. A JavaScript
+  // number is a double, and while the reviver recovers a truncated integer as a
+  // `BigInt`, it has no such answer for a real, so those fixtures carry values
+  // this port cannot represent at all
+]);
+
+function skipReason(dialect, fixtureName, testCase) {
+  return SKIPPED_FIXTURES.get(`${dialect}/${fixtureName}`) ??
+    skippedByRule(testCase);
+}
+
 const suiteDialects = readdirSync(TRACE_SUITE_PATH, { withFileTypes: true })
   .filter(entry => entry.isDirectory())
   .map(entry => entry.name)
@@ -66,12 +103,14 @@ for (const dialect of suiteDialects) {
           if (!testCase[mode]) continue;
           const modeData = testCase[mode];
           const testName = `${fixtureName}_${mode}`;
+          const skip = skipReason(dialect, fixtureName, testCase) ?? false;
 
-          it(testName, () => {
+          it(testName, { skip }, () => {
             const template = compileSchema(filePath, {
               mode,
               path: '/schema',
-              defaultDialect
+              defaultDialect,
+              tweaks: testCase.tweaks
             });
 
             const evaluator = new Blaze(template);
@@ -163,11 +202,12 @@ for (const dialect of suiteDialects) {
           });
 
           if (mode === 'fast') {
-            it(`${testName}_callbackless`, () => {
+            it(`${testName}_callbackless`, { skip }, () => {
               const template = compileSchema(filePath, {
                 mode,
                 path: '/schema',
-                defaultDialect
+                defaultDialect,
+                tweaks: testCase.tweaks
               });
 
               const evaluator = new Blaze(template);

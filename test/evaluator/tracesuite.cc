@@ -68,7 +68,7 @@ auto matches_metaschema(const std::string &uri,
   return evaluator.validate(metaschema_template(uri), schema);
 }
 
-auto run_trace_test(const sourcemeta::core::JSON &data,
+auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const sourcemeta::blaze::Mode mode, const char *mode_key,
                     const std::string &metaschema,
                     const std::string &default_dialect) -> void {
@@ -99,7 +99,8 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
   const auto compiled_schema{sourcemeta::blaze::compile(
       schema, sourcemeta::core::schema_walker,
       sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+      sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "", "",
+      fixture_tweaks(name, data))};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
   EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
@@ -160,7 +161,7 @@ auto run_trace_test(const sourcemeta::core::JSON &data,
                                  trace_descriptions.at(index).to_string());
   }
 }
-auto run_error_test(const sourcemeta::core::JSON &data,
+auto run_error_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const std::string &metaschema,
                     const std::string &default_dialect,
                     const sourcemeta::blaze::Mode mode) -> void {
@@ -171,7 +172,8 @@ auto run_error_test(const sourcemeta::core::JSON &data,
     sourcemeta::blaze::compile(
         data.at("schema"), sourcemeta::core::schema_walker,
         sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect);
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+        "", fixture_tweaks(name, data));
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_EQ(std::string{error.what()}, expected.at("message").to_string());
@@ -209,8 +211,8 @@ static auto register_error_tests(
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
       sourcemeta::core::test_register(
           suite_name, name + mode_suffix, __FILE__, __LINE__,
-          [test_case, metaschema, default_dialect, mode]() -> void {
-            run_error_test(test_case, metaschema, default_dialect, mode);
+          [name, test_case, metaschema, default_dialect, mode]() -> void {
+            run_error_test(name, test_case, metaschema, default_dialect, mode);
           });
     }
   }
@@ -235,12 +237,13 @@ register_tests(const std::filesystem::path &directory,
 
       const auto title{name + "_" + mode_key};
 
-      sourcemeta::core::test_register(
-          suite_name, title, __FILE__, __LINE__,
-          [test_case, mode, mode_key, metaschema, default_dialect]() -> void {
-            run_trace_test(test_case, mode, mode_key, metaschema,
-                           default_dialect);
-          });
+      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
+                                      [name, test_case, mode, mode_key,
+                                       metaschema, default_dialect]() -> void {
+                                        run_trace_test(name, test_case, mode,
+                                                       mode_key, metaschema,
+                                                       default_dialect);
+                                      });
     }
   }
 }

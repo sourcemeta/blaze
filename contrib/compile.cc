@@ -64,6 +64,8 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("default-dialect", {"d"});
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
+  options.flag("format-assertion", {});
+  options.option("annotations", {});
 
   try {
     options.parse(argc, argv);
@@ -77,7 +79,8 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
-                 "[--path <pointer>] <schema.json>\n";
+                 "[--path <pointer>] [--format-assertion] "
+                 "[--annotations <keyword>]... <schema.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -93,6 +96,26 @@ auto main(int argc, char **argv) noexcept -> int {
   if (options.contains("default-dialect")) {
     default_dialect = options.at("default-dialect").front();
     std::cerr << "Default dialect: " << default_dialect << "\n";
+  }
+
+  // The evaluator ports borrow this compiler rather than carrying one of their
+  // own, so every knob their fixtures can ask for has to be reachable here
+  std::optional<sourcemeta::blaze::Tweaks> tweaks;
+  if (options.contains("format-assertion")) {
+    tweaks.emplace().format_assertion = true;
+    std::cerr << "Tweak: format assertion\n";
+  }
+
+  if (options.contains("annotations")) {
+    if (!tweaks.has_value()) {
+      tweaks.emplace();
+    }
+
+    auto &keywords{tweaks.value().annotations.emplace()};
+    for (const auto &keyword : options.at("annotations")) {
+      keywords.emplace(keyword);
+      std::cerr << "Tweak: annotation " << keyword << "\n";
+    }
   }
 
   try {
@@ -149,7 +172,8 @@ auto main(int argc, char **argv) noexcept -> int {
     const auto compile_start{std::chrono::high_resolution_clock::now()};
     const auto schema_template{sourcemeta::blaze::compile(
         document, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect)};
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+        "", tweaks)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{
         std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -

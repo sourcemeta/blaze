@@ -1,12 +1,15 @@
 #ifndef SOURCEMETA_BLAZE_TRACESUITE_H_
 #define SOURCEMETA_BLAZE_TRACESUITE_H_
 
+#include <sourcemeta/blaze/compiler.h>
+
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
 #include <algorithm>  // std::ranges::find, std::ranges::sort
 #include <filesystem> // std::filesystem::path, std::filesystem::recursive_directory_iterator, std::filesystem::directory_entry
 #include <initializer_list> // std::initializer_list
+#include <optional>         // std::optional, std::nullopt
 #include <sstream>          // std::ostringstream
 #include <stdexcept>        // std::runtime_error
 #include <string>           // std::string
@@ -26,13 +29,14 @@ enum class FixtureKind { Trace, Error };
 // misplaced fixture to be read as whatever the runner assumed it was
 inline auto check_fixture_keys(
     const std::filesystem::path &path, const sourcemeta::core::JSON &fixture,
-    const std::initializer_list<std::string_view> expected) -> void {
+    const std::initializer_list<std::string_view> required,
+    const std::initializer_list<std::string_view> optional) -> void {
   if (!fixture.is_object()) {
     throw std::runtime_error{path.string() +
                              ": expected the fixture to be an object"};
   }
 
-  for (const auto key : expected) {
+  for (const auto key : required) {
     if (!fixture.defines(key)) {
       throw std::runtime_error{path.string() + ": expected the fixture to " +
                                "define `" + std::string{key} + "`"};
@@ -40,7 +44,8 @@ inline auto check_fixture_keys(
   }
 
   for (const auto &entry : fixture.as_object()) {
-    if (std::ranges::find(expected, entry.first) == expected.end()) {
+    if (std::ranges::find(required, entry.first) == required.end() &&
+        std::ranges::find(optional, entry.first) == optional.end()) {
       throw std::runtime_error{path.string() + ": the fixture defines `" +
                                entry.first +
                                "`, which no fixture of this kind takes"};
@@ -53,10 +58,64 @@ inline auto check_fixture(const std::filesystem::path &path,
                           const sourcemeta::core::JSON &fixture) -> void {
   if (kind == FixtureKind::Trace) {
     check_fixture_keys(path, fixture,
-                       {"schema", "instance", "valid", "fast", "exhaustive"});
+                       {"schema", "instance", "valid", "fast", "exhaustive"},
+                       {"tweaks"});
   } else {
-    check_fixture_keys(path, fixture, {"schema", "error"});
+    check_fixture_keys(path, fixture, {"schema", "error"}, {"tweaks"});
   }
+}
+
+// The compiler knobs a fixture asks for, if it asks for any. Only the knobs the
+// suites exercise are understood, so a misspelled one is refused rather than
+// quietly ignored, which would leave a fixture asserting the behaviour of a
+// compilation it never asked for.
+//
+// `Tweaks::annotations` holds views rather than strings, so the fixture this
+// reads from has to outlive what comes back
+inline auto fixture_tweaks(const std::string &name,
+                           const sourcemeta::core::JSON &fixture)
+    -> std::optional<sourcemeta::blaze::Tweaks> {
+  const auto *entry{fixture.try_at("tweaks")};
+  if (entry == nullptr) {
+    return std::nullopt;
+  }
+
+  if (!entry->is_object() || entry->empty()) {
+    throw std::runtime_error{name +
+                             ": expected `tweaks` to be a non-empty object"};
+  }
+
+  sourcemeta::blaze::Tweaks tweaks;
+  for (const auto &property : entry->as_object()) {
+    if (property.first == "formatAssertion") {
+      if (!property.second.is_boolean()) {
+        throw std::runtime_error{
+            name + ": expected `formatAssertion` to be a boolean"};
+      }
+
+      tweaks.format_assertion = property.second.to_boolean();
+    } else if (property.first == "annotations") {
+      if (!property.second.is_array()) {
+        throw std::runtime_error{name +
+                                 ": expected `annotations` to be an array"};
+      }
+
+      auto &keywords{tweaks.annotations.emplace()};
+      for (const auto &keyword : property.second.as_array()) {
+        if (!keyword.is_string()) {
+          throw std::runtime_error{
+              name + ": expected `annotations` to hold keyword names"};
+        }
+
+        keywords.emplace(keyword.to_string());
+      }
+    } else {
+      throw std::runtime_error{name + ": `tweaks` does not take `" +
+                               property.first + "`"};
+    }
+  }
+
+  return tweaks;
 }
 
 // Hyper-schema is the same draft as the validation dialect it builds on, and a

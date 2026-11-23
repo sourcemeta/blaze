@@ -19,9 +19,9 @@ import sys
 MAX_LINE_LENGTH = 80
 
 TRACE_ENTRY_KEYS = (
-    "description", "schema", "instance", "valid", "fast", "exhaustive"
+    "description", "schema", "instance", "valid", "tweaks", "fast", "exhaustive"
 )
-ERROR_ENTRY_KEYS = ("description", "schema", "error")
+ERROR_ENTRY_KEYS = ("description", "schema", "tweaks", "error")
 
 
 def compact_json(value):
@@ -174,6 +174,17 @@ def format_test_entry(test, indent_level):
     order = ERROR_ENTRY_KEYS if "error" in test else TRACE_ENTRY_KEYS
     keys = [key for key in order if key in test]
 
+    # Formatting rewrites each entry from its known keys, so a key this does not
+    # know about would be dropped rather than kept. Refusing is the only safe
+    # answer: silently discarding one leaves a fixture asserting the behaviour
+    # of something it no longer asks for
+    unknown = [key for key in test if key not in order]
+    if unknown:
+        raise ValueError(
+            f"unknown key(s) {', '.join(sorted(unknown))}; "
+            f"add them to {'ERROR' if 'error' in test else 'TRACE'}_ENTRY_KEYS"
+        )
+
     lines = [f"{spaces}{{"]
     for index, key in enumerate(keys):
         comma = "," if index < len(keys) - 1 else ""
@@ -216,7 +227,11 @@ def main():
     for path in sys.argv[1:]:
         print(f"Formatting {path}")
         for filepath in json_files(path):
-            format_file(filepath)
+            try:
+                format_file(filepath)
+            except ValueError as error:
+                print(f"{filepath}: {error}", file=sys.stderr)
+                sys.exit(1)
 
 
 if __name__ == "__main__":

@@ -40,6 +40,18 @@ export function compileSchema(schemaPath, options) {
     args.push('--path', options.path);
   }
 
+  // The fixtures name compiler knobs, and this port borrows the C++ compiler,
+  // so they have to travel as flags rather than being applied here
+  if (options && options.tweaks) {
+    if (options.tweaks.formatAssertion) {
+      args.push('--format-assertion');
+    }
+
+    for (const keyword of options.tweaks.annotations ?? []) {
+      args.push('--annotations', keyword);
+    }
+  }
+
   args.push(schemaPath);
 
   const result = spawnSync(COMPILE_BIN, args, {
