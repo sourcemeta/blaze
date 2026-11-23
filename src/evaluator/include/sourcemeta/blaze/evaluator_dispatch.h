@@ -2235,7 +2235,10 @@ INSTRUCTION_HANDLER(LoopPropertiesMatchRequired) {
       continue;
     }
 
-    matched += std::get<3>(*match) ? 1 : 0;
+    if (std::get<3>(*match)) {
+      matched += 1;
+    }
+
     const auto &subinstruction{instruction.children[std::get<1>(*match)]};
     assert(subinstruction.type ==
            sourcemeta::blaze::InstructionIndex::ControlGroup);

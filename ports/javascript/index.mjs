@@ -8,7 +8,7 @@ import {
   CONTROL_RESOURCE_JUMP
 } from './opcodes.mjs';
 
-const JSON_VERSION = 19;
+const JSON_VERSION = 20;
 const DEPTH_LIMIT = 300;
 const URI_REGEX = /^[a-zA-Z][a-zA-Z0-9+\-.]*:[^\s]*$/;
 
@@ -2054,7 +2054,10 @@ function LoopPropertiesMatchRequired(instruction, instance, depth, template, eva
   for (const key in target) {
     const index = indexes[key];
     if (index === undefined) continue;
-    if (required[key] !== undefined) matched++;
+    // A presence assertion asks for the object's own property, and walking
+    // the keys here reaches inherited ones too, so an inherited name must not
+    // count towards what the loop has to match
+    if (required[key] !== undefined && Object.hasOwn(target, key)) matched++;
     const subinstruction = children[index];
     const subchildren = subinstruction[7];
     if (subchildren) {
@@ -3070,7 +3073,10 @@ function LoopPropertiesMatchRequired_fast(instruction, instance, depth, template
   for (const key in target) {
     const index = indexes[key];
     if (index === undefined) continue;
-    if (required[key] !== undefined) matched++;
+    // A presence assertion asks for the object's own property, and walking
+    // the keys here reaches inherited ones too, so an inherited name must not
+    // count towards what the loop has to match
+    if (required[key] !== undefined && Object.hasOwn(target, key)) matched++;
     const subinstruction = children[index];
     const subchildren = subinstruction[7];
     if (subchildren) {

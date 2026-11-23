@@ -901,7 +901,10 @@ inline auto fold_required_into_property_loop(Instructions &instructions)
     value.second = 0;
     for (const auto &entry : indexes.first) {
       const auto entry_required{required.contains(std::get<2>(entry))};
-      value.second += entry_required ? 1 : 0;
+      if (entry_required) {
+        value.second += 1;
+      }
+
       value.first.first.emplace_back(std::get<0>(entry), std::get<1>(entry),
                                      std::get<2>(entry), entry_required);
     }
