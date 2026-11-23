@@ -28,19 +28,16 @@
   "valid": false,
   "fast": {
     "pre": [
-      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
-      [ "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ],
+      [ "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ],
       [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ]
     ],
     "post": [
-      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
       [ false, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
-      [ false, "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ]
+      [ false, "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ]
     ],
     "descriptions": [
-      "The value was expected to be an object that defines the property \"name\"",
       "The value was expected to be of type string but it was of type integer",
-      "The object value was expected to validate against the 8 defined properties subschemas"
+      "The object value was expected to define the required properties and validate against the 8 defined properties subschemas"
     ]
   },
   "exhaustive": {

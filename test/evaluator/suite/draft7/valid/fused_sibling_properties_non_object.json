@@ -28,13 +28,13 @@
   "valid": false,
   "fast": {
     "pre": [
-      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ]
+      [ "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ]
     ],
     "post": [
-      [ false, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ]
+      [ false, "LoopPropertiesMatchRequired", "", "#/definitions/wide/properties", "" ]
     ],
     "descriptions": [
-      "The value was expected to be an object that defines the property \"name\""
+      "The value was expected to be an object that defines the required properties"
     ]
   },
   "exhaustive": {

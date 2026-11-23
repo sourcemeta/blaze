@@ -747,6 +747,186 @@ inline auto fuse_object_properties(Instructions &instructions,
   return false;
 }
 
+// Whether a target can be reached while a disjunction or a conditional is
+// being decided. A presence assertion is an early exit: a branch whose
+// `required` is unsatisfied fails on one lookup and its property loop never
+// runs, so folding the requirement into the loop would make that branch pay
+// for the whole walk first. Jumps are followed through, as a target a branch
+// reaches can reach others, and the marks are taken before any inlining, which
+// only ever splices a target into its caller and so can never widen this
+inline auto collect_jump_targets(const Instructions &instructions,
+                                 const bool branching,
+                                 std::vector<std::size_t> &reached,
+                                 std::vector<std::size_t> &reached_branching)
+    -> void {
+  for (const auto &instruction : instructions) {
+    if (instruction.type == InstructionIndex::ControlJump) {
+      const auto target{std::get<ValueUnsignedInteger>(instruction.value)};
+      reached.push_back(target);
+      if (branching) {
+        reached_branching.push_back(target);
+      }
+    } else if (instruction.type == InstructionIndex::ControlResourceJump) {
+      const auto target{std::get<ValueIndexPair>(instruction.value).first};
+      reached.push_back(target);
+      if (branching) {
+        reached_branching.push_back(target);
+      }
+    }
+
+    collect_jump_targets(instruction.children,
+                         branching || is_disjunction(instruction.type) ||
+                             is_conditional(instruction.type),
+                         reached, reached_branching);
+  }
+}
+
+inline auto branching_targets(const std::vector<Instructions> &targets)
+    -> std::vector<bool> {
+  std::vector<bool> result(targets.size(), false);
+  std::vector<std::vector<std::size_t>> edges;
+  edges.reserve(targets.size());
+
+  for (const auto &target : targets) {
+    std::vector<std::size_t> reached;
+    std::vector<std::size_t> reached_branching;
+    collect_jump_targets(target, false, reached, reached_branching);
+    for (const auto index : reached_branching) {
+      assert(index < result.size());
+      result[index] = true;
+    }
+
+    edges.push_back(std::move(reached));
+  }
+
+  bool changed{true};
+  while (changed) {
+    changed = false;
+    for (std::size_t index = 0; index < targets.size(); ++index) {
+      if (!result[index]) {
+        continue;
+      }
+
+      for (const auto reached : edges[index]) {
+        assert(reached < result.size());
+        if (!result[reached]) {
+          result[reached] = true;
+          changed = true;
+        }
+      }
+    }
+  }
+
+  return result;
+}
+
+// The names a presence assertion stands for, or nothing when it is not one the
+// loop can take over. Only the strict forms qualify: those reject a non-object
+// outright, which is the contract the loop takes on when it absorbs them,
+// whereas the others pass vacuously on one and so cannot be told apart from a
+// loop that matched nothing
+inline auto presence_assertion_names(const Instruction &instruction)
+    -> std::vector<ValueString> {
+  std::vector<ValueString> result;
+  switch (instruction.type) {
+    case InstructionIndex::AssertionDefinesStrict:
+      result.push_back(std::get<ValueProperty>(instruction.value).first);
+      break;
+    case InstructionIndex::AssertionDefinesAllStrict:
+      for (const auto &property : std::get<ValueStringSet>(instruction.value)) {
+        result.push_back(property.first);
+      }
+
+      break;
+    default:
+      break;
+  }
+
+  return result;
+}
+
+// Fold the presence assertions that sit beside a property loop into the loop
+// itself, which then proves presence by counting the required entries its walk
+// matched. That trades the lookups and the dispatch the assertions cost on
+// every validation for a verdict that only arrives once the walk is over, so
+// an object that is missing a required name is decided later than it was. Fast
+// validation is where this lives, and a conjunction walks the object anyway
+inline auto fold_required_into_property_loop(Instructions &instructions)
+    -> bool {
+  for (auto &instruction : instructions) {
+    if (instruction.type != InstructionIndex::LoopPropertiesMatch) {
+      continue;
+    }
+
+    const auto &indexes{std::get<ValueNamedIndexes>(instruction.value)};
+    std::vector<std::size_t> absorbed;
+    std::unordered_set<ValueString> required;
+
+    for (std::size_t index = 0; index < instructions.size(); ++index) {
+      const auto &candidate{instructions[index]};
+      if (candidate.relative_instance_location !=
+          instruction.relative_instance_location) {
+        continue;
+      }
+
+      const auto names{presence_assertion_names(candidate)};
+      if (names.empty()) {
+        continue;
+      }
+
+      // A loop can only count what it matches on, so an assertion naming
+      // anything the loop holds no entry for stays where it is
+      const auto covered{
+          std::ranges::all_of(names, [&indexes](const auto &name) -> bool {
+            return std::ranges::any_of(indexes.first,
+                                       [&name](const auto &entry) -> bool {
+                                         return std::get<2>(entry) == name;
+                                       });
+          })};
+      if (!covered) {
+        continue;
+      }
+
+      absorbed.push_back(index);
+      required.insert(names.cbegin(), names.cend());
+    }
+
+    if (absorbed.empty() || required.empty()) {
+      continue;
+    }
+
+    ValueNamedIndexesRequired value;
+    value.first.second = indexes.second;
+    value.first.first.reserve(indexes.first.size());
+    value.second = 0;
+    for (const auto &entry : indexes.first) {
+      const auto entry_required{required.contains(std::get<2>(entry))};
+      value.second += entry_required ? 1 : 0;
+      value.first.first.emplace_back(std::get<0>(entry), std::get<1>(entry),
+                                     std::get<2>(entry), entry_required);
+    }
+
+    assert(value.second == required.size());
+    instruction.type = InstructionIndex::LoopPropertiesMatchRequired;
+    instruction.value = std::move(value);
+
+    Instructions result;
+    result.reserve(instructions.size() - absorbed.size());
+    for (std::size_t index = 0; index < instructions.size(); ++index) {
+      if (std::ranges::find(absorbed, index) != absorbed.cend()) {
+        continue;
+      }
+
+      result.push_back(std::move(instructions[index]));
+    }
+
+    instructions = std::move(result);
+    return true;
+  }
+
+  return false;
+}
+
 // A loop whose only child is a type check folds into a single instruction that
 // applies that check to every entry, as the loop type that admits the fusion,
 // the child type that triggers it, and what the two become
@@ -957,6 +1137,10 @@ inline auto postprocess(std::vector<Instructions> &targets,
     statistics.push_back(std::move(entry));
   }
 
+  // Taken before any inlining, as a target spliced into a branch is caught by
+  // the ancestry of the list it lands in
+  const auto reached_from_a_branch{branching_targets(targets)};
+
   bool changed{true};
   while (changed) {
     changed = false;
@@ -1034,6 +1218,12 @@ inline auto postprocess(std::vector<Instructions> &targets,
         // properties into a loop would bury that comparison inside the walk
         if (!disjoint && !branching &&
             fuse_object_properties(*current, extra)) {
+          target_changed = true;
+        }
+
+        if (!disjoint && !branching &&
+            !reached_from_a_branch[current_target_index] &&
+            fold_required_into_property_loop(*current)) {
           target_changed = true;
         }
 

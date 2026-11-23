@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "type": "object",
+    "required": [ "one", "two" ],
+    "properties": {
+      "one": { "type": "string" },
+      "two": { "type": "string" },
+      "three": { "type": "string" },
+      "four": { "type": "string" },
+      "five": { "type": "string" },
+      "six": { "type": "string" },
+      "seven": { "type": "string" },
+      "eight": { "type": "string" }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  },
+  "instance": { "five": "c" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchRequired", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ],
+      [ false, "LoopPropertiesMatchRequired", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object value was expected to define the required properties and validate against the 8 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "post": [
+      [ false, "AssertionDefinesAllStrict", "/required", "#/required", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"one\", and \"two\""
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": {
+    "type": "object",
+    "required": [ "one", "two" ],
+    "properties": {
+      "one": { "type": "string" },
+      "two": { "type": "string" },
+      "three": { "type": "string" },
+      "four": { "type": "string" },
+      "five": { "type": "string" },
+      "six": { "type": "string" },
+      "seven": { "type": "string" },
+      "eight": { "type": "string" }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  },
+  "instance": { "one": "a", "two": "b", "five": "c" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatchRequired", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ "AssertionPropertyTypeStrict", "/properties/two/type", "#/properties/two/type", "/two" ],
+      [ "AssertionPropertyTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/two/type", "#/properties/two/type", "/two" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ],
+      [ true, "LoopPropertiesMatchRequired", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to define the required properties and validate against the 8 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ "AssertionTypeStrict", "/properties/two/type", "#/properties/two/type", "/two" ],
+      [ "AssertionTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ true, "AssertionTypeStrict", "/properties/two/type", "#/properties/two/type", "/two" ],
+      [ true, "AssertionTypeStrict", "/properties/five/type", "#/properties/five/type", "/five" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"one\", and \"two\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 8 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

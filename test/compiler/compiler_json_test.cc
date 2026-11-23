@@ -89,7 +89,7 @@ TEST(example_2) {
       [
         [
           [
-            75,
+            76,
             [ "additionalProperties" ],
             [],
             "#/additionalProperties",
@@ -210,7 +210,7 @@ TEST(example_4) {
       [
         [
           [
-            75,
+            76,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -364,7 +364,7 @@ TEST(example_6) {
       [
         [
           [
-            75,
+            76,
             [ "additionalProperties" ],
             [],
             "https://example.com/top#/additionalProperties",
@@ -520,7 +520,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
             ],
             [
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -544,7 +544,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -568,7 +568,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -592,7 +592,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -616,7 +616,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -640,7 +640,7 @@ TEST(properties_as_a_loop_without_a_table_of_contents) {
                 ]
               ],
               [
-                102,
+                103,
                 [],
                 [],
                 "#/properties",
@@ -893,7 +893,7 @@ TEST(items_fused_as_a_bounded_array_type_loop) {
       [
         [
           [
-            100,
+            101,
             [ "items" ],
             [],
             "#/items",

@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "type": "object",
+    "required": [ "one", "absent" ],
+    "properties": {
+      "one": { "type": "string" },
+      "two": { "type": "string" },
+      "three": { "type": "string" },
+      "four": { "type": "string" },
+      "five": { "type": "string" },
+      "six": { "type": "string" },
+      "seven": { "type": "string" },
+      "eight": { "type": "string" }
+    },
+    "$schema": "http://json-schema.org/draft-07/schema#"
+  },
+  "instance": { "one": "a", "absent": "b" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"absent\", and \"one\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 8 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesAllStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/one/type", "#/properties/one/type", "/one" ],
+      [ true, "LoopPropertiesMatch", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines properties \"absent\", and \"one\"",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the 8 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}
