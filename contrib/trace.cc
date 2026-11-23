@@ -6,12 +6,13 @@
 #include <sourcemeta/blaze/evaluator.h>
 #include <sourcemeta/blaze/output.h>
 
+#include "tweaks.h"
+
 #include <algorithm>  // std::sort, std::max
 #include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE
 #include <filesystem> // std::filesystem::path
 #include <iostream>   // std::cerr, std::cout
 #include <map>        // std::map
-#include <optional>   // std::optional
 #include <utility>    // std::pair
 #include <vector>     // std::vector
 
@@ -40,7 +41,7 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("fast", {"f"});
   options.option("dialect", {"d"});
-  options.flag("format-assertion", {});
+  register_tweak_options(options);
 
   try {
     options.parse(argc, argv);
@@ -53,6 +54,7 @@ auto main(int argc, char **argv) noexcept -> int {
   if (positional.size() < 2) {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--dialect <uri>] [--format-assertion]"
+                 " [--annotations <keyword>]... [--no-annotations]"
                  " <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
   }
@@ -71,10 +73,7 @@ auto main(int argc, char **argv) noexcept -> int {
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
     // Reaching the same instructions a fixture asks for means taking the
     // same knobs the suites can set
-    std::optional<sourcemeta::blaze::Tweaks> tweaks;
-    if (options.contains("format-assertion")) {
-      tweaks.emplace().format_assertion = true;
-    }
+    const auto tweaks{tweaks_from_options(options, std::cerr)};
 
     const auto schema_template{
         sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,

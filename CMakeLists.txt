@@ -110,7 +110,7 @@ endif()
 
 if(PROJECT_IS_TOP_LEVEL)
   sourcemeta_target_clang_format(SOURCES
-    contrib/*.cc
+    contrib/*.h contrib/*.cc
     src/*.h src/*.cc
     benchmark/*.h benchmark/*.cc
     test/*.h test/*.cc)

@@ -1,6 +1,6 @@
 if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_compile
-    FOLDER "Blaze/Contrib" SOURCES compile.cc)
+    FOLDER "Blaze/Contrib" SOURCES compile.cc tweaks.h)
   target_link_libraries(sourcemeta_blaze_contrib_compile
     PRIVATE sourcemeta::core::io)
   target_link_libraries(sourcemeta_blaze_contrib_compile
@@ -49,7 +49,7 @@ if(BLAZE_COMPILER AND BLAZE_EVALUATOR)
     PRIVATE sourcemeta::blaze::evaluator)
 
   sourcemeta_executable(NAMESPACE sourcemeta PROJECT blaze NAME contrib_trace
-    FOLDER "Blaze/Contrib" SOURCES trace.cc)
+    FOLDER "Blaze/Contrib" SOURCES trace.cc tweaks.h)
   target_link_libraries(sourcemeta_blaze_contrib_trace
     PRIVATE sourcemeta::core::json)
   target_link_libraries(sourcemeta_blaze_contrib_trace

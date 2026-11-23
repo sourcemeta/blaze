@@ -1379,19 +1379,26 @@ function AssertionTypeIntegerLowerBoundStrict(instruction, instance, depth, temp
 // format wrongly. A refusal is visible where a wrong verdict is not
 //
 // TODO: implement the formats and dispatch on the one the instruction names
+const STRING_FORMAT_NAMES = [
+  'URI', 'URIReference', 'URITemplate', 'IRI', 'IRIReference', 'Email',
+  'IDNEmail', 'IPv4', 'IPv6', 'Hostname', 'IDNHostname', 'DateTime', 'Date',
+  'Time', 'PartialTime', 'Duration', 'JSONPointer', 'RelativeJSONPointer',
+  'UUID', 'Regex', 'Color', 'Base64'
+];
+
 function refuseStringType(type) {
-  throw new Error(
-    `This port has no validator for the string format of index ${type}`);
+  const name = STRING_FORMAT_NAMES[type];
+  throw new Error('This port has no validator for the ' +
+    (name === undefined ? `string format of index ${type}` : `${name} format`));
 }
 
 function AssertionStringType(instruction, instance, depth, template, evaluator) {
   const target = evaluator.propertyTarget !== undefined
     ? evaluator.propertyTarget : resolveInstance(instance, instruction[2]);
   if (typeof target !== 'string') return true;
-  if (evaluator.callbackMode) evaluator.callbackPush(instruction);
-  const __result = refuseStringType(instruction[6]);
-  if (evaluator.callbackMode) evaluator.callbackPop(instruction, __result);
-  return __result;
+  // Refusing before the callback is pushed is what keeps the throw from
+  // leaving an unmatched trace event, and the state behind it, on the evaluator
+  return refuseStringType(instruction[6]);
 };
 
 function AssertionPropertyType(instruction, instance, depth, template, evaluator) {

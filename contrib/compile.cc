@@ -1,8 +1,11 @@
 #include <sourcemeta/blaze/compiler.h>
+
 #include <sourcemeta/core/io.h>
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/options.h>
+
+#include "tweaks.h"
 
 #include <chrono>      // std::chrono
 #include <cstdlib>     // EXIT_SUCCESS, EXIT_FAILURE
@@ -64,8 +67,7 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("default-dialect", {"d"});
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
-  options.flag("format-assertion", {});
-  options.option("annotations", {});
+  register_tweak_options(options);
 
   try {
     options.parse(argc, argv);
@@ -80,7 +82,8 @@ auto main(int argc, char **argv) noexcept -> int {
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
                  "[--path <pointer>] [--format-assertion] "
-                 "[--annotations <keyword>]... <schema.json>\n";
+                 "[--annotations <keyword>]... [--no-annotations] "
+                 "<schema.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -98,25 +101,7 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Default dialect: " << default_dialect << "\n";
   }
 
-  // The evaluator ports borrow this compiler rather than carrying one of their
-  // own, so every knob their fixtures can ask for has to be reachable here
-  std::optional<sourcemeta::blaze::Tweaks> tweaks;
-  if (options.contains("format-assertion")) {
-    tweaks.emplace().format_assertion = true;
-    std::cerr << "Tweak: format assertion\n";
-  }
-
-  if (options.contains("annotations")) {
-    if (!tweaks.has_value()) {
-      tweaks.emplace();
-    }
-
-    auto &keywords{tweaks.value().annotations.emplace()};
-    for (const auto &keyword : options.at("annotations")) {
-      keywords.emplace(keyword);
-      std::cerr << "Tweak: annotation " << keyword << "\n";
-    }
-  }
+  const auto tweaks{tweaks_from_options(options, std::cerr)};
 
   try {
     std::vector<std::pair<std::string, std::filesystem::path>>
