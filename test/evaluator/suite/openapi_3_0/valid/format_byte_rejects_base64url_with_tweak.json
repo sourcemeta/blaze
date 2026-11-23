@@ -1,4 +1,5 @@
 {
+  "comment": "The specification names RFC 4648 Section 4, whose alphabet is not the Section 5 one that spells the last two characters as `-` and `_`",
   "schema": { "format": "byte" },
   "instance": "a-_b",
   "valid": false,

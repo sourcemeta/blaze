@@ -1,4 +1,5 @@
 {
+  "comment": "Padding is part of the canonical form, so a strict check accepts it",
   "schema": { "format": "byte" },
   "instance": "Zg==",
   "valid": true,

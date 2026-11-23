@@ -1,4 +1,5 @@
 {
+  "comment": "The root-level cases cannot tell a correctly placed assertion from one that only ever reports the schema and instance roots, so a property schema pins the nested keyword and instance locations",
   "schema": {
     "type": "object",
     "properties": { "data": { "type": "string", "format": "byte" } }

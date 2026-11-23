@@ -14,6 +14,7 @@
 #include <iostream>    // std::cerr, std::cout
 #include <map>         // std::map
 #include <string>      // std::string
+#include <string_view> // std::string_view
 #include <tuple>       // std::tuple, std::get
 #include <type_traits> // std::underlying_type_t
 #include <utility>     // std::pair
@@ -31,11 +32,14 @@ auto fixture_instruction_name(const sourcemeta::blaze::Instruction &step)
       std::underlying_type_t<sourcemeta::blaze::InstructionIndex>>(step.type)]};
 }
 
-// One mode section of a trace fixture, exactly as the evaluator callback
-// reports it, so that a fixture covering a mode the tests never exercised does
-// not need its expectations written out by hand
+// The part of a trace fixture that one mode decides, exactly as the evaluator
+// callback reports it, so that a fixture covering a mode the tests never
+// exercised does not need its expectations written out by hand. What comes out
+// is shaped like the fixture itself: the verdict where a fixture keeps it, and
+// the trace under the name of the mode that produced it
 auto emit_fixture_section(const sourcemeta::blaze::Template &schema_template,
-                          const sourcemeta::core::JSON &instance) -> void {
+                          const sourcemeta::core::JSON &instance,
+                          const std::string_view mode) -> void {
   using Entry =
       std::tuple<bool, sourcemeta::core::WeakPointer,
                  sourcemeta::core::WeakPointer, sourcemeta::blaze::Instruction,
@@ -102,12 +106,15 @@ auto emit_fixture_section(const sourcemeta::blaze::Template &schema_template,
   }
 
   auto section{sourcemeta::core::JSON::make_object()};
-  section.assign("valid", sourcemeta::core::JSON{result});
   section.assign("pre", std::move(pre_entries));
   section.assign("post", std::move(post_entries));
   section.assign("descriptions", std::move(descriptions));
 
-  sourcemeta::core::prettify(section, std::cout);
+  auto fixture{sourcemeta::core::JSON::make_object()};
+  fixture.assign("valid", sourcemeta::core::JSON{result});
+  fixture.assign(sourcemeta::core::JSON::String{mode}, std::move(section));
+
+  sourcemeta::core::prettify(fixture, std::cout);
   std::cout << "\n";
 }
 
@@ -180,7 +187,10 @@ auto main(int argc, char **argv) noexcept -> int {
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 
     if (options.contains("fixture")) {
-      emit_fixture_section(schema_template, instance);
+      emit_fixture_section(schema_template, instance,
+                           mode == sourcemeta::blaze::Mode::FastValidation
+                               ? "fast"
+                               : "exhaustive");
       return EXIT_SUCCESS;
     }
 

@@ -288,31 +288,6 @@ TEST(root_reference_without_siblings_rejects_a_string_fast) {
                                "integer but it was of type string");
 }
 
-// RFC 4648 Section 3.5 lets an implementation reject an encoding whose pad
-// bits are not zero, and the strict check does, so that every octet sequence
-// has exactly one accepted encoding
-
-// Zero octets encode to the empty string, so the strict check accepts it
-
-// Padding is part of the canonical form, so a strict check accepts it
-
-// The check reads every byte of the string, so a NUL does not end it early
-// and a byte outside ASCII is just another byte outside the alphabet
-
-// `nullable` widens `type`, while the format assertion stays bound to
-// strings: a null passes with no format callback at all, and a string keeps
-// answering to the strict check
-
-// The root-level cases cannot tell a correctly placed assertion from one that
-// only ever reports the schema and instance roots, so a property schema pins
-// the nested keyword and instance locations
-
-// The root-level exhaustive case cannot show a nested failure propagating
-// through the properties wrapper that fast mode never emits
-
-// Unlike the ignored sibling case, a `format` inside the referenced target
-// is active, so the assertion must travel into the bundled target
-
 // Serialized templates are a product surface, and textual round-trip equality
 // alone cannot show the rebuilt instructions still evaluate, so these run the
 // deserialized template
@@ -401,9 +376,6 @@ TEST(format_int32_valid_with_tweak_fast) {
                                "integer between -2147483648 and 2147483647");
 }
 
-// Annotation extraction only exists from 2019-09 onwards, so even exhaustive
-// mode compiles a format assertion to that one instruction and nothing else
-
 TEST(format_int32_valid_with_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "format": "int32"
@@ -427,13 +399,6 @@ TEST(format_int32_valid_with_tweak_exhaustive) {
                                "integer between -2147483648 and 2147483647");
 }
 
-// Two's complement makes each lower bound one further from zero than its
-// upper bound, which is exactly where a hand-written range check slips
-
-// The string formats below belong to later drafts than the one the Schema
-// Object builds on, so they stay unasserted no matter how assertions are
-// enabled, the way the Draft 4 compiler already treats them
-
 TEST(format_uri_template_is_not_asserted_with_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "format": "uri-template"
@@ -448,9 +413,6 @@ TEST(format_uri_template_is_not_asserted_with_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
       schema, instance, 0, OPENAPI_3_0_DIALECT, tweaks);
 }
-
-// Wright-00 spells this name without the dash, but the Draft 4 compiler
-// never asserted it under either spelling, and neither does this dialect
 
 TEST(format_uri_is_ignored_without_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -483,9 +445,6 @@ TEST(format_byte_with_x_format_assertion_fast) {
       "4648 Base64 string");
 }
 
-// A decimal literal is only a binary64 value when it lands on one exactly, so
-// the ones an API typically carries do not satisfy this format
-
 // `$ref` overrides whatever sits beside it on this rung, so a sibling is not a
 // keyword of the schema and its shape is never held against it
 TEST(malformed_nullable_beside_ref_is_ignored_fast) {
@@ -509,10 +468,6 @@ TEST(malformed_nullable_beside_ref_is_ignored_fast) {
   EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
                                "The value was expected to be of type integer");
 }
-
-// A Reference Object ignores every sibling keyword, and that must hold for
-// `format` even when format assertions are enabled: the instance violates the
-// sibling `byte` yet satisfies the referenced target
 
 TEST(malformed_nullable_without_ref_is_rejected_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -981,15 +936,6 @@ TEST(nested_independent_compilation_matches_a_standalone_compilation_fast) {
   EXPECT_EQ(sourcemeta::blaze::to_json(nested.value()),
             sourcemeta::blaze::to_json(standalone));
 }
-
-// `date` and `date-time` name different RFC 3339 productions, so neither
-// accepts the other's shape
-
-// The specification names RFC 4648 Section 4, whose alphabet is not the
-// Section 5 one that spells the last two characters as `-` and `_`
-
-// The specification counts `1` and `1.0` as the same integer, so a real with
-// no fractional part satisfies a format defined for signed integers
 
 // Widening a scalar type with `nullable` must not loosen the type itself, and
 // this rung keeps Draft 4's rule that a real is no integer. The JavaScript

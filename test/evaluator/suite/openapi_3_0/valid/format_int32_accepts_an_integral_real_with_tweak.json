@@ -1,4 +1,5 @@
 {
+  "comment": "The specification counts `1` and `1.0` as the same integer, so a real with no fractional part satisfies a format defined for signed integers",
   "schema": { "format": "int32" },
   "instance": 5.0,
   "valid": true,

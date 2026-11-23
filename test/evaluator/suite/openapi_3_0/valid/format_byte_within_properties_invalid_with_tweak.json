@@ -1,4 +1,5 @@
 {
+  "comment": "The root-level exhaustive case cannot show a nested failure propagating through the properties wrapper that fast mode never emits",
   "schema": {
     "type": "object",
     "properties": { "data": { "type": "string", "format": "byte" } }

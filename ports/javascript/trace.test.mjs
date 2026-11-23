@@ -62,6 +62,15 @@ const SKIPPED_FIXTURES = new Map([
   // number is a double, and while the reviver recovers a truncated integer as a
   // `BigInt`, it has no such answer for a real, so those fixtures carry values
   // this port cannot represent at all
+
+  // These two carry a real written as `3.0`. `JSON.parse` answers with `3`,
+  // and nothing distinguishes that from the integer `3` afterwards, so the
+  // described value reads as an integer where the C++ evaluator reads a
+  // number. The verdict agrees; only the wording cannot
+  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_none',
+    'a real written as `3.0` is indistinguishable from an integer here'],
+  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_selected',
+    'a real written as `3.0` is indistinguishable from an integer here'],
 ]);
 
 function skipReason(dialect, fixtureName, testCase) {

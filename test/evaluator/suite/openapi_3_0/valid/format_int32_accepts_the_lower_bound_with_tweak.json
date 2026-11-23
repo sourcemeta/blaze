@@ -1,4 +1,5 @@
 {
+  "comment": "Two's complement makes each lower bound one further from zero than its upper bound, which is exactly where a hand-written range check slips",
   "schema": { "format": "int32" },
   "instance": -2147483648,
   "valid": true,

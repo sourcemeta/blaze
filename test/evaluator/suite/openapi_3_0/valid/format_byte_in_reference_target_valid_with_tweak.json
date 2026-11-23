@@ -1,4 +1,5 @@
 {
+  "comment": "Unlike the ignored sibling case, a `format` inside the referenced target is active, so the assertion must travel into the bundled target",
   "schema": {
     "type": "object",
     "properties": { "data": { "$ref": "#/x-definitions/S" } },

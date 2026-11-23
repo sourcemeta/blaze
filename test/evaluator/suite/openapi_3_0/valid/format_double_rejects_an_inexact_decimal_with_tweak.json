@@ -1,4 +1,5 @@
 {
+  "comment": "A decimal literal is only a binary64 value when it lands on one exactly, so the ones an API typically carries do not satisfy this format",
   "schema": { "format": "double" },
   "instance": 3.14,
   "valid": false,

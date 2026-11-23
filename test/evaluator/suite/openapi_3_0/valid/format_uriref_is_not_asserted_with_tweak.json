@@ -1,4 +1,5 @@
 {
+  "comment": "Wright-00 spells this name without the dash, but the Draft 4 compiler never asserted it under either spelling, and neither does this dialect",
   "schema": { "format": "uriref" },
   "instance": "%zz",
   "valid": true,

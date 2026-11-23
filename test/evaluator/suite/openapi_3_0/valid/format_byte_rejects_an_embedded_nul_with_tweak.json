@@ -1,4 +1,5 @@
 {
+  "comment": "The check reads every byte of the string, so a NUL does not end it early and a byte outside ASCII is just another byte outside the alphabet",
   "schema": { "format": "byte" },
   "instance": "Zg==\u0000",
   "valid": false,

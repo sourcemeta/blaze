@@ -1,4 +1,5 @@
 {
+  "comment": "Annotation extraction only exists from 2019-09 onwards, so even exhaustive mode compiles a format assertion to that one instruction and nothing else",
   "schema": { "format": "byte" },
   "instance": "Zm9vYmFy",
   "valid": true,

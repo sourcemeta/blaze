@@ -1,4 +1,5 @@
 {
+  "comment": "`nullable` widens `type`, while the format assertion stays bound to strings: a null passes with no format callback at all, and a string keeps answering to the strict check",
   "schema": { "type": "string", "nullable": true, "format": "byte" },
   "instance": null,
   "valid": true,

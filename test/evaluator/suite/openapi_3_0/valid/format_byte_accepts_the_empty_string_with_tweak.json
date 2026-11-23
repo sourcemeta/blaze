@@ -1,4 +1,5 @@
 {
+  "comment": "Zero octets encode to the empty string, so the strict check accepts it",
   "schema": { "format": "byte" },
   "instance": "",
   "valid": true,

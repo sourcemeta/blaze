@@ -1,4 +1,5 @@
 {
+  "comment": "The string formats below belong to later drafts than the one the Schema Object builds on, so they stay unasserted no matter how assertions are enabled, the way the Draft 4 compiler already treats them",
   "schema": { "format": "uri-reference" },
   "instance": "%zz",
   "valid": true,
