@@ -124,7 +124,7 @@ for (const dialect of suiteDialects) {
           // The count of described steps is still checked above, so a fixture
           // standing down from the wording is not standing down from the shape
 
-          it(testName, { skip }, () => {
+          it(testName, { skip }, (context) => {
             const template = compileSchema(filePath, {
               mode,
               path: '/schema',
@@ -208,7 +208,13 @@ for (const dialect of suiteDialects) {
             const expectedDescriptions = modeData.descriptions || [];
             assert.equal(tracePost.length, expectedDescriptions.length,
               `Description count: expected ${expectedDescriptions.length}, got ${tracePost.length}`);
+            // Saying so in the output is the point of the reason: a check that
+            // stands down without a word looks the same as one that passed
             const describeSkip = skipDescriptions(dialect, fixtureName);
+            if (describeSkip) {
+              context.diagnostic(`descriptions not checked: ${describeSkip}`);
+            }
+
             for (let index = 0;
                  index < (describeSkip ? 0 : expectedDescriptions.length);
                  index++) {
