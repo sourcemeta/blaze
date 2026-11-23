@@ -791,6 +791,109 @@ auto parse_count(const sourcemeta::core::Options &options,
 
 } // namespace
 
+// How many times each instruction reported itself, which only a run with
+// the evaluation callback can say, and which therefore measures a
+// different execution from the timed one
+auto report_trace_steps(
+    sourcemeta::core::JSON &evaluation, std::vector<std::string> &notes,
+    sourcemeta::blaze::Evaluator &evaluator,
+    const std::optional<sourcemeta::blaze::Template> &schema_template,
+    const std::vector<sourcemeta::core::JSON> &instances,
+    const std::vector<bool> &expected, const TemplateStatistics &statistics)
+    -> void {
+  std::array<std::uint64_t, INSTRUCTION_TYPES> steps{};
+  const sourcemeta::blaze::Callback callback{
+      [&steps](const sourcemeta::blaze::EvaluationType type, const bool,
+               const sourcemeta::blaze::Instruction &instruction,
+               const sourcemeta::blaze::InstructionExtra &,
+               const sourcemeta::core::WeakPointer &,
+               const sourcemeta::core::WeakPointer &,
+               const sourcemeta::core::JSON &) -> void {
+        if (type == sourcemeta::blaze::EvaluationType::Pre) {
+          steps[std::to_underlying(instruction.type)] += 1;
+        }
+      }};
+
+  std::uint64_t trace_mismatches{0};
+  const auto trace_start{Clock::now()};
+  for (std::size_t index = 0; index < instances.size(); index++) {
+    if (evaluator.validate(schema_template.value(), instances[index],
+                           callback) != expected[index]) {
+      trace_mismatches += 1;
+    }
+  }
+
+  const auto trace_ns{elapsed_ns(trace_start, Clock::now())};
+  std::uint64_t total_steps{0};
+  for (const auto count : steps) {
+    total_steps += count;
+  }
+
+  auto trace{sourcemeta::core::JSON::make_object()};
+  trace.assign("definition",
+               sourcemeta::core::JSON{
+                   "Evaluation callback steps of type Pre, one per "
+                   "instruction that applied to its instance, over one "
+                   "pass of every instance. These are not CPU "
+                   "instructions and not every executed instruction"});
+  trace.assign("passes", integer(1));
+  trace.assign("total", integer(total_steps));
+  trace.assign("by_type", counts_by_type(steps));
+  trace.assign("wall_time_ns", integer(trace_ns));
+  trace.assign("result_mismatches", integer(trace_mismatches));
+
+  // These instructions pass through to their children without ever
+  // reporting themselves, so the trace misses them whenever the
+  // template contains them
+  auto never_reported{sourcemeta::core::JSON::make_array()};
+  for (const auto type :
+       {sourcemeta::blaze::InstructionIndex::ControlGroup,
+        sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
+        sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefinesDirect,
+        sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
+        sourcemeta::blaze::InstructionIndex::ControlEvaluate}) {
+    const auto index{std::to_underlying(type)};
+    if (statistics.by_type[index] > 0) {
+      never_reported.push_back(
+          sourcemeta::core::JSON{sourcemeta::blaze::INSTRUCTION_NAMES[index]});
+    }
+  }
+
+  const auto coverage_has_no_silent_types{never_reported.empty()};
+  auto coverage{sourcemeta::core::JSON::make_object()};
+  coverage.assign("complete",
+                  sourcemeta::core::JSON{statistics.hidden_subtree_roots == 0 &&
+                                         coverage_has_no_silent_types});
+  coverage.assign("hidden_subtree_roots",
+                  integer(statistics.hidden_subtree_roots));
+  coverage.assign("hidden_static_instructions",
+                  integer(statistics.hidden_instructions));
+  coverage.assign("never_reported_types", std::move(never_reported));
+  trace.assign("coverage", std::move(coverage));
+  evaluation.assign("trace_step_counts", std::move(trace));
+
+  notes.emplace_back(
+      "trace_step_counts come from a separate pass with the evaluation "
+      "callback attached, which takes a slower evaluation path. Its "
+      "wall time is not representative of plain validation");
+  if (statistics.hidden_subtree_roots > 0) {
+    notes.emplace_back(
+        "trace_step_counts are incomplete: the children of "
+        "AssertionObjectPropertiesSimple, and any targets they jump to, "
+        "are evaluated with the callback detached");
+  }
+  if (!coverage_has_no_silent_types) {
+    notes.emplace_back(
+        "trace_step_counts never include the instructions listed in "
+        "coverage.never_reported_types, which pass through to their "
+        "children without reporting themselves");
+  }
+  if (trace_mismatches > 0) {
+    notes.emplace_back("Validation with the evaluation callback "
+                       "disagreed with plain validation");
+  }
+}
+
 auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("exhaustive", {"e"});
@@ -1276,98 +1379,8 @@ auto main(int argc, char **argv) noexcept -> int {
       ///////////////////////////////////////////////////////////////
 
       if (trace_steps) {
-        std::array<std::uint64_t, INSTRUCTION_TYPES> steps{};
-        const sourcemeta::blaze::Callback callback{
-            [&steps](const sourcemeta::blaze::EvaluationType type, const bool,
-                     const sourcemeta::blaze::Instruction &instruction,
-                     const sourcemeta::blaze::InstructionExtra &,
-                     const sourcemeta::core::WeakPointer &,
-                     const sourcemeta::core::WeakPointer &,
-                     const sourcemeta::core::JSON &) -> void {
-              if (type == sourcemeta::blaze::EvaluationType::Pre) {
-                steps[std::to_underlying(instruction.type)] += 1;
-              }
-            }};
-
-        std::uint64_t trace_mismatches{0};
-        const auto trace_start{Clock::now()};
-        for (std::size_t index = 0; index < instances.size(); index++) {
-          if (evaluator.validate(schema_template.value(), instances[index],
-                                 callback) != expected[index]) {
-            trace_mismatches += 1;
-          }
-        }
-
-        const auto trace_ns{elapsed_ns(trace_start, Clock::now())};
-        std::uint64_t total_steps{0};
-        for (const auto count : steps) {
-          total_steps += count;
-        }
-
-        auto trace{sourcemeta::core::JSON::make_object()};
-        trace.assign("definition",
-                     sourcemeta::core::JSON{
-                         "Evaluation callback steps of type Pre, one per "
-                         "instruction that applied to its instance, over one "
-                         "pass of every instance. These are not CPU "
-                         "instructions and not every executed instruction"});
-        trace.assign("passes", integer(1));
-        trace.assign("total", integer(total_steps));
-        trace.assign("by_type", counts_by_type(steps));
-        trace.assign("wall_time_ns", integer(trace_ns));
-        trace.assign("result_mismatches", integer(trace_mismatches));
-
-        // These instructions pass through to their children without ever
-        // reporting themselves, so the trace misses them whenever the
-        // template contains them
-        auto never_reported{sourcemeta::core::JSON::make_array()};
-        for (const auto type :
-             {sourcemeta::blaze::InstructionIndex::ControlGroup,
-              sourcemeta::blaze::InstructionIndex::ControlGroupWhenDefines,
-              sourcemeta::blaze::InstructionIndex::
-                  ControlGroupWhenDefinesDirect,
-              sourcemeta::blaze::InstructionIndex::ControlGroupWhenType,
-              sourcemeta::blaze::InstructionIndex::ControlEvaluate}) {
-          const auto index{std::to_underlying(type)};
-          if (statistics.by_type[index] > 0) {
-            never_reported.push_back(sourcemeta::core::JSON{
-                sourcemeta::blaze::INSTRUCTION_NAMES[index]});
-          }
-        }
-
-        const auto coverage_has_no_silent_types{never_reported.empty()};
-        auto coverage{sourcemeta::core::JSON::make_object()};
-        coverage.assign("complete", sourcemeta::core::JSON{
-                                        statistics.hidden_subtree_roots == 0 &&
-                                        coverage_has_no_silent_types});
-        coverage.assign("hidden_subtree_roots",
-                        integer(statistics.hidden_subtree_roots));
-        coverage.assign("hidden_static_instructions",
-                        integer(statistics.hidden_instructions));
-        coverage.assign("never_reported_types", std::move(never_reported));
-        trace.assign("coverage", std::move(coverage));
-        evaluation.assign("trace_step_counts", std::move(trace));
-
-        notes.emplace_back(
-            "trace_step_counts come from a separate pass with the evaluation "
-            "callback attached, which takes a slower evaluation path. Its "
-            "wall time is not representative of plain validation");
-        if (statistics.hidden_subtree_roots > 0) {
-          notes.emplace_back(
-              "trace_step_counts are incomplete: the children of "
-              "AssertionObjectPropertiesSimple, and any targets they jump to, "
-              "are evaluated with the callback detached");
-        }
-        if (!coverage_has_no_silent_types) {
-          notes.emplace_back(
-              "trace_step_counts never include the instructions listed in "
-              "coverage.never_reported_types, which pass through to their "
-              "children without reporting themselves");
-        }
-        if (trace_mismatches > 0) {
-          notes.emplace_back("Validation with the evaluation callback "
-                             "disagreed with plain validation");
-        }
+        report_trace_steps(evaluation, notes, evaluator, schema_template,
+                           instances, expected, statistics);
       } else {
         evaluation.assign("trace_step_counts", sourcemeta::core::JSON{nullptr});
       }
