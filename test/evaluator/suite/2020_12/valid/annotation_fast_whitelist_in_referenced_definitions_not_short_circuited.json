@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "$ref": "#/$defs/name" }, { "type": "integer" } ],
+    "$defs": { "name": { "type": "string", "x-test-custom": "First" } }
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "Annotation", "/anyOf/0/$ref/x-test-custom", "#/$defs/name/x-test-custom", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/$ref/type", "#/$defs/name/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/anyOf/0/$ref/x-test-custom", "#/$defs/name/x-test-custom", "", "First" ],
+      [ true, "AssertionTypeStrict", "/anyOf/0/$ref/type", "#/$defs/name/type", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ "Annotation", "/anyOf/0/$ref/x-test-custom", "#/$defs/name/x-test-custom", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/$ref/type", "#/$defs/name/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/anyOf/0/$ref/x-test-custom", "#/$defs/name/x-test-custom", "", "First" ],
+      [ true, "AssertionTypeStrict", "/anyOf/0/$ref/type", "#/$defs/name/type", "" ],
+      [ true, "ControlJump", "/anyOf/0/$ref", "#/anyOf/0/$ref", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "a", "b" ],
+    "properties": { "a": { "type": "string" }, "b": { "type": "string" } },
+    "additionalProperties": false
+  },
+  "instance": { "a": "x", "b": "y" },
+  "valid": true,
+  "tweaks": { "annotations": [ "properties" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesExactlyStrict", "/required", "#/required", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactlyStrict", "/required", "#/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "b" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that only defines properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The value was expected to be of type string",
+      "The object property \"b\" successfully validated against its property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/a/type", "#/properties/a/type", "/a" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "a" ],
+      [ true, "AssertionTypeStrict", "/properties/b/type", "#/properties/b/type", "/b" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "b" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"a\", and \"b\"",
+      "The value was expected to be of type string",
+      "The object property \"a\" successfully validated against its property subschema",
+      "The value was expected to be of type string",
+      "The object property \"b\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define additional properties",
+      "The value was expected to be of type object"
+    ]
+  }
+}

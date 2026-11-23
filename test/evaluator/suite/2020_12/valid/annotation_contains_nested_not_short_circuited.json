@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "title": "x", "type": "string" }
+  },
+  "instance": [ "a", "b" ],
+  "valid": true,
+  "tweaks": { "annotations": [ "title" ] },
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "Annotation", "/contains/title", "#/contains/title", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "Annotation", "/contains/title", "#/contains/title", "/1" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contains/title", "#/contains/title", "/0", "x" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "Annotation", "/contains/title", "#/contains/title", "/1", "x" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance location \"/0\" was \"x\"",
+      "The value was expected to be of type string",
+      "The title of the instance location \"/1\" was \"x\"",
+      "The value was expected to be of type string",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "Annotation", "/contains/title", "#/contains/title", "/0" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ "Annotation", "/contains/title", "#/contains/title", "/1" ],
+      [ "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contains/title", "#/contains/title", "/0", "x" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "Annotation", "/contains/title", "#/contains/title", "/1", "x" ],
+      [ true, "AssertionTypeStrict", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance location \"/0\" was \"x\"",
+      "The value was expected to be of type string",
+      "The title of the instance location \"/1\" was \"x\"",
+      "The value was expected to be of type string",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  }
+}

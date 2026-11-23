@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "format": "uri" }
+  },
+  "instance": [ "https://example.com", "relative/path" ],
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ false, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The string value \"relative/path\" was expected to represent a valid URI",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ false, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The string value \"relative/path\" was expected to represent a valid URI",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

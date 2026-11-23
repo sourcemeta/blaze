@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "json-pointer"
+  },
+  "instance": "/foo/bar",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo/bar\" was expected to represent a valid JSON Pointer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "json-pointer" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo/bar\" was expected to represent a valid JSON Pointer",
+      "The logical type of the instance was expected to be \"json-pointer\""
+    ]
+  }
+}

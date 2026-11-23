@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "value": { "allOf": [ { "type": "string", "x-test-custom": "All" } ] } }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/properties/value/allOf/0/x-test-custom", "#/properties/value/allOf/0/x-test-custom", "/value" ],
+      [ "AssertionPropertyTypeStrict", "/properties/value/allOf/0/type", "#/properties/value/allOf/0/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/allOf/0/x-test-custom", "#/properties/value/allOf/0/x-test-custom", "/value", "All" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/value/allOf/0/type", "#/properties/value/allOf/0/type", "/value" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"All\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalAnd", "/properties/value/allOf", "#/properties/value/allOf", "/value" ],
+      [ "Annotation", "/properties/value/allOf/0/x-test-custom", "#/properties/value/allOf/0/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/allOf/0/type", "#/properties/value/allOf/0/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/allOf/0/x-test-custom", "#/properties/value/allOf/0/x-test-custom", "/value", "All" ],
+      [ true, "AssertionTypeStrict", "/properties/value/allOf/0/type", "#/properties/value/allOf/0/type", "/value" ],
+      [ true, "LogicalAnd", "/properties/value/allOf", "#/properties/value/allOf", "/value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"All\"",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the 2 given subschemas",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

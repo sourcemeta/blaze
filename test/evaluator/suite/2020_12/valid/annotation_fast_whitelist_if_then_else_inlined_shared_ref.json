@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "if": { "type": "string" },
+    "then": { "$ref": "#/$defs/shared", "x-test-custom": "Then" },
+    "else": { "$ref": "#/$defs/shared" },
+    "$defs": { "shared": { "minProperties": 0, "minLength": 1 } }
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/$defs/shared/minLength", "" ],
+      [ "Annotation", "/then/x-test-custom", "#/then/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/$defs/shared/minLength", "" ],
+      [ true, "Annotation", "/then/x-test-custom", "#/then/x-test-custom", "", "Then" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value \"foo\" was expected to consist of at least 1 character and its length was 3",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Then\"",
+      "The string value was expected to validate against the given conditional"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalCondition", "/if", "#/if", "" ],
+      [ "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ "AssertionStringSizeGreater", "/then/$ref/minLength", "#/$defs/shared/minLength", "" ],
+      [ "Annotation", "/then/x-test-custom", "#/then/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/if/type", "#/if/type", "" ],
+      [ true, "AssertionStringSizeGreater", "/then/$ref/minLength", "#/$defs/shared/minLength", "" ],
+      [ true, "ControlJump", "/then/$ref", "#/then/$ref", "" ],
+      [ true, "Annotation", "/then/x-test-custom", "#/then/x-test-custom", "", "Then" ],
+      [ true, "LogicalCondition", "/if", "#/if", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value \"foo\" was expected to consist of at least 1 character and its length was 3",
+      "The string value was expected to validate against the referenced schema",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Then\"",
+      "The string value was expected to validate against the given conditional"
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "items": { "format": "json-pointer" }
+  },
+  "instance": [ "/foo", "/bar/baz" ],
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo\" was expected to represent a valid JSON Pointer",
+      "The string value \"/bar/baz\" was expected to represent a valid JSON Pointer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ true, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo\" was expected to represent a valid JSON Pointer",
+      "The string value \"/bar/baz\" was expected to represent a valid JSON Pointer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}

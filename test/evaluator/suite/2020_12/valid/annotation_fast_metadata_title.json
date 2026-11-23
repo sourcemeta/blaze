@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "Test title"
+  },
+  "instance": 5,
+  "valid": true,
+  "tweaks": { "annotations": [ "title" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/title", "#/title", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "#/title", "", "Test title" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"Test title\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/title", "#/title", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "#/title", "", "Test title" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"Test title\""
+    ]
+  }
+}

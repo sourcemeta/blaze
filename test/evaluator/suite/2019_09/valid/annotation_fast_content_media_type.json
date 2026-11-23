@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "contentMediaType": "text/plain"
+  },
+  "instance": "hi",
+  "valid": true,
+  "tweaks": { "annotations": [ "contentMediaType" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "text/plain" ]
+    ],
+    "descriptions": [
+      "The content media type of the instance was \"text/plain\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/contentMediaType", "#/contentMediaType", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/contentMediaType", "#/contentMediaType", "", "text/plain" ]
+    ],
+    "descriptions": [
+      "The content media type of the instance was \"text/plain\""
+    ]
+  }
+}

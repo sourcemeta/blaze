@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "patternProperties": { "^x": { "type": "string" } }
+  },
+  "instance": { "xa": "y" },
+  "valid": true,
+  "tweaks": { "annotations": [ "patternProperties" ] },
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^x/type", "#/patternProperties/%5Ex/type", "/xa" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^x/type", "#/patternProperties/%5Ex/type", "/xa" ],
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "xa" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"xa\" successfully validated against its pattern property subschema",
+      "The object properties that start with the string \"x\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^x/type", "#/patternProperties/%5Ex/type", "/xa" ],
+      [ "Annotation", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^x/type", "#/patternProperties/%5Ex/type", "/xa" ],
+      [ true, "Annotation", "/patternProperties", "#/patternProperties", "", "xa" ],
+      [ true, "LoopPropertiesStartsWith", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object property \"xa\" successfully validated against its pattern property subschema",
+      "The object properties that start with the string \"x\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}

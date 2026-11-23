@@ -1,0 +1,28 @@
+{
+  "schema": { "format": "date" },
+  "instance": "not-a-date",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-a-date\" was expected to represent a valid RFC 3339 full-date"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-a-date\" was expected to represent a valid RFC 3339 full-date"
+    ]
+  }
+}

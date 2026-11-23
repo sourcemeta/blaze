@@ -1,0 +1,16 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-06/schema#", "format": "ipv6" },
+  "instance": {},
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

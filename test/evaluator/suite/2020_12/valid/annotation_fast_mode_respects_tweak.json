@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "title": "My title"
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "title" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/title", "#/title", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "#/title", "", "My title" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"My title\"",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/title", "#/title", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/title", "#/title", "", "My title" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"My title\"",
+      "The value was expected to be of type string"
+    ]
+  }
+}

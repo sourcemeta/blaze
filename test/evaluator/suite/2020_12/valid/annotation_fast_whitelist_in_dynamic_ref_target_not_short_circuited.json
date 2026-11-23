@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/dyn",
+    "anyOf": [ { "$dynamicRef": "#name" }, { "type": "integer" } ],
+    "$defs": {
+      "name": { "$dynamicAnchor": "name", "type": "string", "x-test-custom": "First" }
+    }
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "https://example.com/dyn#/anyOf", "" ],
+      [ "Annotation", "/anyOf/0/$dynamicRef/x-test-custom", "https://example.com/dyn#/$defs/name/x-test-custom", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/$dynamicRef/type", "https://example.com/dyn#/$defs/name/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "https://example.com/dyn#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/anyOf/0/$dynamicRef/x-test-custom", "https://example.com/dyn#/$defs/name/x-test-custom", "", "First" ],
+      [ true, "AssertionTypeStrict", "/anyOf/0/$dynamicRef/type", "https://example.com/dyn#/$defs/name/type", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "https://example.com/dyn#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "https://example.com/dyn#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "https://example.com/dyn#/anyOf", "" ],
+      [ "ControlJump", "/anyOf/0/$dynamicRef", "https://example.com/dyn#/anyOf/0/$dynamicRef", "" ],
+      [ "Annotation", "/anyOf/0/$dynamicRef/x-test-custom", "https://example.com/dyn#/$defs/name/x-test-custom", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/$dynamicRef/type", "https://example.com/dyn#/$defs/name/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "https://example.com/dyn#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/anyOf/0/$dynamicRef/x-test-custom", "https://example.com/dyn#/$defs/name/x-test-custom", "", "First" ],
+      [ true, "AssertionTypeStrict", "/anyOf/0/$dynamicRef/type", "https://example.com/dyn#/$defs/name/type", "" ],
+      [ true, "ControlJump", "/anyOf/0/$dynamicRef", "https://example.com/dyn#/anyOf/0/$dynamicRef", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "https://example.com/dyn#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "https://example.com/dyn#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

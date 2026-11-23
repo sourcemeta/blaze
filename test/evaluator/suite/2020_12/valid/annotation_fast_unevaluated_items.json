@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "integer" } ],
+    "unevaluatedItems": { "type": "string" }
+  },
+  "instance": [ 1, "a" ],
+  "valid": true,
+  "tweaks": { "annotations": [ "unevaluatedItems" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedItems/type", "#/unevaluatedItems/type", "/1" ],
+      [ true, "Annotation", "/unevaluatedItems", "#/unevaluatedItems", "", true ],
+      [ true, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "At least one item of the array value successfully validated against the subschema for unevaluated items",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

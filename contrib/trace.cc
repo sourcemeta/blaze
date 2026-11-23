@@ -8,13 +8,108 @@
 
 #include "tweaks.h"
 
-#include <algorithm>  // std::sort, std::max
-#include <cstdlib>    // EXIT_SUCCESS, EXIT_FAILURE
-#include <filesystem> // std::filesystem::path
-#include <iostream>   // std::cerr, std::cout
-#include <map>        // std::map
-#include <utility>    // std::pair
-#include <vector>     // std::vector
+#include <algorithm>   // std::sort, std::max
+#include <cstdlib>     // EXIT_SUCCESS, EXIT_FAILURE
+#include <filesystem>  // std::filesystem::path
+#include <iostream>    // std::cerr, std::cout
+#include <map>         // std::map
+#include <string>      // std::string
+#include <tuple>       // std::tuple, std::get
+#include <type_traits> // std::underlying_type_t
+#include <utility>     // std::pair
+#include <vector>      // std::vector
+
+// The name a fixture gives an instruction, where every annotation instruction
+// answers to the same one
+auto fixture_instruction_name(const sourcemeta::blaze::Instruction &step)
+    -> std::string {
+  if (sourcemeta::blaze::is_annotation(step.type)) {
+    return "Annotation";
+  }
+
+  return std::string{sourcemeta::blaze::INSTRUCTION_NAMES[static_cast<
+      std::underlying_type_t<sourcemeta::blaze::InstructionIndex>>(step.type)]};
+}
+
+// One mode section of a trace fixture, exactly as the evaluator callback
+// reports it, so that a fixture covering a mode the tests never exercised does
+// not need its expectations written out by hand
+auto emit_fixture_section(const sourcemeta::blaze::Template &schema_template,
+                          const sourcemeta::core::JSON &instance) -> void {
+  using Entry =
+      std::tuple<bool, sourcemeta::core::WeakPointer,
+                 sourcemeta::core::WeakPointer, sourcemeta::blaze::Instruction,
+                 sourcemeta::core::JSON, sourcemeta::blaze::InstructionExtra>;
+  std::vector<Entry> pre;
+  std::vector<Entry> post;
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const auto result{evaluator.validate(
+      schema_template, instance,
+      [&pre, &post](const sourcemeta::blaze::EvaluationType type,
+                    const bool valid,
+                    const sourcemeta::blaze::Instruction &step,
+                    const sourcemeta::blaze::InstructionExtra &step_metadata,
+                    const sourcemeta::core::WeakPointer &evaluate_path,
+                    const sourcemeta::core::WeakPointer &instance_location,
+                    const sourcemeta::core::JSON &annotation) {
+        if (type == sourcemeta::blaze::EvaluationType::Pre) {
+          pre.emplace_back(valid, evaluate_path, instance_location, step,
+                           annotation, step_metadata);
+        } else if (type == sourcemeta::blaze::EvaluationType::Post) {
+          post.emplace_back(valid, evaluate_path, instance_location, step,
+                            annotation, step_metadata);
+        }
+      })};
+
+  auto pre_entries{sourcemeta::core::JSON::make_array()};
+  for (const auto &entry : pre) {
+    auto row{sourcemeta::core::JSON::make_array()};
+    row.push_back(
+        sourcemeta::core::JSON{fixture_instruction_name(std::get<3>(entry))});
+    row.push_back(sourcemeta::core::JSON{
+        sourcemeta::core::to_string(std::get<1>(entry))});
+    row.push_back(sourcemeta::core::JSON{
+        std::string{std::get<5>(entry).keyword_location}});
+    row.push_back(sourcemeta::core::JSON{
+        sourcemeta::core::to_string(std::get<2>(entry))});
+    pre_entries.push_back(std::move(row));
+  }
+
+  auto post_entries{sourcemeta::core::JSON::make_array()};
+  auto descriptions{sourcemeta::core::JSON::make_array()};
+  for (const auto &entry : post) {
+    auto row{sourcemeta::core::JSON::make_array()};
+    row.push_back(sourcemeta::core::JSON{std::get<0>(entry)});
+    row.push_back(
+        sourcemeta::core::JSON{fixture_instruction_name(std::get<3>(entry))});
+    row.push_back(sourcemeta::core::JSON{
+        sourcemeta::core::to_string(std::get<1>(entry))});
+    row.push_back(sourcemeta::core::JSON{
+        std::string{std::get<5>(entry).keyword_location}});
+    row.push_back(sourcemeta::core::JSON{
+        sourcemeta::core::to_string(std::get<2>(entry))});
+
+    // An annotation also reports the value it emitted
+    if (sourcemeta::blaze::is_annotation(std::get<3>(entry).type)) {
+      row.push_back(std::get<4>(entry));
+    }
+
+    post_entries.push_back(std::move(row));
+    descriptions.push_back(sourcemeta::core::JSON{sourcemeta::blaze::describe(
+        schema_template, std::get<0>(entry), std::get<3>(entry),
+        std::get<1>(entry), std::get<2>(entry), instance, std::get<4>(entry))});
+  }
+
+  auto section{sourcemeta::core::JSON::make_object()};
+  section.assign("valid", sourcemeta::core::JSON{result});
+  section.assign("pre", std::move(pre_entries));
+  section.assign("post", std::move(post_entries));
+  section.assign("descriptions", std::move(descriptions));
+
+  sourcemeta::core::prettify(section, std::cout);
+  std::cout << "\n";
+}
 
 auto print_map(const std::map<std::string_view, std::size_t> &input) -> void {
   std::vector<std::pair<std::string_view, std::size_t>> list{input.cbegin(),
@@ -42,6 +137,7 @@ auto main(int argc, char **argv) noexcept -> int {
   options.flag("fast", {"f"});
   options.option("dialect", {"d"});
   register_tweak_options(options);
+  options.flag("fixture", {});
 
   try {
     options.parse(argc, argv);
@@ -55,7 +151,7 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--dialect <uri>] [--format-assertion]"
                  " [--annotations <keyword>]... [--no-annotations]"
-                 " <schema.json> <instance.json>\n";
+                 " [--fixture] <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
   }
 
@@ -82,6 +178,11 @@ auto main(int argc, char **argv) noexcept -> int {
                                    mode, default_dialect, "", "", tweaks)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
+
+    if (options.contains("fixture")) {
+      emit_fixture_section(schema_template, instance);
+      return EXIT_SUCCESS;
+    }
 
     sourcemeta::blaze::TraceOutput output{
         schema_template,

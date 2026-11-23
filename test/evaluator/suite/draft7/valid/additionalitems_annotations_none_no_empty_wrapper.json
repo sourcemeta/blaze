@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "items": [ { "type": "string" } ],
+    "additionalItems": { "type": "number" }
+  },
+  "instance": [ "a", 1 ],
+  "valid": true,
+  "tweaks": { "annotations": [] },
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrictAny", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrictAny", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type number",
+      "Every item in the array value except for the first one was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrictAny", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrictAny", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type number",
+      "Every item in the array value except for the first one was expected to validate against the given subschema"
+    ]
+  }
+}

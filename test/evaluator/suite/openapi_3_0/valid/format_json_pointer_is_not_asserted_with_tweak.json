@@ -1,0 +1,16 @@
+{
+  "schema": { "format": "json-pointer" },
+  "instance": "not/a/pointer",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

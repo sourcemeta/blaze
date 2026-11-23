@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "idn-email"
+  },
+  "instance": "user@cafe\u0301.com",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"user@cafe\u0301.com\" was expected to represent a valid internationalized email address"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "idn-email" ]
+    ],
+    "descriptions": [
+      "The string value \"user@cafe\u0301.com\" was expected to represent a valid internationalized email address",
+      "The logical type of the instance was expected to be \"idn-email\""
+    ]
+  }
+}

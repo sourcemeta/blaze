@@ -1,0 +1,44 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "data": { "$ref": "#/x-definitions/S", "format": "byte" } },
+    "x-definitions": { "S": { "type": "string" } }
+  },
+  "instance": { "data": "not base64" },
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/data/$ref/type", "#/x-definitions/S/type", "/data" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/data/$ref/type", "#/x-definitions/S/type", "/data" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/data/$ref", "#/properties/data/$ref", "/data" ],
+      [ "AssertionTypeStrict", "/properties/data/$ref/type", "#/x-definitions/S/type", "/data" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/data/$ref/type", "#/x-definitions/S/type", "/data" ],
+      [ true, "ControlJump", "/properties/data/$ref", "#/properties/data/$ref", "/data" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

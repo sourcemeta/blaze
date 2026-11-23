@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "x": { "format": "uri" } }
+  },
+  "instance": { "x": "https://example.com" },
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/properties/x/format", "#/properties/x/format", "/x" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/properties/x/format", "#/properties/x/format", "/x" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionStringType", "/properties/x/format", "#/properties/x/format", "/x" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/properties/x/format", "#/properties/x/format", "/x" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

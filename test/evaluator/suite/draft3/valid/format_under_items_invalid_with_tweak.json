@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "items": { "format": "host-name" }
+  },
+  "instance": [ "www.example.com", "-bad-host" ],
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ false, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"www.example.com\" was expected to represent a valid hostname",
+      "The string value \"-bad-host\" was expected to represent a valid hostname",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ false, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"www.example.com\" was expected to represent a valid hostname",
+      "The string value \"-bad-host\" was expected to represent a valid hostname",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}
