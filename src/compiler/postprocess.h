@@ -1347,9 +1347,8 @@ inline auto postprocess(std::vector<Instructions> &targets,
         // subsume a sibling object type assertion. None of that says anything
         // about the rest of the instance, so a fused instruction may only
         // subsume siblings that apply to the very same instance location
-        const auto fusions{disjoint
-                               ? decltype(simple_properties_fusions(*current)){}
-                               : simple_properties_fusions(*current)};
+        const auto fusions{disjoint ? SimplePropertiesFusions{}
+                                    : simple_properties_fusions(*current)};
 
         // A positional owner pairs child N with entry N of its own data, and
         // every entry past the last child only carries a presence requirement.

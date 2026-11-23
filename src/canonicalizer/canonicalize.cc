@@ -694,13 +694,7 @@ auto reference_slots(const sourcemeta::core::JSON &body, const Profile &profile)
   collect(body, core::Pointer{}, collect);
   return result;
 }
-/// Rewrite a Draft 3 document into its graph form: every subschema becomes an
-/// entry of a single `definitions` at the root, nesting is replaced by
-/// references between those entries, and the root becomes a wrapper that
-/// references the entry standing for the document.
-///
-/// Like identifier elimination, this only applies to documents that are Draft 3
-/// throughout, and it runs once the rules have finished reshaping the schema
+
 // Survey the schema for the subschemas that become graph nodes and the
 // references that become edges, and say whether it can be lifted at all:
 // every subschema has to land on one spelling of one form the profile
@@ -792,6 +786,13 @@ auto survey_nodes_and_links(
   return true;
 }
 
+/// Rewrite a Draft 3 document into its graph form: every subschema becomes an
+/// entry of a single `definitions` at the root, nesting is replaced by
+/// references between those entries, and the root becomes a wrapper that
+/// references the entry standing for the document.
+///
+/// Like identifier elimination, this only applies to documents that are Draft 3
+/// throughout, and it runs once the rules have finished reshaping the schema
 // Lifting runs as a sequence of phases over one graph, and every phase
 // reads and writes the same handful of tables, so the shape of it is a
 // list of steps rather than a tree of calls. The two pieces that stand on

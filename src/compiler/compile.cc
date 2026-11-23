@@ -192,10 +192,10 @@ auto keyword_shape_error(
   // that a custom vocabulary defines carries its URI rather than a known
   // value, so neither is held to these
   if (known) {
-    if (const auto error{
+    if (const auto verdict{
             known_keyword_shape_error(keyword, value, vocabularies)};
-        error.has_value()) {
-      return error.value();
+        verdict.has_value()) {
+      return verdict.value();
     }
   }
 

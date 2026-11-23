@@ -22,6 +22,7 @@
 
 namespace {
 
+using sourcemeta::blaze::also;
 using sourcemeta::blaze::make_value;
 using sourcemeta::core::JSON;
 using sourcemeta::core::Pointer;
@@ -214,10 +215,6 @@ auto property_named(std::vector<JSON> &properties,
   return properties.back();
 }
 
-} // namespace
-
-namespace sourcemeta::blaze {
-
 // A name that only a member, a branch, a condition or a reference uses is held
 // to what every unnamed property holds, so it is shown as a property of its own
 auto hold_to_names(std::vector<JSON> &properties,
@@ -253,6 +250,10 @@ auto hold_to_patterns(JSON &pattern_properties,
     }
   }
 }
+
+} // namespace
+
+namespace sourcemeta::blaze {
 
 auto object_facts(DocumentationContext &context, JSON &value,
                   const JSON &subschema, const Pointer &pointer) -> void {

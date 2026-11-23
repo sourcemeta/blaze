@@ -6,6 +6,7 @@
 #include <cstddef>   // std::size_t
 #include <format>    // std::format, std::make_format_args, std::vformat
 #include <initializer_list> // std::initializer_list
+#include <optional>         // std::optional, std::nullopt
 #include <set>              // std::set
 #include <sstream>          // std::ostringstream
 #include <string>           // std::string, std::to_string
