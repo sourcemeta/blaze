@@ -1,0 +1,78 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "allOf": [ { "$ref": "#/definitions/narrow" }, { "$ref": "#/definitions/wide" } ],
+    "definitions": {
+      "narrow": {
+        "type": "object",
+        "required": [ "name" ],
+        "properties": {
+          "name": { "type": "string" },
+          "tags": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "wide": {
+        "type": "object",
+        "properties": {
+          "alpha": { "type": "string" },
+          "beta": { "type": "string" },
+          "gamma": { "type": "string" },
+          "delta": { "type": "string" },
+          "epsilon": { "type": "string" },
+          "zeta": { "type": "string" }
+        }
+      }
+    }
+  },
+  "instance": { "name": "x", "tags": [ 1 ] },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
+      [ "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
+      [ "LoopItemsTypeStrict", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
+      [ false, "LoopItemsTypeStrict", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ],
+      [ false, "LoopPropertiesMatch", "", "#/definitions/wide/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The array items were expected to be of type string",
+      "The object value was expected to validate against the 8 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
+      [ "LogicalWhenType", "/allOf/0/$ref/properties", "#/definitions/narrow/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
+      [ "LoopItems", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/properties/tags/items/type", "#/definitions/narrow/properties/tags/items/type", "/tags/0" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/allOf/0/$ref/required", "#/definitions/narrow/required", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/properties/name/type", "#/definitions/narrow/properties/name/type", "/name" ],
+      [ false, "AssertionTypeStrict", "/allOf/0/$ref/properties/tags/items/type", "#/definitions/narrow/properties/tags/items/type", "/tags/0" ],
+      [ false, "LoopItems", "/allOf/0/$ref/properties/tags/items", "#/definitions/narrow/properties/tags/items", "/tags" ],
+      [ false, "LogicalWhenType", "/allOf/0/$ref/properties", "#/definitions/narrow/properties", "" ],
+      [ false, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ false, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"name\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string but it was of type integer",
+      "Every item in the array value was expected to validate against the given subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the 2 given subschemas"
+    ]
+  }
+}
