@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "format": "uri",
+    "x-format-assertion": true
+  },
+  "instance": "://bad",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid URI"
+    ]
+  }
+}

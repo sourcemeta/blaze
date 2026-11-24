@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "format": "uri",
+    "x-format-assertion": false
+  },
+  "instance": "://bad",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/format", "#/format", "" ],
+      [ "Annotation", "/x-format-assertion", "#/x-format-assertion", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/format", "#/format", "", "uri" ],
+      [ true, "Annotation", "/x-format-assertion", "#/x-format-assertion", "", false ]
+    ],
+    "descriptions": [
+      "The logical type of the instance was expected to be \"uri\"",
+      "A sibling `format` keyword was expected to be collected as an annotation"
+    ]
+  }
+}

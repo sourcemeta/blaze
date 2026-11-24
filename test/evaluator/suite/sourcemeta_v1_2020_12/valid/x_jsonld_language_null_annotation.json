@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-language": null,
+    "x-jsonld-override": true
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-language", "#/x-jsonld-language", "" ],
+      [ "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-language", "#/x-jsonld-language", "", null ],
+      [ true, "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "", true ]
+    ],
+    "descriptions": [
+      "The natural language was expected to be removed",
+      "The sibling JSON-LD annotations were expected to override the nested annotations they shadow"
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "properties": { "name": { "x-jsonld-id": "https://schema.org/name" } }
+  },
+  "instance": { "name": "foo" },
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties/name/x-jsonld-id", "#/properties/name/x-jsonld-id", "/name" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/name/x-jsonld-id", "#/properties/name/x-jsonld-id", "/name", "https://schema.org/name" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "name" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The JSON-LD predicate was \"https://schema.org/name\"",
+      "The object property \"name\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

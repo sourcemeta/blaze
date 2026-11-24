@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "int32"
+  },
+  "instance": 2147483648,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

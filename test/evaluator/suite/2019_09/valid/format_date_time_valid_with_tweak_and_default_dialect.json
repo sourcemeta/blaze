@@ -1,0 +1,32 @@
+{
+  "schema": { "format": "date-time" },
+  "instance": "2026-05-15T14:00:00Z",
+  "valid": true,
+  "defaultDialect": "https://json-schema.org/draft/2019-09/schema",
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a valid RFC 3339 date-time"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "date-time" ]
+    ],
+    "descriptions": [
+      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a valid RFC 3339 date-time",
+      "The logical type of the instance was expected to be \"date-time\""
+    ]
+  }
+}

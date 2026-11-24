@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-graph": null,
+    "x-jsonld-override": true
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-graph", "#/x-jsonld-graph", "" ],
+      [ "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-graph", "#/x-jsonld-graph", "", null ],
+      [ true, "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "", true ]
+    ],
+    "descriptions": [
+      "The value was not expected to be wrapped in a JSON-LD named graph",
+      "The sibling JSON-LD annotations were expected to override the nested annotations they shadow"
+    ]
+  }
+}

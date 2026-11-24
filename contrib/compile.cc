@@ -32,9 +32,37 @@ static auto parse_resolve_directory(const std::string_view value)
                    std::filesystem::path{value.substr(comma + 1)}};
 }
 
+// The schemas a file names, by the URI each one answers to. This is what a
+// suite directory's `resolver.json` holds, so the same file serves the C++
+// suites and whatever borrows the compiler through this tool
+static auto read_resolve_maps(const std::vector<std::string> &paths)
+    -> sourcemeta::core::JSON {
+  auto schemas{sourcemeta::core::JSON::make_object()};
+  for (const auto &path : paths) {
+    const auto document{
+        sourcemeta::core::read_json(std::filesystem::path{path})};
+    if (!document.is_object()) {
+      throw sourcemeta::core::JSONParseError{1, 1};
+    }
+
+    for (const auto &entry : document.as_object()) {
+      schemas.assign(entry.first, entry.second);
+    }
+  }
+
+  return schemas;
+}
+
 static auto resolve_schema(const std::string_view identifier,
-                           const ResolveDirectories &resolve_directories)
+                           const ResolveDirectories &resolve_directories,
+                           const sourcemeta::core::JSON &schemas)
     -> sourcemeta::core::SchemaResolverResult {
+  const auto *named{
+      schemas.try_at(sourcemeta::core::JSON::StringView{identifier})};
+  if (named != nullptr) {
+    return *named;
+  }
+
   for (const auto &[prefix, directory] : resolve_directories) {
     if (!identifier.starts_with(prefix)) {
       continue;
@@ -67,6 +95,8 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("default-dialect", {"d"});
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
+  options.option("entrypoint", {"e"});
+  options.option("resolve-map", {});
   register_tweak_options(options);
 
   try {
@@ -81,7 +111,9 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
-                 "[--path <pointer>] [--format-assertion] "
+                 "[--resolve-map <file>]... "
+                 "[--path <pointer>] [--entrypoint <uri-or-pointer>] "
+                 "[--format-assertion] "
                  "[--annotations <keyword>]... [--no-annotations] "
                  "<schema.json>\n";
     return EXIT_FAILURE;
@@ -130,10 +162,16 @@ auto main(int argc, char **argv) noexcept -> int {
       }
     }
 
+    const auto schemas{read_resolve_maps(
+        options.contains("resolve-map")
+            ? std::vector<std::string>{options.at("resolve-map").cbegin(),
+                                       options.at("resolve-map").cend()}
+            : std::vector<std::string>{})};
+
     const auto resolver{
-        [&resolve_directories](const std::string_view identifier)
+        [&resolve_directories, &schemas](const std::string_view identifier)
             -> sourcemeta::core::SchemaResolverResult {
-          return resolve_schema(identifier, resolve_directories);
+          return resolve_schema(identifier, resolve_directories, schemas);
         }};
 
     auto document{
@@ -155,10 +193,16 @@ auto main(int argc, char **argv) noexcept -> int {
     }
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
+    std::string entrypoint;
+    if (options.contains("entrypoint")) {
+      entrypoint = options.at("entrypoint").front();
+      std::cerr << "Entrypoint: " << entrypoint << "\n";
+    }
+
     const auto schema_template{sourcemeta::blaze::compile(
         document, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-        "", tweaks)};
+        entrypoint, tweaks)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{
         std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -

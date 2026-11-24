@@ -40,7 +40,8 @@ namespace {
 
 // Compiling a meta-schema is expensive, so each one is compiled on first use
 // and reused for every case in its suite
-auto metaschema_template(const std::string &uri)
+auto metaschema_template(const std::string &uri,
+                         const sourcemeta::core::SchemaResolver &resolver)
     -> const sourcemeta::blaze::Template & {
   static std::map<std::string, sourcemeta::blaze::Template> cache;
   const auto match{cache.find(uri)};
@@ -48,13 +49,12 @@ auto metaschema_template(const std::string &uri)
     return match->second;
   }
 
-  const auto metaschema{sourcemeta::core::schema_resolver(uri)};
+  const auto metaschema{resolver(uri)};
   assert(metaschema.has_value());
   return cache
       .emplace(uri, sourcemeta::blaze::compile(
                         metaschema.value(), sourcemeta::core::schema_walker,
-                        sourcemeta::core::schema_resolver,
-                        sourcemeta::blaze::default_schema_compiler,
+                        resolver, sourcemeta::blaze::default_schema_compiler,
                         sourcemeta::blaze::Mode::FastValidation))
       .first->second;
 }
@@ -63,17 +63,21 @@ auto metaschema_template(const std::string &uri)
 // must agree with this: a schema the meta-schema accepts must compile, and one
 // it rejects must not
 auto matches_metaschema(const std::string &uri,
-                        const sourcemeta::core::JSON &schema) -> bool {
+                        const sourcemeta::core::JSON &schema,
+                        const sourcemeta::core::SchemaResolver &resolver)
+    -> bool {
   sourcemeta::blaze::Evaluator evaluator;
-  return evaluator.validate(metaschema_template(uri), schema);
+  return evaluator.validate(metaschema_template(uri, resolver), schema);
 }
 
 auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const sourcemeta::blaze::Mode mode, const char *mode_key,
                     const std::string &metaschema,
-                    const std::string &default_dialect) -> void {
+                    const std::string &directory_dialect,
+                    const sourcemeta::core::SchemaResolver &resolver) -> void {
+  const auto default_dialect{fixture_default_dialect(data, directory_dialect)};
   const auto &schema{data.at("schema")};
-  EXPECT_TRUE(matches_metaschema(metaschema, schema));
+  EXPECT_TRUE(matches_metaschema(metaschema, schema, resolver));
 
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
@@ -97,10 +101,9 @@ auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
   const auto count{pre.size()};
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "", "",
-      fixture_tweaks(name, data))};
+      schema, sourcemeta::core::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+      fixture_entrypoint(data), fixture_tweaks(name, data))};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
   EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
@@ -164,16 +167,17 @@ auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
 auto run_error_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const std::string &metaschema,
                     const std::string &default_dialect,
-                    const sourcemeta::blaze::Mode mode) -> void {
+                    const sourcemeta::blaze::Mode mode,
+                    const sourcemeta::core::SchemaResolver &resolver) -> void {
   const auto &expected{data.at("error")};
-  EXPECT_FALSE(matches_metaschema(metaschema, data.at("schema")));
+  EXPECT_FALSE(matches_metaschema(metaschema, data.at("schema"), resolver));
 
   try {
-    sourcemeta::blaze::compile(
-        data.at("schema"), sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-        "", fixture_tweaks(name, data));
+    sourcemeta::blaze::compile(data.at("schema"),
+                               sourcemeta::core::schema_walker, resolver,
+                               sourcemeta::blaze::default_schema_compiler, mode,
+                               fixture_default_dialect(data, default_dialect),
+                               "", "", fixture_tweaks(name, data));
     FAIL();
   } catch (const sourcemeta::blaze::CompilerError &error) {
     EXPECT_EQ(std::string{error.what()}, expected.at("message").to_string());
@@ -199,8 +203,11 @@ static auto register_error_tests(
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  for (const auto &[name, test_case] : read_fixtures(
-           directory, FixtureKind::Error, base_dialect, default_dialect)) {
+  const FixtureResolver resolver{directory.parent_path()};
+
+  for (const auto &[name, test_case] :
+       read_fixtures(directory, FixtureKind::Error, base_dialect,
+                     default_dialect, resolver)) {
 
     // Whether a schema is well-formed is a property of its dialect rather than
     // of the mode it compiles in, so both modes have to refuse the same ones
@@ -211,8 +218,10 @@ static auto register_error_tests(
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
       sourcemeta::core::test_register(
           suite_name, name + mode_suffix, __FILE__, __LINE__,
-          [name, test_case, metaschema, default_dialect, mode]() -> void {
-            run_error_test(name, test_case, metaschema, default_dialect, mode);
+          [name, test_case, metaschema, default_dialect, mode,
+           resolver]() -> void {
+            run_error_test(name, test_case, metaschema, default_dialect, mode,
+                           resolver);
           });
     }
   }
@@ -226,8 +235,11 @@ register_tests(const std::filesystem::path &directory,
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  for (const auto &[name, test_case] : read_fixtures(
-           directory, FixtureKind::Trace, base_dialect, default_dialect)) {
+  const FixtureResolver resolver{directory.parent_path()};
+
+  for (const auto &[name, test_case] :
+       read_fixtures(directory, FixtureKind::Trace, base_dialect,
+                     default_dialect, resolver)) {
 
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
@@ -237,13 +249,13 @@ register_tests(const std::filesystem::path &directory,
 
       const auto title{name + "_" + mode_key};
 
-      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
-                                      [name, test_case, mode, mode_key,
-                                       metaschema, default_dialect]() -> void {
-                                        run_trace_test(name, test_case, mode,
-                                                       mode_key, metaschema,
-                                                       default_dialect);
-                                      });
+      sourcemeta::core::test_register(
+          suite_name, title, __FILE__, __LINE__,
+          [name, test_case, mode, mode_key, metaschema, default_dialect,
+           resolver]() -> void {
+            run_trace_test(name, test_case, mode, mode_key, metaschema,
+                           default_dialect, resolver);
+          });
     }
   }
 }
@@ -289,6 +301,19 @@ auto main(int argc, char **argv) -> int {
     register_tests(suite / "2019_09" / "valid", "Evaluator_trace_2019_09",
                    "https://json-schema.org/draft/2019-09/schema", "",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+
+    // The Sourcemeta extension vocabulary has a meta-schema per draft it
+    // builds on, and a fixture answers to the base dialect of the one it
+    // declares, so each of them holds its fixtures in a directory of its own.
+    // The meta-schemas themselves come from each directory's resolver
+    register_tests(suite / "sourcemeta_v1_2019_09" / "valid",
+                   "Evaluator_trace_sourcemeta_v1_2019_09",
+                   "tag:sourcemeta.com,2026:extension/v1/2019-09", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_tests(suite / "sourcemeta_v1_2020_12" / "valid",
+                   "Evaluator_trace_sourcemeta_v1_2020_12",
+                   "tag:sourcemeta.com,2026:extension/v1/2020-12", "",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
     register_error_tests(
         suite / "2019_09" / "invalid", "Evaluator_error_2019_09",
         "https://json-schema.org/draft/2019-09/schema", "",

@@ -143,6 +143,8 @@ auto main(int argc, char **argv) noexcept -> int {
   sourcemeta::core::Options options;
   options.flag("fast", {"f"});
   options.option("dialect", {"d"});
+  options.option("entrypoint", {"e"});
+  options.option("resolve-map", {});
   register_tweak_options(options);
   options.flag("fixture", {});
 
@@ -156,7 +158,8 @@ auto main(int argc, char **argv) noexcept -> int {
   const auto &positional{options.positional()};
   if (positional.size() < 2) {
     std::cerr << "Usage: " << argv[0]
-              << " [--fast] [--dialect <uri>] [--format-assertion]"
+              << " [--fast] [--dialect <uri>] [--resolve-map <file>]..."
+                 " [--entrypoint <uri-or-pointer>] [--format-assertion]"
                  " [--annotations <keyword>]... [--no-annotations]"
                  " [--fixture] <schema.json> <instance.json>\n";
     return EXIT_FAILURE;
@@ -171,6 +174,11 @@ auto main(int argc, char **argv) noexcept -> int {
                                              ? options.at("dialect").front()
                                              : ""};
 
+  const std::string_view entrypoint{options.contains("entrypoint") &&
+                                            !options.at("entrypoint").empty()
+                                        ? options.at("entrypoint").front()
+                                        : ""};
+
   try {
     const auto schema{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(0)})};
@@ -178,11 +186,34 @@ auto main(int argc, char **argv) noexcept -> int {
     // same knobs the suites can set
     const auto tweaks{tweaks_from_options(options, std::cerr)};
 
-    const auto schema_template{
-        sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                   sourcemeta::core::schema_resolver,
-                                   sourcemeta::blaze::default_schema_compiler,
-                                   mode, default_dialect, "", "", tweaks)};
+    // The schemas a file names, by the URI each answers to, which is what a
+    // suite directory's `resolver.json` holds
+    auto schemas{sourcemeta::core::JSON::make_object()};
+    if (options.contains("resolve-map")) {
+      for (const auto &path : options.at("resolve-map")) {
+        const auto document{
+            sourcemeta::core::read_json(std::filesystem::path{path})};
+        for (const auto &entry : document.as_object()) {
+          schemas.assign(entry.first, entry.second);
+        }
+      }
+    }
+
+    const auto resolver{[&schemas](const std::string_view identifier)
+                            -> sourcemeta::core::SchemaResolverResult {
+      const auto *named{
+          schemas.try_at(sourcemeta::core::JSON::StringView{identifier})};
+      if (named != nullptr) {
+        return *named;
+      }
+
+      return sourcemeta::core::schema_resolver(identifier);
+    }};
+
+    const auto schema_template{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker, resolver,
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+        entrypoint, tweaks)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 

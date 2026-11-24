@@ -1,0 +1,28 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true,
+    "x-jsonld-type": null
+  },
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "" ],
+      [ "Annotation", "/x-jsonld-type", "#/x-jsonld-type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "", true ],
+      [ true, "Annotation", "/x-jsonld-type", "#/x-jsonld-type", "", null ]
+    ],
+    "descriptions": [
+      "The sibling JSON-LD annotations were expected to override the nested annotations they shadow",
+      "The nested JSON-LD types were expected to be removed"
+    ]
+  }
+}

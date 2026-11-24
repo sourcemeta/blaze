@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-self": "https://www.iso.org/iso-4217/{this}"
+  },
+  "instance": "USD",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-self", "#/x-jsonld-self", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-self", "#/x-jsonld-self", "", "https://www.iso.org/iso-4217/{this}" ]
+    ],
+    "descriptions": [
+      "The JSON-LD identifier template was \"https://www.iso.org/iso-4217/{this}\""
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { isDeepStrictEqual } from 'node:util';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Blaze, describe as describeInstruction } from './index.mjs';
@@ -50,7 +50,8 @@ const SUITE_DEFAULT_DIALECTS = {
 // rule once the formats land
 // The verdict itself turns on how a number was written, so these cannot run
 const INTEGER_IS_LEXICAL =
-  'draft 3 and 4 read `integer` as a number written without a fractional part';
+  'draft 3 and 4, and the OpenAPI 3.0 dialect that builds on draft 4, read ' +
+  '`integer` as a number written without a fractional part';
 
 // Only the described wording differs
 const REAL_READS_AS_INTEGER =
@@ -84,9 +85,10 @@ const SKIPPED_FIXTURES = new Map([
   ['draft6/type_array_integer_string_rejects_a_big_decimal_with_a_fraction', DECIMAL_ROUNDS_AWAY],
   ['draft6/type_integer_rejects_a_big_decimal_with_a_fraction', DECIMAL_ROUNDS_AWAY],
 
-  // A schema asks for the assertion itself with `x-format-assertion`,
-  // rather than through the fixture's tweaks, so these are named one by
-  // one. Reading the schema to find out would mistake a property called
+  // A schema asks for the assertion itself, either with `x-format-assertion`
+  // or through a meta-schema that turns the format-assertion vocabulary on,
+  // rather than through the fixture's tweaks, so these are named one by one.
+  // Reading the schema to find out would mistake a property called
   // `x-format-assertion` for the keyword
   ['2019_09/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
   ['2019_09/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
@@ -96,6 +98,12 @@ const SKIPPED_FIXTURES = new Map([
   ['2020_12/x_assertion_nested_selective_valid_no_tweak', NO_FORMAT_VALIDATORS],
   ['draft7/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
   ['draft7/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['openapi_3_0/format_byte_with_x_format_assertion', NO_FORMAT_VALIDATORS],
+  ['openapi_3_1/format_uri_invalid_with_assertion_vocabulary', NO_FORMAT_VALIDATORS],
+  ['sourcemeta_v1_2019_09/format_uri_x_format_assertion_true_invalid', NO_FORMAT_VALIDATORS],
+  ['sourcemeta_v1_2019_09/format_uri_x_format_assertion_true_valid', NO_FORMAT_VALIDATORS],
+  ['sourcemeta_v1_2020_12/format_uri_x_format_assertion_true_invalid', NO_FORMAT_VALIDATORS],
+  ['sourcemeta_v1_2020_12/format_uri_x_format_assertion_true_valid', NO_FORMAT_VALIDATORS],
 
   // The older drafts ask whether a number was written with a fractional part,
   // which decides the verdict rather than only the wording. `JSON.parse` hands
@@ -139,6 +147,8 @@ const SKIPPED_FIXTURES = new Map([
   ['draft4/type_integer_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
   ['draft4/typed_closed_long_named_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
   ['draft4/typed_closed_required_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
+  ['openapi_3_0/nullable_integer_rejects_an_integral_real', INTEGER_IS_LEXICAL],
+  ['openapi_3_0/type_integer_beside_enum_rejects_an_integral_real', INTEGER_IS_LEXICAL],
 ]);
 
 // Fixtures whose describe wording this port cannot reproduce, though it agrees
@@ -214,6 +224,11 @@ for (const dialect of suiteDialects) {
     throw new Error(`No fixtures found at ${directory}`);
   }
 
+  // The schemas this directory supplies for the URIs its fixtures reference,
+  // which the C++ compiler has to be handed since this port borrows it
+  const resolverPath = join(TRACE_SUITE_PATH, dialect, 'resolver.json');
+  const resolveMap = existsSync(resolverPath) ? resolverPath : undefined;
+
   console.log(`-- Loading: ${dialect} (${fixtures.length} fixtures)`);
 
   const dialects = SUITE_DEFAULT_DIALECTS[suiteName] ?? [[null, undefined]];
@@ -224,6 +239,10 @@ for (const dialect of suiteDialects) {
         const filePath = join(directory, fixture);
         const fixtureName = basename(fixture, '.json');
         const testCase = JSON.parse(readFileSync(filePath, 'utf8'), reviver);
+        // A fixture that names a dialect of its own speaks it instead of the
+        // one its directory supplies, which is how a schema that leaves
+        // `$schema` out sits beside the ones that declare it
+        const fixtureDialect = testCase.defaultDialect ?? defaultDialect;
 
         for (const mode of ['fast', 'exhaustive']) {
           if (!testCase[mode]) continue;
@@ -237,7 +256,9 @@ for (const dialect of suiteDialects) {
             const template = compileSchema(filePath, {
               mode,
               path: '/schema',
-              defaultDialect,
+              entrypoint: testCase.entrypoint,
+              defaultDialect: fixtureDialect,
+              resolveMap,
               tweaks: testCase.tweaks
             });
 
@@ -343,7 +364,9 @@ for (const dialect of suiteDialects) {
               const template = compileSchema(filePath, {
                 mode,
                 path: '/schema',
-                defaultDialect,
+                entrypoint: testCase.entrypoint,
+                defaultDialect: fixtureDialect,
+                resolveMap,
                 tweaks: testCase.tweaks
               });
 

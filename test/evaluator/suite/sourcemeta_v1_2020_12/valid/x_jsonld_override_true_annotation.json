@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-override": true
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "", true ]
+    ],
+    "descriptions": [
+      "The sibling JSON-LD annotations were expected to override the nested annotations they shadow"
+    ]
+  }
+}

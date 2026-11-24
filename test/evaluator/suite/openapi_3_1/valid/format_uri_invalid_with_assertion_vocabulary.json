@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://example.com/openapi-3-1-format-assertion-meta",
+    "format": "uri"
+  },
+  "instance": "://bad",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid URI"
+    ]
+  }
+}

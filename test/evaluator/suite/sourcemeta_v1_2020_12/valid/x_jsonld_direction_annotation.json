@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "x-jsonld-direction": "rtl"
+  },
+  "instance": "hello",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-direction", "#/x-jsonld-direction", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-direction", "#/x-jsonld-direction", "", "rtl" ]
+    ],
+    "descriptions": [
+      "The base direction was \"rtl\""
+    ]
+  }
+}

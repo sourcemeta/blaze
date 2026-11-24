@@ -36,8 +36,19 @@ export function compileSchema(schemaPath, options) {
     args.push('--resolve-directory', options.resolveDirectory);
   }
 
+  // The schemas a suite directory supplies for the URIs its fixtures reference
+  if (options && options.resolveMap) {
+    args.push('--resolve-map', options.resolveMap);
+  }
+
   if (options && options.path) {
     args.push('--path', options.path);
+  }
+
+  // Where the schema itself starts, which is not the same question as where the
+  // schema sits in the file `--path` reads it out of
+  if (options && options.entrypoint) {
+    args.push('--entrypoint', options.entrypoint);
   }
 
   // The fixtures name compiler knobs, and this port borrows the C++ compiler,

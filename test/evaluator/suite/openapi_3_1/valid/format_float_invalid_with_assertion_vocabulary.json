@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "https://example.com/openapi-3-1-format-assertion-meta",
+    "format": "float"
+  },
+  "instance": 3.14,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 3.14 was expected to be exactly representable as an IEEE 754 single precision floating point number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 3.14 was expected to be exactly representable as an IEEE 754 single precision floating point number"
+    ]
+  }
+}

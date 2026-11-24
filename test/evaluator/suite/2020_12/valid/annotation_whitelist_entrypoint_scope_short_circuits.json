@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/top",
+    "x-test-custom": "Root",
+    "anyOf": [ { "type": "string" }, { "type": "integer" } ],
+    "$defs": {
+      "inner": {
+        "$id": "https://example.com/inner",
+        "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+      }
+    }
+  },
+  "instance": "foo",
+  "valid": true,
+  "entrypoint": "https://example.com/inner",
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "https://example.com/inner#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "https://example.com/inner#/anyOf/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "https://example.com/inner#/anyOf/0/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "https://example.com/inner#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "https://example.com/inner#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "https://example.com/inner#/anyOf/0/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "https://example.com/inner#/anyOf/1/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "https://example.com/inner#/anyOf/0/type", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "https://example.com/inner#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "https://example.com/inner#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

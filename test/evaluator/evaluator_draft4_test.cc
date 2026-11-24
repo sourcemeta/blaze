@@ -496,27 +496,6 @@ TEST(top_level_ref_with_id_exhaustive) {
   }
 }
 
-TEST(ref_2_entrypoint) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/string" } ],
-    "definitions": {
-      "string": { "type": "string" }
-    }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"foo"};
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "#/allOf/0");
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
-                     "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
-                              "#/definitions/string/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string");
-}
-
 TEST(items_integer_bounded_decimal_in_range) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",

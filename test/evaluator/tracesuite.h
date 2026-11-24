@@ -17,6 +17,49 @@
 #include <utility>          // std::pair, std::move
 #include <vector>           // std::vector
 
+// The schemas a suite directory supplies for the URIs its fixtures reference,
+// read from a `resolver.json` beside the `valid` and `invalid` directories it
+// holds. One file serves every fixture in the directory, because what these
+// hold is a dialect the fixtures speak rather than a document any one of them
+// owns. Whatever the file does not name, the default resolver answers
+class FixtureResolver {
+public:
+  explicit FixtureResolver(const std::filesystem::path &directory) {
+    const auto path{directory / "resolver.json"};
+    if (!std::filesystem::exists(path)) {
+      return;
+    }
+
+    this->schemas = sourcemeta::core::read_json(path);
+    if (!this->schemas.is_object() || this->schemas.empty()) {
+      throw std::runtime_error{
+          path.string() +
+          ": expected a non-empty object of URIs to the schemas they name"};
+    }
+
+    for (const auto &entry : this->schemas.as_object()) {
+      if (!entry.second.is_object() && !entry.second.is_boolean()) {
+        throw std::runtime_error{path.string() + ": expected `" + entry.first +
+                                 "` to name a schema"};
+      }
+    }
+  }
+
+  auto operator()(const std::string_view identifier) const
+      -> sourcemeta::core::SchemaResolverResult {
+    const auto *match{
+        this->schemas.try_at(sourcemeta::core::JSON::StringView{identifier})};
+    if (match != nullptr) {
+      return *match;
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  }
+
+private:
+  sourcemeta::core::JSON schemas{sourcemeta::core::JSON::make_object()};
+};
+
 // What a suite directory expects every fixture it holds to be. A fixture of one
 // kind left in the other kind's directory would otherwise be read as something
 // it is not
@@ -75,19 +118,55 @@ inline auto check_fixture_comment(const std::filesystem::path &path,
   }
 }
 
+// Compilation starts at the root unless a fixture says otherwise, so an
+// `entrypoint` that is present but says nothing would ask for the default in a
+// way that reads as a deliberate choice
+inline auto check_fixture_entrypoint(const std::filesystem::path &path,
+                                     const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto *entrypoint{fixture.try_at("entrypoint")};
+  if (entrypoint == nullptr) {
+    return;
+  }
+
+  if (!entrypoint->is_string() || entrypoint->empty()) {
+    throw std::runtime_error{
+        path.string() + ": expected `entrypoint` to be a non-empty string"};
+  }
+}
+
+// A directory already supplies the dialect its fixtures speak when they do not
+// say, so one that repeats that dialect says nothing, and one that is present
+// but empty asks for no dialect at all in a way that reads as a choice
+inline auto check_fixture_default_dialect(const std::filesystem::path &path,
+                                          const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto *dialect{fixture.try_at("defaultDialect")};
+  if (dialect == nullptr) {
+    return;
+  }
+
+  if (!dialect->is_string() || dialect->empty()) {
+    throw std::runtime_error{
+        path.string() + ": expected `defaultDialect` to be a non-empty string"};
+  }
+}
+
 inline auto check_fixture(const std::filesystem::path &path,
                           const FixtureKind kind,
                           const sourcemeta::core::JSON &fixture) -> void {
   if (kind == FixtureKind::Trace) {
     check_fixture_keys(path, fixture,
                        {"schema", "instance", "valid", "fast", "exhaustive"},
-                       {"comment", "tweaks"});
+                       {"comment", "defaultDialect", "entrypoint", "tweaks"});
   } else {
     check_fixture_keys(path, fixture, {"schema", "error"},
                        {"comment", "tweaks"});
   }
 
   check_fixture_comment(path, fixture);
+  check_fixture_entrypoint(path, fixture);
+  check_fixture_default_dialect(path, fixture);
 }
 
 // The compiler knobs a fixture asks for, if it asks for any. Only the knobs the
@@ -143,6 +222,25 @@ inline auto fixture_tweaks(const std::string &name,
   return tweaks;
 }
 
+// Where in the schema a fixture asks compilation to begin, which is the root
+// for every fixture that names nothing
+inline auto fixture_entrypoint(const sourcemeta::core::JSON &fixture)
+    -> sourcemeta::core::JSON::String {
+  const auto *entrypoint{fixture.try_at("entrypoint")};
+  return entrypoint == nullptr ? sourcemeta::core::JSON::String{}
+                               : entrypoint->to_string();
+}
+
+// What dialect a schema speaks when it declares none. A fixture that names one
+// overrides what its directory supplies, which is how a schema that leaves
+// `$schema` out on purpose sits beside the ones that declare it
+inline auto fixture_default_dialect(const sourcemeta::core::JSON &fixture,
+                                    const std::string &fallback)
+    -> std::string {
+  const auto *dialect{fixture.try_at("defaultDialect")};
+  return dialect == nullptr ? fallback : dialect->to_string();
+}
+
 // Hyper-schema is the same draft as the validation dialect it builds on, and a
 // suite directory holds the fixtures of either
 inline auto
@@ -172,15 +270,14 @@ validation_base_dialect(const sourcemeta::core::SchemaBaseDialect base_dialect)
 // spells, because a fixture may legitimately declare a hyper-schema, a custom
 // meta-schema that extends the dialect, or a URI that only normalisation
 // settles, and every one of those still belongs to its directory's dialect
-inline auto
-check_fixture_base_dialect(const std::filesystem::path &path,
-                           const sourcemeta::core::JSON &fixture,
-                           const sourcemeta::core::SchemaBaseDialect expected,
-                           const std::string &default_dialect) -> void {
+inline auto check_fixture_base_dialect(
+    const std::filesystem::path &path, const sourcemeta::core::JSON &fixture,
+    const sourcemeta::core::SchemaBaseDialect expected,
+    const std::string &default_dialect,
+    const sourcemeta::core::SchemaResolver &resolver) -> void {
   const sourcemeta::core::SchemaFrame frame{
       sourcemeta::core::SchemaFrame::Mode::Root, fixture.at("schema"),
-      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
-      default_dialect};
+      sourcemeta::core::schema_walker, resolver, default_dialect};
 
   const auto location{frame.root_location()};
   if (!location.has_value()) {
@@ -204,7 +301,8 @@ check_fixture_base_dialect(const std::filesystem::path &path,
 inline auto
 read_fixtures(const std::filesystem::path &directory, const FixtureKind kind,
               const sourcemeta::core::SchemaBaseDialect base_dialect,
-              const std::string &default_dialect)
+              const std::string &default_dialect,
+              const sourcemeta::core::SchemaResolver &resolver)
     -> std::vector<std::pair<std::string, sourcemeta::core::JSON>> {
   std::vector<std::filesystem::path> paths;
   for (const std::filesystem::directory_entry &entry :
@@ -227,7 +325,9 @@ read_fixtures(const std::filesystem::path &directory, const FixtureKind kind,
   for (const auto &path : paths) {
     auto fixture{sourcemeta::core::read_json(path)};
     check_fixture(path, kind, fixture);
-    check_fixture_base_dialect(path, fixture, base_dialect, default_dialect);
+    check_fixture_base_dialect(
+        path, fixture, base_dialect,
+        fixture_default_dialect(fixture, default_dialect), resolver);
     result.emplace_back(path.stem().string(), std::move(fixture));
   }
 

@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "float"
+  },
+  "instance": 3.14,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "$schema": "https://example.com/openapi-3-1-format-assertion-meta",
+    "format": "uint32"
+  },
+  "instance": 4294967296,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

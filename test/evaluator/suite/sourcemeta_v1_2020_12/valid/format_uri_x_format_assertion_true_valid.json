@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
+    "format": "uri",
+    "x-format-assertion": true
+  },
+  "instance": "https://example.com",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ],
+      [ "Annotation", "/x-format-assertion", "#/x-format-assertion", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uri" ],
+      [ true, "Annotation", "/x-format-assertion", "#/x-format-assertion", "", true ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The logical type of the instance was expected to be \"uri\"",
+      "A sibling `format` keyword was expected to be enforced as an assertion"
+    ]
+  }
+}

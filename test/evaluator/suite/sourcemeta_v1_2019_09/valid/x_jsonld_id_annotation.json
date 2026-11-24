@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+    "x-jsonld-id": "https://schema.org/name"
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-id", "#/x-jsonld-id", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-id", "#/x-jsonld-id", "", "https://schema.org/name" ]
+    ],
+    "descriptions": [
+      "The JSON-LD predicate was \"https://schema.org/name\""
+    ]
+  }
+}
