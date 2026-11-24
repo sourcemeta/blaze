@@ -1,0 +1,8 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/foo",
+    "definitions": { "foo": { "type": "string" } }
+  },
+  "error": "Cannot canonicalise a JSON Schema Draft 7 or older with a top-level `$ref` (which overrides sibling keywords) without introducing undefined behavior"
+}

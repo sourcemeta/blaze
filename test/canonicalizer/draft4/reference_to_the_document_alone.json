@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$ref": "#"
+  },
+  "expected": {
+    "allOf": [
+      {
+        "$ref": "#/definitions/0"
+      }
+    ],
+    "definitions": {
+      "0": {}
+    }
+  },
+  "examples": [
+    1,
+    "foo"
+  ],
+  "counterExamples": []
+}

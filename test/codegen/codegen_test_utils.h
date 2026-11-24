@@ -1,7 +1,30 @@
 #ifndef SOURCEMETA_BLAZE_CODEGEN_TEST_UTILS_H_
 #define SOURCEMETA_BLAZE_CODEGEN_TEST_UTILS_H_
 
+#include <cstddef> // std::size_t
+#include <string>  // std::string
+#include <variant> // std::visit
+
 // TODO: Have macros for objects and enumerations
+
+// Where the entry describing a given place in the schema sits. The order the
+// entries come in is not part of what a solution has to reproduce, and neither
+// is the set of entries nothing refers to, so a test says which place it means
+inline auto ir_index_of(const sourcemeta::blaze::CodegenIRResult &result,
+                        const std::string &pointer) -> std::size_t {
+  for (std::size_t index = 0; index < result.size(); index++) {
+    const auto &current{std::visit(
+        [](const auto &entity) -> const sourcemeta::core::Pointer & {
+          return entity.pointer;
+        },
+        result.at(index))};
+    if (sourcemeta::core::to_string(current) == pointer) {
+      return index;
+    }
+  }
+
+  return result.size();
+}
 
 #define EXPECT_AS_STRING(actual, expected)                                     \
   EXPECT_EQ(sourcemeta::core::to_string(actual), expected)
@@ -9,7 +32,16 @@
 #define EXPECT_SYMBOL(actual, ...)                                             \
   EXPECT_EQ(actual, (std::vector<std::string>{__VA_ARGS__}))
 
+// Nothing in the result stands for the given place
+#define EXPECT_IR_NOTHING(result, expected_pointer)                            \
+  EXPECT_EQ(ir_index_of(result, expected_pointer), result.size())
+
+// A place the result does not stand for would otherwise go out of range, which
+// says nothing of the place a test went looking for
+#define EXPECT_IR_SOMEWHERE(result, index) EXPECT_NE(index, result.size())
+
 #define EXPECT_IR_SCALAR(result, index, scalar_type, expected_pointer)         \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRScalar>(      \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
@@ -20,6 +52,7 @@
       sourcemeta::blaze::CodegenIRScalarType::scalar_type)
 
 #define EXPECT_IR_IMPOSSIBLE(result, index, expected_pointer)                  \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRImpossible>(  \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
@@ -28,6 +61,7 @@
       expected_pointer)
 
 #define EXPECT_IR_ANY(result, index, expected_pointer)                         \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRAny>(         \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
@@ -36,6 +70,7 @@
 
 #define EXPECT_IR_ARRAY(result, index, expected_pointer,                       \
                         expected_items_pointer)                                \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRArray>(       \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
@@ -50,6 +85,7 @@
 
 #define EXPECT_IR_INTERSECTION(result, index, expected_pointer,                \
                                expected_count)                                 \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(                                                                 \
       std::holds_alternative<sourcemeta::blaze::CodegenIRIntersection>(        \
           result.at(index)));                                                  \
@@ -64,6 +100,7 @@
 
 #define EXPECT_IR_CONDITIONAL(result, index, expected_pointer, expected_if,    \
                               expected_then, expected_else)                    \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRConditional>( \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \
@@ -85,6 +122,7 @@
 
 #define EXPECT_IR_REFERENCE(result, index, expected_pointer,                   \
                             expected_target_pointer)                           \
+  EXPECT_IR_SOMEWHERE(result, index);                                          \
   EXPECT_TRUE(std::holds_alternative<sourcemeta::blaze::CodegenIRReference>(   \
       result.at(index)));                                                      \
   EXPECT_AS_STRING(                                                            \

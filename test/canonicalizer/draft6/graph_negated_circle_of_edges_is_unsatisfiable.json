@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      {
+        "$ref": "#/definitions/a"
+      }
+    ],
+    "definitions": {
+      "a": {
+        "not": {
+          "$ref": "#/definitions/b"
+        }
+      },
+      "b": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/c"
+          },
+          {
+            "$ref": "#/definitions/c"
+          }
+        ]
+      },
+      "c": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/b"
+          },
+          {
+            "$ref": "#/definitions/b"
+          }
+        ]
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [
+      {
+        "$ref": "#/definitions/0"
+      }
+    ],
+    "definitions": {
+      "0": {
+        "not": {
+          "$ref": "#/definitions/1"
+        }
+      },
+      "1": true
+    }
+  },
+  "examples": [],
+  "counterExamples": []
+}

@@ -1,0 +1,47 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": {
+      "a": { "$ref": "#/definitions/b" },
+      "b": { "$ref": "#/definitions/a" }
+    },
+    "properties": { "foo": { "$ref": "#/definitions/a" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "anyOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" },
+          { "$ref": "#/definitions/3" },
+          { "$ref": "#/definitions/5" },
+          { "$ref": "#/definitions/6" },
+          { "$ref": "#/definitions/7" }
+        ]
+      },
+      "1": { "enum": [ null ] },
+      "2": { "enum": [ false, true ] },
+      "3": {
+        "type": "object",
+        "properties": { "foo": { "$ref": "#/definitions/4" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/4" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/4" }
+      },
+      "4": true,
+      "5": {
+        "type": "array",
+        "uniqueItems": false,
+        "items": { "$ref": "#/definitions/4" },
+        "minItems": 0
+      },
+      "6": { "type": "string", "minLength": 0 },
+      "7": { "type": "number" }
+    }
+  },
+  "examples": [],
+  "counterExamples": []
+}

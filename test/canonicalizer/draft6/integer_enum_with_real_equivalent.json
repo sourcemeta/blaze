@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "integer",
+    "enum": [ 3, 3.0, "hello" ]
+  },
+  "invalidSchema": true,
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "allOf": [
+          { "$ref": "#/definitions/1" },
+          { "$ref": "#/definitions/2" }
+        ]
+      },
+      "1": { "multipleOf": 1, "type": "integer" },
+      "2": { "enum": [ 3 ] }
+    }
+  },
+  "examples": [ 3 ],
+  "counterExamples": [ null, true, 0, 4, 3.5, "hello", [], {} ]
+}

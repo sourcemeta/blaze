@@ -1,0 +1,14 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/a" } ],
+    "definitions": { "a": { "$ref": "#/definitions/b" }, "b": { "$ref": "#" } }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "extends": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": {} }
+  },
+  "examples": [ null, true, 1, 1.5, "x", [], {} ],
+  "counterExamples": []
+}

@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$ref": "https://example.com/other.json"
+  },
+  "expected": {
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": { "$ref": "https://example.com/other.json" }
+    }
+  },
+  "examples": [ "foo" ],
+  "counterExamples": [ 1 ]
+}

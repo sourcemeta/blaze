@@ -1,0 +1,20 @@
+{
+  "schema": false,
+  "expected": false,
+  "examples": [],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    -1,
+    1.5,
+    "",
+    "x",
+    [],
+    [ 1 ],
+    {},
+    { "a": 1 }
+  ]
+}
