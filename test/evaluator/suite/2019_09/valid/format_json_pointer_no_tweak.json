@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "json-pointer"
+  },
+  "instance": "no-leading-slash",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/format", "#/format", "", "json-pointer" ]
+    ],
+    "descriptions": [
+      "The logical type of the instance was expected to be \"json-pointer\""
+    ]
+  }
+}

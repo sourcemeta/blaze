@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  },
+  "instance": "abc",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to consist of at least 2 characters and its length was 3"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/minLength", "#/minLength", "" ],
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"abc\" was expected to consist of at least 2 characters and its length was 3",
+      "The value was expected to be of type null, boolean, number, string, array, or object and it was of type string"
+    ]
+  }
+}

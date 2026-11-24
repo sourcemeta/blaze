@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "relaxed": { "format": "uri" },
+      "strict": { "format": "uri", "x-format-assertion": true }
+    }
+  },
+  "instance": { "relaxed": "://bad", "strict": "://bad" },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties", "#/properties", "", "relaxed" ],
+      [ false, "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"relaxed\" successfully validated against its property subschema",
+      "The string value \"://bad\" was expected to represent a valid URI",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

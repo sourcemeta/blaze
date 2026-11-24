@@ -1,0 +1,46 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "baz": { "type": "integer" } },
+    "additionalProperties": { "type": "integer" }
+  },
+  "instance": { "bar": 2, "foo": 1 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/bar" ],
+      [ true, "AssertionTypeStrict", "/additionalProperties/type", "#/additionalProperties/type", "/foo" ],
+      [ true, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema"
+    ]
+  }
+}

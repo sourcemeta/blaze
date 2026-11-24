@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "propertyNames": { "minLength": 3 }
+  },
+  "instance": { "foo": 1, "bar": 2 },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/foo" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/foo" ],
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to consist of at least 3 characters and its length was 3",
+      "The property name \"bar\" was expected to consist of at least 3 characters and its length was 3",
+      "The object value was expected to validate the property names \"foo\", and \"bar\" against the given subschema",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/foo" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/foo" ],
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The property name \"foo\" was expected to consist of at least 3 characters and its length was 3",
+      "The property name \"bar\" was expected to consist of at least 3 characters and its length was 3",
+      "The object value was expected to validate the property names \"foo\", and \"bar\" against the given subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

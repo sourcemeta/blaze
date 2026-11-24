@@ -401,6 +401,23 @@ auto walk_up_in_place_applicators_across_references(
   return false;
 }
 
+// `x-format-assertion` only ever speaks about a `format` written in the same
+// schema object, so a rule that hands `format` to another object has to hand
+// this one over with it. Parting them turns an assertion back into an
+// annotation, and the schema that comes out accepts what the one going in
+// refuses
+inline auto carry_format_assertion(const sourcemeta::core::JSON &from,
+                                   sourcemeta::core::JSON &into) -> void {
+  if (!from.is_object() || !into.is_object() || !into.defines("format")) {
+    return;
+  }
+
+  const auto *assertion{from.try_at("x-format-assertion")};
+  if (assertion != nullptr) {
+    into.assign("x-format-assertion", *assertion);
+  }
+}
+
 #define ONLY_CONTINUE_IF(condition)                                            \
   if (!(condition)) {                                                          \
     return false;                                                              \

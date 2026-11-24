@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "integer",
+    "enum": [ 1, 2 ]
+  },
+  "instance": 1.0,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.0 was expected to equal one of the 2 declared values",
+      "The value was expected to be of type integer but it was of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionEqualsAny", "/enum", "#/enum", "" ],
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.0 was expected to equal one of the 2 declared values",
+      "The value was expected to be of type integer but it was of type number"
+    ]
+  }
+}

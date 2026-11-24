@@ -68,6 +68,7 @@ public:
         }
       }
 
+      carry_format_assertion(schema, branch);
       disjunctors.push_back(std::move(branch));
       branch_index++;
     }
