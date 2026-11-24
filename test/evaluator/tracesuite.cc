@@ -40,8 +40,7 @@ namespace {
 
 // Compiling a meta-schema is expensive, so each one is compiled on first use
 // and reused for every case in its suite
-auto metaschema_template(const std::string &uri,
-                         const sourcemeta::core::SchemaResolver &resolver)
+auto metaschema_template(const std::string &uri)
     -> const sourcemeta::blaze::Template & {
   static std::map<std::string, sourcemeta::blaze::Template> cache;
   const auto match{cache.find(uri)};
@@ -49,12 +48,13 @@ auto metaschema_template(const std::string &uri,
     return match->second;
   }
 
-  const auto metaschema{resolver(uri)};
+  const auto metaschema{sourcemeta::core::schema_resolver(uri)};
   assert(metaschema.has_value());
   return cache
       .emplace(uri, sourcemeta::blaze::compile(
                         metaschema.value(), sourcemeta::core::schema_walker,
-                        resolver, sourcemeta::blaze::default_schema_compiler,
+                        sourcemeta::core::schema_resolver,
+                        sourcemeta::blaze::default_schema_compiler,
                         sourcemeta::blaze::Mode::FastValidation))
       .first->second;
 }
@@ -63,21 +63,38 @@ auto metaschema_template(const std::string &uri,
 // must agree with this: a schema the meta-schema accepts must compile, and one
 // it rejects must not
 auto matches_metaschema(const std::string &uri,
-                        const sourcemeta::core::JSON &schema,
-                        const sourcemeta::core::SchemaResolver &resolver)
-    -> bool {
+                        const sourcemeta::core::JSON &fixture) -> bool {
+  const auto &schema{fixture.at("schema")};
   sourcemeta::blaze::Evaluator evaluator;
-  return evaluator.validate(metaschema_template(uri, resolver), schema);
+
+  // A fixture that supplies the meta-schema itself stands outside the cache,
+  // because another fixture may answer the same URI with another document.
+  // Where it supplies nothing for this URI, the default resolver is what
+  // answers, so the compiled template is the same for every fixture
+  const auto *resolve{fixture.try_at("resolve")};
+  if (resolve == nullptr || !resolve->defines(uri)) {
+    return evaluator.validate(metaschema_template(uri), schema);
+  }
+
+  const FixtureResolver resolver{fixture};
+  const auto metaschema{resolver(uri)};
+  assert(metaschema.has_value());
+  return evaluator.validate(
+      sourcemeta::blaze::compile(metaschema.value(),
+                                 sourcemeta::core::schema_walker, resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation),
+      schema);
 }
 
 auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const sourcemeta::blaze::Mode mode, const char *mode_key,
                     const std::string &metaschema,
-                    const std::string &directory_dialect,
-                    const sourcemeta::core::SchemaResolver &resolver) -> void {
+                    const std::string &directory_dialect) -> void {
   const auto default_dialect{fixture_default_dialect(data, directory_dialect)};
+  const FixtureResolver resolver{data};
   const auto &schema{data.at("schema")};
-  EXPECT_TRUE(matches_metaschema(metaschema, schema, resolver));
+  EXPECT_TRUE(matches_metaschema(metaschema, data));
 
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
@@ -167,10 +184,10 @@ auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
 auto run_error_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const std::string &metaschema,
                     const std::string &default_dialect,
-                    const sourcemeta::blaze::Mode mode,
-                    const sourcemeta::core::SchemaResolver &resolver) -> void {
+                    const sourcemeta::blaze::Mode mode) -> void {
   const auto &expected{data.at("error")};
-  EXPECT_FALSE(matches_metaschema(metaschema, data.at("schema"), resolver));
+  const FixtureResolver resolver{data};
+  EXPECT_FALSE(matches_metaschema(metaschema, data));
 
   try {
     sourcemeta::blaze::compile(data.at("schema"),
@@ -203,11 +220,8 @@ static auto register_error_tests(
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  const FixtureResolver resolver{directory.parent_path()};
-
-  for (const auto &[name, test_case] :
-       read_fixtures(directory, FixtureKind::Error, base_dialect,
-                     default_dialect, resolver)) {
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Error, base_dialect, default_dialect)) {
 
     // Whether a schema is well-formed is a property of its dialect rather than
     // of the mode it compiles in, so both modes have to refuse the same ones
@@ -218,10 +232,8 @@ static auto register_error_tests(
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
       sourcemeta::core::test_register(
           suite_name, name + mode_suffix, __FILE__, __LINE__,
-          [name, test_case, metaschema, default_dialect, mode,
-           resolver]() -> void {
-            run_error_test(name, test_case, metaschema, default_dialect, mode,
-                           resolver);
+          [name, test_case, metaschema, default_dialect, mode]() -> void {
+            run_error_test(name, test_case, metaschema, default_dialect, mode);
           });
     }
   }
@@ -235,11 +247,8 @@ register_tests(const std::filesystem::path &directory,
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  const FixtureResolver resolver{directory.parent_path()};
-
-  for (const auto &[name, test_case] :
-       read_fixtures(directory, FixtureKind::Trace, base_dialect,
-                     default_dialect, resolver)) {
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Trace, base_dialect, default_dialect)) {
 
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
@@ -249,13 +258,13 @@ register_tests(const std::filesystem::path &directory,
 
       const auto title{name + "_" + mode_key};
 
-      sourcemeta::core::test_register(
-          suite_name, title, __FILE__, __LINE__,
-          [name, test_case, mode, mode_key, metaschema, default_dialect,
-           resolver]() -> void {
-            run_trace_test(name, test_case, mode, mode_key, metaschema,
-                           default_dialect, resolver);
-          });
+      sourcemeta::core::test_register(suite_name, title, __FILE__, __LINE__,
+                                      [name, test_case, mode, mode_key,
+                                       metaschema, default_dialect]() -> void {
+                                        run_trace_test(name, test_case, mode,
+                                                       mode_key, metaschema,
+                                                       default_dialect);
+                                      });
     }
   }
 }

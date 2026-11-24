@@ -32,27 +32,6 @@ static auto parse_resolve_directory(const std::string_view value)
                    std::filesystem::path{value.substr(comma + 1)}};
 }
 
-// The schemas a file names, by the URI each one answers to. This is what a
-// suite directory's `resolver.json` holds, so the same file serves the C++
-// suites and whatever borrows the compiler through this tool
-static auto read_resolve_maps(const std::vector<std::string> &paths)
-    -> sourcemeta::core::JSON {
-  auto schemas{sourcemeta::core::JSON::make_object()};
-  for (const auto &path : paths) {
-    const auto document{
-        sourcemeta::core::read_json(std::filesystem::path{path})};
-    if (!document.is_object()) {
-      throw sourcemeta::core::JSONParseError{1, 1};
-    }
-
-    for (const auto &entry : document.as_object()) {
-      schemas.assign(entry.first, entry.second);
-    }
-  }
-
-  return schemas;
-}
-
 static auto resolve_schema(const std::string_view identifier,
                            const ResolveDirectories &resolve_directories,
                            const sourcemeta::core::JSON &schemas)
@@ -96,7 +75,7 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
   options.option("entrypoint", {"e"});
-  options.option("resolve-map", {});
+  options.option("resolve-path", {});
   register_tweak_options(options);
 
   try {
@@ -111,7 +90,7 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
-                 "[--resolve-map <file>]... "
+                 "[--resolve-path <pointer>] "
                  "[--path <pointer>] [--entrypoint <uri-or-pointer>] "
                  "[--format-assertion] "
                  "[--annotations <keyword>]... [--no-annotations] "
@@ -162,21 +141,34 @@ auto main(int argc, char **argv) noexcept -> int {
       }
     }
 
-    const auto schemas{read_resolve_maps(
-        options.contains("resolve-map")
-            ? std::vector<std::string>{options.at("resolve-map").cbegin(),
-                                       options.at("resolve-map").cend()}
-            : std::vector<std::string>{})};
+    auto document{
+        sourcemeta::core::read_json(std::filesystem::path{positional.front()})};
+    std::cerr << "Input: " << positional.front() << "\n";
+
+    // The schemas the input itself supplies for the URIs its schema reaches
+    // for, named by a pointer the way `--path` names the schema. Read before
+    // `--path` narrows the document to the schema alone
+    auto schemas{sourcemeta::core::JSON::make_object()};
+    if (options.contains("resolve-path")) {
+      const auto pointer{
+          sourcemeta::core::to_pointer(options.at("resolve-path").front())};
+      const auto *result{sourcemeta::core::try_get(document, pointer)};
+      if (result != nullptr) {
+        if (!result->is_object()) {
+          std::cerr << "error: expected an object of URIs to schemas at: "
+                    << options.at("resolve-path").front() << "\n";
+          return EXIT_FAILURE;
+        }
+
+        schemas = *result;
+      }
+    }
 
     const auto resolver{
         [&resolve_directories, &schemas](const std::string_view identifier)
             -> sourcemeta::core::SchemaResolverResult {
           return resolve_schema(identifier, resolve_directories, schemas);
         }};
-
-    auto document{
-        sourcemeta::core::read_json(std::filesystem::path{positional.front()})};
-    std::cerr << "Input: " << positional.front() << "\n";
 
     if (options.contains("path")) {
       const auto pointer{

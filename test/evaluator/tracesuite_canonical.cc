@@ -31,9 +31,8 @@ auto declared_dialect(const sourcemeta::core::JSON &schema)
 auto run_canonicalize_test(const std::string &name,
                            const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode,
-                           const std::string &default_dialect,
-                           const sourcemeta::core::SchemaResolver &resolver)
-    -> void {
+                           const std::string &default_dialect) -> void {
+  const FixtureResolver resolver{data};
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
@@ -75,11 +74,8 @@ register_tests(const std::filesystem::path &directory,
   // NOLINTNEXTLINE(modernize-use-std-print)
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
-  const FixtureResolver resolver{directory.parent_path()};
-
-  for (const auto &[name, test_case] :
-       read_fixtures(directory, FixtureKind::Trace, base_dialect,
-                     default_dialect, resolver)) {
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Trace, base_dialect, default_dialect)) {
     // An entrypoint names a place inside the document as it was written, and
     // canonicalisation is free to restructure what it finds: it renumbers the
     // definitions it rewrites, and drops a subschema nothing refers to. What
@@ -99,9 +95,8 @@ register_tests(const std::filesystem::path &directory,
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
       sourcemeta::core::test_register(
           suite_name, name + mode_suffix, __FILE__, __LINE__,
-          [name, test_case, mode, default_dialect, resolver]() -> void {
-            run_canonicalize_test(name, test_case, mode, default_dialect,
-                                  resolver);
+          [name, test_case, mode, default_dialect]() -> void {
+            run_canonicalize_test(name, test_case, mode, default_dialect);
           });
     }
   }

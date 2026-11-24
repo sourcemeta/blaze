@@ -17,31 +17,15 @@
 #include <utility>          // std::pair, std::move
 #include <vector>           // std::vector
 
-// The schemas a suite directory supplies for the URIs its fixtures reference,
-// read from a `resolver.json` beside the `valid` and `invalid` directories it
-// holds. One file serves every fixture in the directory, because what these
-// hold is a dialect the fixtures speak rather than a document any one of them
-// owns. Whatever the file does not name, the default resolver answers
+// The schemas a fixture supplies for the URIs its own schema reaches for, so
+// that reviewing one fixture means reading one file. Whatever it does not
+// name, the default resolver answers
 class FixtureResolver {
 public:
-  explicit FixtureResolver(const std::filesystem::path &directory) {
-    const auto path{directory / "resolver.json"};
-    if (!std::filesystem::exists(path)) {
-      return;
-    }
-
-    this->schemas = sourcemeta::core::read_json(path);
-    if (!this->schemas.is_object() || this->schemas.empty()) {
-      throw std::runtime_error{
-          path.string() +
-          ": expected a non-empty object of URIs to the schemas they name"};
-    }
-
-    for (const auto &entry : this->schemas.as_object()) {
-      if (!entry.second.is_object() && !entry.second.is_boolean()) {
-        throw std::runtime_error{path.string() + ": expected `" + entry.first +
-                                 "` to name a schema"};
-      }
+  explicit FixtureResolver(const sourcemeta::core::JSON &fixture) {
+    const auto *entry{fixture.try_at("resolve")};
+    if (entry != nullptr) {
+      this->schemas = *entry;
     }
   }
 
@@ -152,13 +136,39 @@ inline auto check_fixture_default_dialect(const std::filesystem::path &path,
   }
 }
 
+// The default resolver already answers for every official URI, so a `resolve`
+// that is present names something it does not, and one that is empty asks for
+// nothing in a way that reads as a deliberate choice
+inline auto check_fixture_resolve(const std::filesystem::path &path,
+                                  const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto *resolve{fixture.try_at("resolve")};
+  if (resolve == nullptr) {
+    return;
+  }
+
+  if (!resolve->is_object() || resolve->empty()) {
+    throw std::runtime_error{
+        path.string() +
+        ": expected `resolve` to be a non-empty object of URIs to schemas"};
+  }
+
+  for (const auto &entry : resolve->as_object()) {
+    if (!entry.second.is_object() && !entry.second.is_boolean()) {
+      throw std::runtime_error{path.string() +
+                               ": expected `resolve` to name a schema for `" +
+                               entry.first + "`"};
+    }
+  }
+}
+
 inline auto check_fixture(const std::filesystem::path &path,
                           const FixtureKind kind,
                           const sourcemeta::core::JSON &fixture) -> void {
   if (kind == FixtureKind::Trace) {
-    check_fixture_keys(path, fixture,
-                       {"schema", "instance", "valid", "fast", "exhaustive"},
-                       {"comment", "defaultDialect", "entrypoint", "tweaks"});
+    check_fixture_keys(
+        path, fixture, {"schema", "instance", "valid", "fast", "exhaustive"},
+        {"comment", "defaultDialect", "entrypoint", "resolve", "tweaks"});
   } else {
     check_fixture_keys(path, fixture, {"schema", "error"},
                        {"comment", "tweaks"});
@@ -167,6 +177,7 @@ inline auto check_fixture(const std::filesystem::path &path,
   check_fixture_comment(path, fixture);
   check_fixture_entrypoint(path, fixture);
   check_fixture_default_dialect(path, fixture);
+  check_fixture_resolve(path, fixture);
 }
 
 // The compiler knobs a fixture asks for, if it asks for any. Only the knobs the
@@ -301,8 +312,7 @@ inline auto check_fixture_base_dialect(
 inline auto
 read_fixtures(const std::filesystem::path &directory, const FixtureKind kind,
               const sourcemeta::core::SchemaBaseDialect base_dialect,
-              const std::string &default_dialect,
-              const sourcemeta::core::SchemaResolver &resolver)
+              const std::string &default_dialect)
     -> std::vector<std::pair<std::string, sourcemeta::core::JSON>> {
   std::vector<std::filesystem::path> paths;
   for (const std::filesystem::directory_entry &entry :
@@ -327,7 +337,8 @@ read_fixtures(const std::filesystem::path &directory, const FixtureKind kind,
     check_fixture(path, kind, fixture);
     check_fixture_base_dialect(
         path, fixture, base_dialect,
-        fixture_default_dialect(fixture, default_dialect), resolver);
+        fixture_default_dialect(fixture, default_dialect),
+        FixtureResolver{fixture});
     result.emplace_back(path.stem().string(), std::move(fixture));
   }
 

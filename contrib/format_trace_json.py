@@ -19,8 +19,8 @@ import sys
 MAX_LINE_LENGTH = 80
 
 TRACE_ENTRY_KEYS = (
-    "comment", "description", "schema", "instance", "valid", "defaultDialect",
-    "entrypoint", "tweaks", "fast", "exhaustive"
+    "comment", "description", "schema", "resolve", "instance", "valid",
+    "defaultDialect", "entrypoint", "tweaks", "fast", "exhaustive"
 )
 ERROR_ENTRY_KEYS = ("comment", "description", "schema", "tweaks", "error")
 
@@ -232,30 +232,11 @@ def format_test_entry(test, indent_level):
     return "\n".join(lines)
 
 
-def format_resolver(schemas):
-    """Format a suite directory's resolver, one URI to a schema per entry."""
-    entries = list(schemas.items())
-    lines = ["{"]
-    for index, (uri, schema) in enumerate(entries):
-        comma = "," if index < len(entries) - 1 else ""
-        formatted = format_json_value(schema, 1)
-        lines.append(f"  {json.dumps(uri)}: {formatted}{comma}")
-    lines.append("}")
-    return "\n".join(lines) + "\n"
-
-
 def format_file(filepath):
     """Format a trace JSON test file in place."""
     with open(filepath) as handle:
         data = json.load(handle, parse_float=RawNumber,
                          parse_int=RawNumber)
-
-    # A suite directory's resolver sits beside the fixtures rather than among
-    # them, and holds the schemas their URIs name rather than a test entry
-    if pathlib.Path(filepath).name == "resolver.json":
-        with open(filepath, "w") as handle:
-            handle.write(format_resolver(data))
-        return
 
     if isinstance(data, list):
         entries = [format_test_entry(test, 1) for test in data]

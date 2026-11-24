@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { isDeepStrictEqual } from 'node:util';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Blaze, describe as describeInstruction } from './index.mjs';
@@ -224,11 +224,6 @@ for (const dialect of suiteDialects) {
     throw new Error(`No fixtures found at ${directory}`);
   }
 
-  // The schemas this directory supplies for the URIs its fixtures reference,
-  // which the C++ compiler has to be handed since this port borrows it
-  const resolverPath = join(TRACE_SUITE_PATH, dialect, 'resolver.json');
-  const resolveMap = existsSync(resolverPath) ? resolverPath : undefined;
-
   console.log(`-- Loading: ${dialect} (${fixtures.length} fixtures)`);
 
   const dialects = SUITE_DEFAULT_DIALECTS[suiteName] ?? [[null, undefined]];
@@ -258,7 +253,7 @@ for (const dialect of suiteDialects) {
               path: '/schema',
               entrypoint: testCase.entrypoint,
               defaultDialect: fixtureDialect,
-              resolveMap,
+              resolvePath: testCase.resolve === undefined ? undefined : '/resolve',
               tweaks: testCase.tweaks
             });
 
@@ -366,7 +361,7 @@ for (const dialect of suiteDialects) {
                 path: '/schema',
                 entrypoint: testCase.entrypoint,
                 defaultDialect: fixtureDialect,
-                resolveMap,
+                resolvePath: testCase.resolve === undefined ? undefined : '/resolve',
                 tweaks: testCase.tweaks
               });
 

@@ -36,9 +36,10 @@ export function compileSchema(schemaPath, options) {
     args.push('--resolve-directory', options.resolveDirectory);
   }
 
-  // The schemas a suite directory supplies for the URIs its fixtures reference
-  if (options && options.resolveMap) {
-    args.push('--resolve-map', options.resolveMap);
+  // Where in the same file the schemas it supplies for the URIs it references
+  // are, named the way `--path` names the schema
+  if (options && options.resolvePath) {
+    args.push('--resolve-path', options.resolvePath);
   }
 
   if (options && options.path) {
