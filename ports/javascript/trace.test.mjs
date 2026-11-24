@@ -57,29 +57,11 @@ const REAL_READS_AS_INTEGER =
   'a real written with a zero fractional part is indistinguishable from an ' +
   'integer here';
 
-// A schema turns `format` into an assertion for itself with
-// `x-format-assertion`, wherever in the schema that sits, so asking the
-// fixture's tweaks alone would miss it
-function asksForFormatAssertion(schema) {
-  if (Array.isArray(schema)) {
-    return schema.some(asksForFormatAssertion);
-  }
-
-  if (schema === null || typeof schema !== 'object') {
-    return false;
-  }
-
-  if (schema['x-format-assertion'] === true) {
-    return true;
-  }
-
-  return Object.values(schema).some(asksForFormatAssertion);
-}
+const NO_FORMAT_VALIDATORS = 'this port carries no string format validators';
 
 function skippedByRule(testCase) {
-  if ((testCase.tweaks && testCase.tweaks.formatAssertion) ||
-    asksForFormatAssertion(testCase.schema)) {
-    return 'this port carries no string format validators';
+  if (testCase.tweaks && testCase.tweaks.formatAssertion) {
+    return NO_FORMAT_VALIDATORS;
   }
 
   return null;
@@ -91,6 +73,19 @@ const SKIPPED_FIXTURES = new Map([
   // number is a double, and while the reviver recovers a truncated integer as a
   // `BigInt`, it has no such answer for a real, so those fixtures carry values
   // this port cannot represent at all
+
+  // A schema asks for the assertion itself with `x-format-assertion`,
+  // rather than through the fixture's tweaks, so these are named one by
+  // one. Reading the schema to find out would mistake a property called
+  // `x-format-assertion` for the keyword
+  ['2019_09/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2019_09/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/x_assertion_nested_selective_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/x_assertion_nested_selective_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['draft7/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['draft7/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
 
   // The older drafts ask whether a number was written with a fractional part,
   // which decides the verdict rather than only the wording. `JSON.parse` hands
