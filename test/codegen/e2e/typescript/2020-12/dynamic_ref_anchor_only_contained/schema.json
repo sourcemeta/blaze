@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/root",
+  "$dynamicAnchor": "node",
+  "type": "object",
+  "properties": {
+    "child": { "$dynamicRef": "#node" },
+    "list": {
+      "type": "array",
+      "contains": { "$ref": "leaf" }
+    }
+  },
+  "$defs": {
+    "Leaf": {
+      "$id": "leaf",
+      "$dynamicAnchor": "node",
+      "type": "string"
+    }
+  }
+}

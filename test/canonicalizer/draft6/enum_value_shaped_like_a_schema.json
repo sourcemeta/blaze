@@ -1,0 +1,26 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "enum": [ { "$ref": "#", "not": false } ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "enum": [ { "$ref": "#", "not": false } ] } }
+  },
+  "examples": [ { "$ref": "#", "not": false } ],
+  "counterExamples": [
+    null,
+    true,
+    false,
+    0,
+    1,
+    "",
+    "a",
+    [],
+    {},
+    { "$ref": "#" },
+    { "not": false },
+    { "$ref": "#", "not": true }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "const": false
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "enum": [ false ] } }
+  },
+  "examples": [ false ],
+  "counterExamples": [
+    null,
+    true,
+    0,
+    1,
+    "",
+    "a",
+    [],
+    [ false ],
+    {},
+    { "a": false }
+  ]
+}

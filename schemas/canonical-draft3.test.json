@@ -3921,6 +3921,23 @@
           }
         }
       }
+    },
+    {
+      "description": "A document without the entry its wrapper names is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-03/schema#",
+        "extends": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "1": {
+            "enum": [ 1, 2, 3 ]
+          }
+        }
+      }
     }
   ]
 }

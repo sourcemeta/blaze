@@ -3989,6 +3989,66 @@
           }
         }
       }
+    },
+    {
+      "description": "A document without the entry its wrapper names is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry that is only a reference to the document is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": "#"
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
+    },
+    {
+      "description": "An entry that is only a reference to the document without a fragment is rejected",
+      "valid": false,
+      "data": {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "allOf": [
+          {
+            "$ref": "#/definitions/0"
+          }
+        ],
+        "definitions": {
+          "0": {
+            "$ref": ""
+          },
+          "1": {
+            "type": "string",
+            "minLength": 0
+          }
+        }
+      }
     }
   ]
 }

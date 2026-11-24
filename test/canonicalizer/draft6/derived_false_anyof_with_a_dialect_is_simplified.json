@@ -1,0 +1,21 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "anyOf": [
+      { "type": "string" },
+      {
+        "$id": "https://example.com/child.json",
+        "$schema": "http://json-schema.org/draft-06/schema#",
+        "type": "integer",
+        "enum": [ "x" ]
+      }
+    ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "type": "string", "minLength": 0 } }
+  },
+  "examples": [ "", "x" ],
+  "counterExamples": [ null, true, 0, 1.5, [], {} ]
+}

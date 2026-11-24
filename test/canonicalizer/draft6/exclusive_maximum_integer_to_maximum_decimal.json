@@ -15,6 +15,6 @@
       }
     }
   },
-  "examples": [],
-  "counterExamples": []
+  "examples": [ 1.0e399, 0 ],
+  "counterExamples": [ 1.0e400, 1.0e401 ]
 }

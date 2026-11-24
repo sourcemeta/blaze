@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+      "foo": {
+        "$id": "https://example.com/embedded",
+        "type": "object",
+        "properties": { "bar": { "$ref": "#" } }
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "foo": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": {
+        "type": "object",
+        "properties": { "bar": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      }
+    }
+  },
+  "examples": [ {}, { "a": 1 }, { "foo": {} }, { "foo": { "bar": {} } }, { "foo": { "bar": { "bar": { "bar": {} } } } } ],
+  "counterExamples": [ null, "x", 1, [], { "foo": 1 }, { "foo": { "bar": 1 } }, { "foo": { "bar": { "bar": "x" } } } ]
+}
