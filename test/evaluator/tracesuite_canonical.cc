@@ -10,12 +10,10 @@
 #include "evaluator_utils.h"
 #include "tracesuite.h"
 
-#include <cstdio>      // std::fprintf
-#include <filesystem>  // std::filesystem::path
-#include <set>         // std::set
-#include <string>      // std::string
-#include <string_view> // std::string_view
-#include <utility>     // std::pair
+#include <cstdio>     // std::fprintf
+#include <filesystem> // std::filesystem::path
+#include <string>     // std::string
+#include <utility>    // std::pair
 
 namespace {
 auto declared_dialect(const sourcemeta::core::JSON &schema)
@@ -33,15 +31,10 @@ auto declared_dialect(const sourcemeta::core::JSON &schema)
 auto run_canonicalize_test(const std::string &name,
                            const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode,
-                           const std::string &default_dialect,
-                           const bool assertion_lost) -> void {
+                           const std::string &default_dialect) -> void {
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
-  // Where canonicalisation loses the assertion, what comes out accepts what
-  // the schema going in refuses. Asserting that, rather than leaving the case
-  // unregistered, keeps the gap in the output and turns the day it is fixed
-  // into a failure that says so
-  const bool expected_valid{data.at("valid").to_boolean() != assertion_lost};
+  const bool expected_valid{data.at("valid").to_boolean()};
 
   // Canonicalisation can collapse an unsatisfiable schema into a boolean,
   // which has no room for the dialect the document declares, so hold on to
@@ -71,33 +64,6 @@ auto run_canonicalize_test(const std::string &name,
     EXPECT_FALSE(result);
   }
 }
-
-// Canonicalisation turns a schema with no `type` into a union over every type,
-// and decides which branch keeps a keyword from the types that keyword applies
-// to. A numeric OpenAPI `format` is answered as applying to strings alone, so
-// it lands on the string branch while the numeric one is left unconstrained,
-// and the schema that comes out accepts numbers the schema going in refuses.
-//
-// These fixtures are what catches that, so they are named here rather than
-// weakened. They still run in the trace suite, which compiles the schema as
-// written, so what they assert is not going uncovered. OpenAPI 3.0 does not
-// appear because it alone answers that its formats reach beyond strings
-//
-// TODO: drop this once a numeric `format` survives canonicalisation
-auto canonicalization_loses_the_format_assertion(const std::string &suite_name,
-                                                 const std::string &name)
-    -> bool {
-  static const std::set<std::pair<std::string_view, std::string_view>> KNOWN{
-      {"Canonicalize_OpenAPI_3_1",
-       "format_double_rejects_an_inexact_decimal_with_tweak"},
-      {"Canonicalize_OpenAPI_3_1", "format_float_invalid_with_tweak"},
-      {"Canonicalize_OpenAPI_3_1", "format_int32_invalid_with_tweak"},
-      {"Canonicalize_OpenAPI_3_1", "format_int64_beyond_range_with_tweak"},
-      {"Canonicalize_OpenAPI_3_2", "format_float_invalid_with_tweak"},
-      {"Canonicalize_OpenAPI_3_2", "format_int32_invalid_with_tweak"}};
-
-  return KNOWN.contains({suite_name, name});
-}
 } // namespace
 
 static auto
@@ -110,27 +76,15 @@ register_tests(const std::filesystem::path &directory,
 
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
-    const auto assertion_lost{
-        canonicalization_loses_the_format_assertion(suite_name, name)};
-
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "_fast", sourcemeta::blaze::Mode::FastValidation},
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
-
-      // The name says so too, so that reading the output is enough to see
-      // which cases canonicalisation does not carry
-      const auto title{name + mode_suffix +
-                       (assertion_lost ? "_pending_a_format_assertion_that"
-                                         "_survives_canonicalization"
-                                       : "")};
-
       sourcemeta::core::test_register(
-          suite_name, title, __FILE__, __LINE__,
-          [name, test_case, mode, default_dialect, assertion_lost]() -> void {
-            run_canonicalize_test(name, test_case, mode, default_dialect,
-                                  assertion_lost);
+          suite_name, name + mode_suffix, __FILE__, __LINE__,
+          [name, test_case, mode, default_dialect]() -> void {
+            run_canonicalize_test(name, test_case, mode, default_dialect);
           });
     }
   }
