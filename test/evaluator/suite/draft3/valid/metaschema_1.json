@@ -1,0 +1,39 @@
+{
+  "schema": "http://json-schema.org/draft-03/schema#",
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

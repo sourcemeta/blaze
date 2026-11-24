@@ -162,6 +162,29 @@ inline auto check_fixture_resolve(const std::filesystem::path &path,
   }
 }
 
+// A fixture may name the schema it puts under test by URI rather than writing
+// it out, which is how the official meta-schemas get tested without a copy of
+// one going stale in the suite. Anything else has to be a schema as written
+inline auto check_fixture_schema(const std::filesystem::path &path,
+                                 const FixtureKind kind,
+                                 const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto &schema{fixture.at("schema")};
+  if (!schema.is_string()) {
+    return;
+  }
+
+  if (kind != FixtureKind::Trace) {
+    throw std::runtime_error{
+        path.string() + ": only a trace fixture may name its schema by URI"};
+  }
+
+  if (schema.empty()) {
+    throw std::runtime_error{path.string() +
+                             ": expected `schema` to name a URI, not nothing"};
+  }
+}
+
 inline auto check_fixture(const std::filesystem::path &path,
                           const FixtureKind kind,
                           const sourcemeta::core::JSON &fixture) -> void {
@@ -174,6 +197,7 @@ inline auto check_fixture(const std::filesystem::path &path,
                        {"comment", "tweaks"});
   }
 
+  check_fixture_schema(path, kind, fixture);
   check_fixture_comment(path, fixture);
   check_fixture_entrypoint(path, fixture);
   check_fixture_default_dialect(path, fixture);
@@ -252,6 +276,26 @@ inline auto fixture_default_dialect(const sourcemeta::core::JSON &fixture,
   return dialect == nullptr ? fallback : dialect->to_string();
 }
 
+// The schema a fixture puts under test, fetched where the fixture names it by
+// URI rather than writing it out
+inline auto fixture_schema(const sourcemeta::core::JSON &fixture,
+                           const sourcemeta::core::SchemaResolver &resolver)
+    -> sourcemeta::core::JSON {
+  const auto &schema{fixture.at("schema")};
+  if (!schema.is_string()) {
+    return schema;
+  }
+
+  auto resolved{resolver(schema.to_string())};
+  if (!resolved.has_value()) {
+    throw std::runtime_error{
+        "Could not resolve the schema the fixture names: " +
+        schema.to_string()};
+  }
+
+  return std::move(resolved).to_owned();
+}
+
 // Hyper-schema is the same draft as the validation dialect it builds on, and a
 // suite directory holds the fixtures of either
 inline auto
@@ -287,8 +331,9 @@ inline auto check_fixture_base_dialect(
     const std::string &default_dialect,
     const sourcemeta::core::SchemaResolver &resolver) -> void {
   const sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Root, fixture.at("schema"),
-      sourcemeta::core::schema_walker, resolver, default_dialect};
+      sourcemeta::core::SchemaFrame::Mode::Root,
+      fixture_schema(fixture, resolver), sourcemeta::core::schema_walker,
+      resolver, default_dialect};
 
   const auto location{frame.root_location()};
   if (!location.has_value()) {

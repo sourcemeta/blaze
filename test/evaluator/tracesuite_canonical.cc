@@ -33,7 +33,7 @@ auto run_canonicalize_test(const std::string &name,
                            const sourcemeta::blaze::Mode mode,
                            const std::string &default_dialect) -> void {
   const FixtureResolver resolver{data};
-  auto schema{data.at("schema")};
+  auto schema{fixture_schema(data, resolver)};
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
 

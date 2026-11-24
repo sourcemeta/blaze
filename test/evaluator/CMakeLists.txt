@@ -71,4 +71,7 @@ target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIV
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::compiler)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::evaluator)
 target_link_libraries(sourcemeta_blaze_evaluator_trace_suite_canonical_unit PRIVATE sourcemeta::blaze::canonicalizer)
-set_tests_properties(blaze.evaluator_trace_suite_canonical PROPERTIES TIMEOUT 120)
+# Canonicalising a schema and compiling the result costs far more than
+# compiling it alone, and this suite now does that for the official
+# meta-schemas and hyper-schemas too, which are the largest schemas it holds
+set_tests_properties(blaze.evaluator_trace_suite_canonical PROPERTIES TIMEOUT 300)
