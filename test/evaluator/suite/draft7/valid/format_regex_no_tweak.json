@@ -1,0 +1,15 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "format": "regex" },
+  "instance": "[",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

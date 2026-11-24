@@ -1,0 +1,15 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "uri" },
+  "instance": "relative/path",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

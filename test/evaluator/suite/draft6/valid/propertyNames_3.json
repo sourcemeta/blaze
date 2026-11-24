@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "propertyNames": { "minLength": 3 }
+  },
+  "instance": { "bar": 2, "fo": 1 },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/fo" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ false, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/fo" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"bar\" was expected to consist of at least 3 characters and its length was 3",
+      "The property name \"fo\" was expected to consist of at least 3 characters but its length was 2",
+      "The object value was expected to validate the property names \"bar\", and \"fo\" against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/fo" ]
+    ],
+    "post": [
+      [ true, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/bar" ],
+      [ false, "AssertionStringSizeGreater", "/propertyNames/minLength", "#/propertyNames/minLength", "/fo" ],
+      [ false, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
+    ],
+    "descriptions": [
+      "The property name \"bar\" was expected to consist of at least 3 characters and its length was 3",
+      "The property name \"fo\" was expected to consist of at least 3 characters but its length was 2",
+      "The object value was expected to validate the property names \"bar\", and \"fo\" against the given subschema"
+    ]
+  }
+}

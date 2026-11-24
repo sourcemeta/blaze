@@ -1,0 +1,15 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "format": "color" },
+  "instance": "puce",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

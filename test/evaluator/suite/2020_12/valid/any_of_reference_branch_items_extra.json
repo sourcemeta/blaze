@@ -1,0 +1,68 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "D": { "prefixItems": [ { "type": "integer" } ] } },
+    "anyOf": [ { "type": "array" }, { "$ref": "#/$defs/D" } ],
+    "unevaluatedItems": false
+  },
+  "instance": [ 1, 2 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
+      [ "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ true, "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
+      [ true, "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array value was not expected to define the item at index 1",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
+      [ "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
+      [ "Annotation", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ true, "AssertionType", "/anyOf/1/$ref/prefixItems/0/type", "#/$defs/D/prefixItems/0/type", "/0" ],
+      [ true, "Annotation", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "", 0 ],
+      [ true, "AssertionArrayPrefixEvaluate", "/anyOf/1/$ref/prefixItems", "#/$defs/D/prefixItems", "" ],
+      [ true, "ControlJump", "/anyOf/1/$ref", "#/anyOf/1/$ref", "" ],
+      [ true, "LogicalOrEvaluate", "/anyOf", "#/anyOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "#/unevaluatedItems", "/1" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type array",
+      "The value was expected to be of type integer",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The array value was expected to validate against the referenced schema",
+      "The array value was expected to validate against at least one of the 2 given subschemas",
+      "The array value was not expected to define the item at index 1",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

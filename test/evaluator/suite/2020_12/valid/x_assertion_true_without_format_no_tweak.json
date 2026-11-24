@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-format-assertion": true
+  },
+  "instance": "anything",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-format-assertion", "#/x-format-assertion", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-format-assertion", "#/x-format-assertion", "", true ]
+    ],
+    "descriptions": [
+      "A sibling `format` keyword was expected to be enforced as an assertion"
+    ]
+  }
+}

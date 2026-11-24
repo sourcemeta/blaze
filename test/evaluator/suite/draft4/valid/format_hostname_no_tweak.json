@@ -1,0 +1,15 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "hostname" },
+  "instance": "-bad-host",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

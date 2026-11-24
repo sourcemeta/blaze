@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "format": "uri-template"
+  },
+  "instance": "{bad",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/format", "#/format", "", "uri-template" ]
+    ],
+    "descriptions": [
+      "The logical type of the instance was expected to be \"uri-template\""
+    ]
+  }
+}

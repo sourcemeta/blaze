@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://example.com/root",
+    "allOf": [ { "$ref": "https://example.com/inner" } ],
+    "unevaluatedItems": false,
+    "$defs": {
+      "a": { "$id": "https://example.com/a", "$dynamicAnchor": "T", "title": "x" },
+      "b": { "$id": "https://example.com/b", "$dynamicAnchor": "T", "title": "y" },
+      "inner": {
+        "$id": "https://example.com/inner",
+        "$dynamicRef": "https://example.com/a#T",
+        "unevaluatedProperties": true
+      }
+    }
+  },
+  "instance": [ 1 ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/allOf/0/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "/0" ]
+    ],
+    "post": [
+      [ true, "ControlDynamicAnchorJump", "/allOf/0/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The array value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "The array value was not expected to define the item at index 0",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "https://example.com/root#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "https://example.com/root#/allOf/0/$ref", "" ],
+      [ "ControlDynamicAnchorJump", "/allOf/0/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ "Annotation", "/allOf/0/$ref/$dynamicRef/title", "https://example.com/a#/title", "" ],
+      [ "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "" ],
+      [ "AssertionFail", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "/0" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/$ref/$dynamicRef/title", "https://example.com/a#/title", "", "x" ],
+      [ true, "ControlDynamicAnchorJump", "/allOf/0/$ref/$dynamicRef", "https://example.com/inner#/$dynamicRef", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "https://example.com/root#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "https://example.com/root#/allOf", "" ],
+      [ false, "AssertionFail", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "/0" ],
+      [ false, "LoopItemsUnevaluated", "/unevaluatedItems", "https://example.com/root#/unevaluatedItems", "" ]
+    ],
+    "descriptions": [
+      "The title of the instance was \"x\"",
+      "The array value was expected to validate against the first subschema in scope that declared the dynamic anchor \"T\"",
+      "The array value was expected to validate against the referenced schema",
+      "The array value was expected to validate against the given subschema",
+      "The array value was not expected to define the item at index 0",
+      "The array items not covered by other array keywords, if any, were expected to validate against this subschema"
+    ]
+  }
+}

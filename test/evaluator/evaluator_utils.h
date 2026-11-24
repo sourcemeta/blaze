@@ -1,15 +1,8 @@
 #ifndef SOURCEMETA_BLAZE_EVALUATOR_UTILS_H_
 #define SOURCEMETA_BLAZE_EVALUATOR_UTILS_H_
 
-#include <cassert>
 #include <tuple>
 #include <vector>
-
-inline auto FIRST_PROPERTY_IS(const sourcemeta::core::JSON &document,
-                              const std::string &check) -> bool {
-  assert(document.is_object());
-  return document.as_object().cbegin()->first == check;
-}
 
 #define EVALUATE_WITH_TRACE(schema_template, instance, count)                  \
   [[maybe_unused]] const sourcemeta::blaze::Template &trace_template{          \

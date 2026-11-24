@@ -48,9 +48,20 @@ const SUITE_DEFAULT_DIALECTS = {
 // TODO: this port carries no string format validators, so every fixture that
 // asks the compiler to turn `format` into an assertion is skipped. Drop this
 // rule once the formats land
+// The verdict itself turns on how a number was written, so these cannot run
+const INTEGER_IS_LEXICAL =
+  'draft 3 and 4 read `integer` as a number written without a fractional part';
+
+// Only the described wording differs
+const REAL_READS_AS_INTEGER =
+  'a real written with a zero fractional part is indistinguishable from an ' +
+  'integer here';
+
+const NO_FORMAT_VALIDATORS = 'this port carries no string format validators';
+
 function skippedByRule(testCase) {
   if (testCase.tweaks && testCase.tweaks.formatAssertion) {
-    return 'this port carries no string format validators';
+    return NO_FORMAT_VALIDATORS;
   }
 
   return null;
@@ -62,6 +73,51 @@ const SKIPPED_FIXTURES = new Map([
   // number is a double, and while the reviver recovers a truncated integer as a
   // `BigInt`, it has no such answer for a real, so those fixtures carry values
   // this port cannot represent at all
+
+  // A schema asks for the assertion itself with `x-format-assertion`,
+  // rather than through the fixture's tweaks, so these are named one by
+  // one. Reading the schema to find out would mistake a property called
+  // `x-format-assertion` for the keyword
+  ['2019_09/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2019_09/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/x_assertion_nested_selective_no_tweak', NO_FORMAT_VALIDATORS],
+  ['2020_12/x_assertion_nested_selective_valid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['draft7/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
+  ['draft7/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
+
+  // The older drafts ask whether a number was written with a fractional part,
+  // which decides the verdict rather than only the wording. `JSON.parse` hands
+  // back `1` for `1e0`, so the question cannot be put at all here
+  ['draft3/disallow_integer_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft3/disallow_integer_valid_decimal_1e0', INTEGER_IS_LEXICAL],
+  ['draft3/disallow_integer_valid_decimal_1e2', INTEGER_IS_LEXICAL],
+  ['draft3/integer_type_with_integral_enum_real', INTEGER_IS_LEXICAL],
+  ['draft3/type_array_integer_string_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
+  ['draft3/type_array_integer_string_invalid_decimal_1e0', INTEGER_IS_LEXICAL],
+  ['draft3/type_array_integer_string_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_beside_enum_rejects_an_integral_real', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_decimal_1_5e1', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_decimal_1e0', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_decimal_1e2', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_decimal_30e_minus_1', INTEGER_IS_LEXICAL],
+  ['draft3/type_integer_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft4/enum_17', INTEGER_IS_LEXICAL],
+  ['draft4/integer_type_with_integral_enum_real', INTEGER_IS_LEXICAL],
+  ['draft4/prop_type_integer_bounded_strict_real_3_0_fails', INTEGER_IS_LEXICAL],
+  ['draft4/prop_type_integer_lower_bound_strict_real_5_0_fails', INTEGER_IS_LEXICAL],
+  ['draft4/type_array_integer_string_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
+  ['draft4/type_array_integer_string_invalid_decimal_1e0', INTEGER_IS_LEXICAL],
+  ['draft4/type_array_integer_string_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_beside_enum_rejects_an_integral_real', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_decimal_1_5e1', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_decimal_1e0', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_decimal_1e2', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_decimal_30e_minus_1', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
 ]);
 
 // Fixtures whose describe wording this port cannot reproduce, though it agrees
@@ -71,10 +127,41 @@ const SKIPPED_DESCRIPTIONS = new Map([
   // A real written as `3.0` comes back from `JSON.parse` as `3`, and nothing
   // afterwards distinguishes it from the integer `3`, so the described value
   // reads as an integer where the C++ evaluator reads a number
-  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_none',
-    'a real written as `3.0` is indistinguishable from an integer here'],
-  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_selected',
-    'a real written as `3.0` is indistinguishable from an integer here'],
+  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_none', REAL_READS_AS_INTEGER],
+  ['2020_12/prop_type_integer_bounded_6_exhaustive_annotations_selected', REAL_READS_AS_INTEGER],
+  ['2019_09/type_integer_beside_enum_accepts_an_integral_real', REAL_READS_AS_INTEGER],
+  ['2020_12/multiple_of_real_two_bounded_1', REAL_READS_AS_INTEGER],
+  ['2020_12/type_integer_beside_enum_accepts_an_integral_real', REAL_READS_AS_INTEGER],
+  ['draft3/enum_real_value_equals_integer_member', REAL_READS_AS_INTEGER],
+  ['draft4/exclusiveMaximum_8', REAL_READS_AS_INTEGER],
+  ['draft4/exclusiveMinimum_8', REAL_READS_AS_INTEGER],
+  ['draft4/maximum_11', REAL_READS_AS_INTEGER],
+  ['draft4/maximum_12', REAL_READS_AS_INTEGER],
+  ['draft4/maximum_21', REAL_READS_AS_INTEGER],
+  ['draft4/minimum_12', REAL_READS_AS_INTEGER],
+  ['draft4/minimum_13', REAL_READS_AS_INTEGER],
+  ['draft4/minimum_22', REAL_READS_AS_INTEGER],
+  ['draft4/multipleOf_11', REAL_READS_AS_INTEGER],
+  ['draft4/multipleOf_12', REAL_READS_AS_INTEGER],
+  ['draft4/multipleOf_21', REAL_READS_AS_INTEGER],
+  ['draft4/multipleOf_5', REAL_READS_AS_INTEGER],
+  ['draft6/const_8', REAL_READS_AS_INTEGER],
+  ['draft6/enum_14', REAL_READS_AS_INTEGER],
+  ['draft6/type_8', REAL_READS_AS_INTEGER],
+  ['draft6/type_integer_beside_enum_accepts_an_integral_real', REAL_READS_AS_INTEGER],
+  ['draft7/type_integer_beside_enum_accepts_an_integral_real', REAL_READS_AS_INTEGER],
+  ['2020_12/multiple_of_real_one_bounded_1', REAL_READS_AS_INTEGER],
+  ['2020_12/multiple_of_real_one_bounded_2', REAL_READS_AS_INTEGER],
+  ['2020_12/multiple_of_real_one_bounded_3', REAL_READS_AS_INTEGER],
+  ['2020_12/multiple_of_real_one_exclusive_bounded_1', REAL_READS_AS_INTEGER],
+  ['2020_12/prop_type_integer_bounded_6', REAL_READS_AS_INTEGER],
+  ['2020_12/prop_type_integer_lower_bound_4', REAL_READS_AS_INTEGER],
+  ['2020_12/type_integer_bounded_5', REAL_READS_AS_INTEGER],
+  ['2020_12/type_integer_lower_bound_3', REAL_READS_AS_INTEGER],
+  ['draft6/prop_type_integer_bounded_6', REAL_READS_AS_INTEGER],
+  ['draft6/prop_type_integer_lower_bound_4', REAL_READS_AS_INTEGER],
+  ['draft6/type_integer_bounded_5', REAL_READS_AS_INTEGER],
+  ['draft6/type_integer_lower_bound_3', REAL_READS_AS_INTEGER],
 ]);
 
 function skipReason(dialect, fixtureName, testCase) {

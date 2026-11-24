@@ -1,0 +1,25 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "any",
+    "minLength": 2
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, boolean, number, string, array, or object and it was of type number"
+    ]
+  }
+}

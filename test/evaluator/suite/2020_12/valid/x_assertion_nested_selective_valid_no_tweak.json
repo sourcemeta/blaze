@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": {
+      "relaxed": { "format": "uri" },
+      "strict": { "format": "uri", "x-format-assertion": true }
+    }
+  },
+  "instance": { "relaxed": "://bad", "strict": "https://example.com" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ],
+      [ "Annotation", "/properties/strict/x-format-assertion", "#/properties/strict/x-format-assertion", "/strict" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties", "#/properties", "", "relaxed" ],
+      [ true, "AssertionStringType", "/properties/strict/format", "#/properties/strict/format", "/strict" ],
+      [ true, "Annotation", "/properties/strict/x-format-assertion", "#/properties/strict/x-format-assertion", "/strict", true ],
+      [ true, "Annotation", "/properties", "#/properties", "", "strict" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"relaxed\" successfully validated against its property subschema",
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "A sibling `format` keyword was expected to be enforced as an assertion",
+      "The object property \"strict\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

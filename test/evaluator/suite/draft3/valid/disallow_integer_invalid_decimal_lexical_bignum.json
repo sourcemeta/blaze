@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "disallow": "integer"
+  },
+  "instance": 12345678910111213141516171819202122232425262728293031,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type integer but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNotTypeStrictAny", "/disallow", "#/disallow", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to NOT be of type integer but it was of type integer"
+    ]
+  }
+}

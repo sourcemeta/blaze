@@ -25,6 +25,43 @@ TRACE_ENTRY_KEYS = (
 ERROR_ENTRY_KEYS = ("comment", "description", "schema", "tweaks", "error")
 
 
+class RawNumber:
+    """A number held as the document spells it.
+
+    How a number is written is part of what a fixture asks: `1e0` and `1.0`
+    are the same value but not the same test, and reading one into a Python
+    float and writing it back loses the difference.
+    """
+
+    __slots__ = ("text",)
+
+    def __init__(self, text):
+        self.text = text
+
+    def __eq__(self, other):
+        return isinstance(other, RawNumber) and self.text == other.text
+
+    def __hash__(self):
+        return hash(self.text)
+
+
+def dump(value):
+    """One JSON value on a single line, numbers spelled as they were written.
+
+    Lays out exactly as `json.dumps` does, so formatting a file that holds no
+    reformatted number leaves it alone.
+    """
+    if isinstance(value, RawNumber):
+        return value.text
+    if isinstance(value, dict):
+        pairs = ", ".join(f"{json.dumps(key)}: {dump(inner)}"
+                          for key, inner in value.items())
+        return "{" + pairs + "}"
+    if isinstance(value, list):
+        return "[" + ", ".join(dump(element) for element in value) + "]"
+    return json.dumps(value)
+
+
 def compact_json(value):
     """Try to produce a compact single-line JSON representation."""
     if isinstance(value, dict):
@@ -40,7 +77,7 @@ def compact_json(value):
             return "[]"
         inner = ", ".join(compact_json(element) for element in value)
         return "[ " + inner + " ]"
-    return json.dumps(value)
+    return dump(value)
 
 
 def format_json_value(value, indent_level):
@@ -72,7 +109,7 @@ def format_json_value(value, indent_level):
             not isinstance(element, (dict, list)) for element in value
         )
         if all_primitive:
-            inner = ", ".join(json.dumps(element) for element in value)
+            inner = ", ".join(dump(element) for element in value)
             return f"[ {inner} ]"
         lines = ["["]
         for index, element in enumerate(value):
@@ -81,7 +118,7 @@ def format_json_value(value, indent_level):
             lines.append(f"{spaces}  {formatted}{comma}")
         lines.append(f"{spaces}]")
         return "\n".join(lines)
-    return json.dumps(value)
+    return dump(value)
 
 
 def format_trace_array(entries, indent_level):
@@ -91,7 +128,7 @@ def format_trace_array(entries, indent_level):
         return f"{spaces}[]"
     lines = [f"{spaces}["]
     for index, entry in enumerate(entries):
-        inner = ", ".join(json.dumps(value) for value in entry)
+        inner = ", ".join(dump(value) for value in entry)
         comma = "," if index < len(entries) - 1 else ""
         lines.append(f"{spaces}  [ {inner} ]{comma}")
     lines.append(f"{spaces}]")
@@ -161,7 +198,7 @@ def format_entry_value(test, key, indent_level):
     """Format the value one key of a test entry holds."""
     value = test[key]
     if key in ("description", "valid"):
-        return json.dumps(value)
+        return dump(value)
     if key in ("fast", "exhaustive"):
         if is_trace_format(test):
             return format_trace_mode_section(value, indent_level)
@@ -198,7 +235,8 @@ def format_test_entry(test, indent_level):
 def format_file(filepath):
     """Format a trace JSON test file in place."""
     with open(filepath) as handle:
-        data = json.load(handle)
+        data = json.load(handle, parse_float=RawNumber,
+                         parse_int=RawNumber)
 
     if isinstance(data, list):
         entries = [format_test_entry(test, 1) for test in data]
