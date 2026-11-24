@@ -2,7 +2,7 @@
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "maxProperties": 1e+308
+    "maxProperties": 1e308
   },
   "instance": {},
   "valid": true,

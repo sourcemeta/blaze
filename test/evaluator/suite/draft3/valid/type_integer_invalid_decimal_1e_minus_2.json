@@ -1,6 +1,6 @@
 {
   "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "type": "integer" },
-  "instance": 0.01,
+  "instance": 1e-2,
   "valid": false,
   "fast": {
     "pre": [

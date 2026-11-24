@@ -2,7 +2,7 @@
   "schema": {
     "$schema": "https://json-schema.org/draft/2019-09/schema",
     "contains": { "type": "integer" },
-    "maxContains": 1.0
+    "maxContains": 1e0
   },
   "instance": [ 1, 2 ],
   "valid": false,

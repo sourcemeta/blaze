@@ -402,20 +402,23 @@ auto walk_up_in_place_applicators_across_references(
 }
 
 // `x-format-assertion` only ever speaks about a `format` written in the same
-// schema object, so a rule that hands `format` to another object has to hand
-// this one over with it. Parting them turns an assertion back into an
-// annotation, and the schema that comes out accepts what the one going in
-// refuses
-inline auto carry_format_assertion(const sourcemeta::core::JSON &from,
-                                   sourcemeta::core::JSON &into) -> void {
+// schema object, so whatever receives `format` has to receive this with it.
+// Parting the two turns an assertion back into an annotation, and the schema
+// that comes out accepts what the one going in refuses. The marker moves
+// rather than being copied, so it is still annotated once
+inline auto move_format_assertion(const sourcemeta::core::JSON &from,
+                                  sourcemeta::core::JSON &into) -> bool {
   if (!from.is_object() || !into.is_object() || !into.defines("format")) {
-    return;
+    return false;
   }
 
   const auto *assertion{from.try_at("x-format-assertion")};
-  if (assertion != nullptr) {
-    into.assign("x-format-assertion", *assertion);
+  if (assertion == nullptr) {
+    return false;
   }
+
+  into.assign("x-format-assertion", *assertion);
+  return true;
 }
 
 #define ONLY_CONTINUE_IF(condition)                                            \

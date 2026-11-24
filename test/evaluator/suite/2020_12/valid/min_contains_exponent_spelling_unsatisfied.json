@@ -2,7 +2,7 @@
   "schema": {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "contains": { "type": "integer" },
-    "minContains": 3.0
+    "minContains": 3e0
   },
   "instance": [ 1, 2 ],
   "valid": false,

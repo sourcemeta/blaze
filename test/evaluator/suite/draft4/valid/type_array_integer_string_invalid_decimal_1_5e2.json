@@ -3,7 +3,7 @@
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": [ "integer", "string" ]
   },
-  "instance": 150.0,
+  "instance": 1.5e2,
   "valid": false,
   "fast": {
     "pre": [
