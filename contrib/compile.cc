@@ -153,15 +153,19 @@ auto main(int argc, char **argv) noexcept -> int {
       const auto pointer{
           sourcemeta::core::to_pointer(options.at("resolve-path").front())};
       const auto *result{sourcemeta::core::try_get(document, pointer)};
-      if (result != nullptr) {
-        if (!result->is_object()) {
-          std::cerr << "error: expected an object of URIs to schemas at: "
-                    << options.at("resolve-path").front() << "\n";
-          return EXIT_FAILURE;
-        }
-
-        schemas = *result;
+      if (result == nullptr) {
+        std::cerr << "error: resolve path not found in input: "
+                  << options.at("resolve-path").front() << "\n";
+        return EXIT_FAILURE;
       }
+
+      if (!result->is_object()) {
+        std::cerr << "error: expected an object of URIs to schemas at: "
+                  << options.at("resolve-path").front() << "\n";
+        return EXIT_FAILURE;
+      }
+
+      schemas = *result;
     }
 
     const auto resolver{

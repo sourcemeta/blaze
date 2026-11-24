@@ -186,13 +186,20 @@ auto main(int argc, char **argv) noexcept -> int {
     // same knobs the suites can set
     const auto tweaks{tweaks_from_options(options, std::cerr)};
 
-    // The schemas a file names, by the URI each answers to, which is what a
-    // suite directory's `resolver.json` holds
+    // The schemas a file names, by the URI each answers to. A file that holds
+    // anything but an object names nothing, and reading it as one would walk a
+    // member that is not there
     auto schemas{sourcemeta::core::JSON::make_object()};
     if (options.contains("resolve-map")) {
       for (const auto &path : options.at("resolve-map")) {
         const auto document{
             sourcemeta::core::read_json(std::filesystem::path{path})};
+        if (!document.is_object()) {
+          std::cerr << "error: expected an object of URIs to schemas at: "
+                    << path << "\n";
+          return EXIT_FAILURE;
+        }
+
         for (const auto &entry : document.as_object()) {
           schemas.assign(entry.first, entry.second);
         }

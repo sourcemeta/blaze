@@ -38,7 +38,9 @@ export function compileSchema(schemaPath, options) {
 
   // Where in the same file the schemas it supplies for the URIs it references
   // are, named the way `--path` names the schema
-  if (options && options.resolvePath) {
+  // An empty pointer names the whole document, so what decides this is whether
+  // the caller asked at all rather than whether the pointer says anything
+  if (options && options.resolvePath !== undefined) {
     args.push('--resolve-path', options.resolvePath);
   }
 

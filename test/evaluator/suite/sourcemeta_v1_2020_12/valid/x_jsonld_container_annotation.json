@@ -1,4 +1,5 @@
 {
+  "comment": "The dialect this resolves is reduced to its vocabulary declarations, which are what make the extension keywords compile",
   "schema": {
     "$schema": "tag:sourcemeta.com,2026:extension/v1/2020-12",
     "x-jsonld-container": "@list"
