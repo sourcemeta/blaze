@@ -57,6 +57,11 @@ const REAL_READS_AS_INTEGER =
   'a real written with a zero fractional part is indistinguishable from an ' +
   'integer here';
 
+// A decimal of this length is rounded the moment it is read, and the fraction
+// that settles the verdict, or that the wording quotes, rounds away with it
+const DECIMAL_ROUNDS_AWAY =
+  'a decimal of more digits than a double holds is rounded by `JSON.parse`';
+
 const NO_FORMAT_VALIDATORS = 'this port carries no string format validators';
 
 function skippedByRule(testCase) {
@@ -69,10 +74,15 @@ function skippedByRule(testCase) {
 
 // Keyed by `<dialect>/<fixture>`, since a fixture name repeats across dialects
 const SKIPPED_FIXTURES = new Map([
-  // TODO: high-precision reals belong here as they are ported. A JavaScript
-  // number is a double, and while the reviver recovers a truncated integer as a
-  // `BigInt`, it has no such answer for a real, so those fixtures carry values
-  // this port cannot represent at all
+  // A real this long is not recovered the way a truncated integer is: the
+  // reviver reads `99999999999999999999999999999999999` back as a `BigInt`,
+  // but `99999999999999999999999999999999999.1` has no such answer, so it
+  // stays a double that rounded the fraction away and reads as an integer
+  ['draft6/closed_integer_properties_reject_big_decimals_with_a_fraction', DECIMAL_ROUNDS_AWAY],
+  ['draft6/items_integer_rejects_big_decimals_with_a_fraction', DECIMAL_ROUNDS_AWAY],
+  ['draft6/prop_type_integer_rejects_a_big_decimal_with_a_fraction', DECIMAL_ROUNDS_AWAY],
+  ['draft6/type_array_integer_string_rejects_a_big_decimal_with_a_fraction', DECIMAL_ROUNDS_AWAY],
+  ['draft6/type_integer_rejects_a_big_decimal_with_a_fraction', DECIMAL_ROUNDS_AWAY],
 
   // A schema asks for the assertion itself with `x-format-assertion`,
   // rather than through the fixture's tweaks, so these are named one by
@@ -104,13 +114,21 @@ const SKIPPED_FIXTURES = new Map([
   ['draft3/type_integer_invalid_decimal_1e2', INTEGER_IS_LEXICAL],
   ['draft3/type_integer_invalid_decimal_30e_minus_1', INTEGER_IS_LEXICAL],
   ['draft3/type_integer_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft4/additional_properties_integer_or_string_rejects_a_big_decimal', INTEGER_IS_LEXICAL],
+  ['draft4/closed_required_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
   ['draft4/enum_17', INTEGER_IS_LEXICAL],
   ['draft4/integer_type_with_integral_enum_real', INTEGER_IS_LEXICAL],
+  ['draft4/items_closed_three_required_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
+  ['draft4/items_closed_two_required_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
+  ['draft4/items_integer_or_string_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
+  ['draft4/items_integer_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
   ['draft4/prop_type_integer_bounded_strict_real_3_0_fails', INTEGER_IS_LEXICAL],
   ['draft4/prop_type_integer_lower_bound_strict_real_5_0_fails', INTEGER_IS_LEXICAL],
+  ['draft4/prop_type_integer_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
   ['draft4/type_array_integer_string_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
   ['draft4/type_array_integer_string_invalid_decimal_1e0', INTEGER_IS_LEXICAL],
   ['draft4/type_array_integer_string_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft4/type_array_integer_string_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
   ['draft4/type_integer_beside_enum_rejects_an_integral_real', INTEGER_IS_LEXICAL],
   ['draft4/type_integer_invalid_decimal_1_5e1', INTEGER_IS_LEXICAL],
   ['draft4/type_integer_invalid_decimal_1_5e2', INTEGER_IS_LEXICAL],
@@ -118,6 +136,9 @@ const SKIPPED_FIXTURES = new Map([
   ['draft4/type_integer_invalid_decimal_1e2', INTEGER_IS_LEXICAL],
   ['draft4/type_integer_invalid_decimal_30e_minus_1', INTEGER_IS_LEXICAL],
   ['draft4/type_integer_invalid_real_integer_valued', INTEGER_IS_LEXICAL],
+  ['draft4/type_integer_rejects_a_big_decimal_with_zero_fraction', INTEGER_IS_LEXICAL],
+  ['draft4/typed_closed_long_named_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
+  ['draft4/typed_closed_required_integer_properties_reject_a_big_decimal', INTEGER_IS_LEXICAL],
 ]);
 
 // Fixtures whose describe wording this port cannot reproduce, though it agrees
@@ -133,6 +154,7 @@ const SKIPPED_DESCRIPTIONS = new Map([
   ['2020_12/multiple_of_real_two_bounded_1', REAL_READS_AS_INTEGER],
   ['2020_12/type_integer_beside_enum_accepts_an_integral_real', REAL_READS_AS_INTEGER],
   ['draft3/enum_real_value_equals_integer_member', REAL_READS_AS_INTEGER],
+  ['draft4/items_integer_bounded_large_decimal_in_range', DECIMAL_ROUNDS_AWAY],
   ['draft4/exclusiveMaximum_8', REAL_READS_AS_INTEGER],
   ['draft4/exclusiveMinimum_8', REAL_READS_AS_INTEGER],
   ['draft4/maximum_11', REAL_READS_AS_INTEGER],

@@ -8,7 +8,6 @@
 
 #include <filesystem> // std::filesystem
 #include <sstream>    // std::ostringstream
-#include <string>     // std::string
 
 namespace {
 auto run_typescript_e2e(const std::filesystem::path &directory) -> void {

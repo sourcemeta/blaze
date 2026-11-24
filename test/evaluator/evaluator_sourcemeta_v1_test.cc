@@ -1,6 +1,5 @@
 #include <sourcemeta/core/test.h>
 
-#include <optional>
 #include <string_view>
 #include <unordered_set>
 

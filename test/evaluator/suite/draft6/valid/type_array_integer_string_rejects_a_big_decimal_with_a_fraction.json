@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": [ "integer", "string" ]
+  },
+  "instance": 99999999999999999999999999999999999.1,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer, or string but it was of type number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeAny", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeAny", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer, or string but it was of type number"
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy" ],
+    "additionalProperties": false,
+    "properties": {
+      "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": { "type": "integer" },
+      "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": { "type": "integer" }
+    }
+  },
+  "instance": {
+    "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": 99999999999999999999999999999999999.0,
+    "yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy": 99999999999999999999999999999999999.0
+  },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesExactlyTypeStrict", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "#/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ false, "AssertionTypeStrict", "/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "#/properties/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/type", "/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\", and \"yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy\"",
+      "The value was expected to be of type integer but it was of type number",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

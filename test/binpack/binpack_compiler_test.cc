@@ -2,8 +2,6 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/test.h>
 
-#include <stdexcept>
-
 TEST(dialect_2020_12) {
   auto schema = sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema"

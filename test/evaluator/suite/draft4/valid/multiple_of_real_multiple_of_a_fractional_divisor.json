@@ -1,0 +1,27 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "multipleOf": 0.1 },
+  "instance": 0.3,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.3 was expected to be divisible by the number 0.1"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "post": [
+      [ true, "AssertionDivisible", "/multipleOf", "#/multipleOf", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.3 was expected to be divisible by the number 0.1"
+    ]
+  }
+}

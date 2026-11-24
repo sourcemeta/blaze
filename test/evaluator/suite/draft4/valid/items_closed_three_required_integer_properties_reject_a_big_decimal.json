@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": {
+      "type": "object",
+      "required": [ "foo", "bar", "baz" ],
+      "additionalProperties": false,
+      "properties": {
+        "foo": { "type": "integer" },
+        "bar": { "type": "integer" },
+        "baz": { "type": "integer" }
+      }
+    }
+  },
+  "instance": [
+    {
+      "foo": 99999999999999999999999999999999999.0,
+      "bar": 99999999999999999999999999999999999.0,
+      "baz": 99999999999999999999999999999999999.0
+    }
+  ],
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ false, "LoopItemsPropertiesExactlyTypeStrictHash3", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "Every item in the array was expected to be an object whose required properties were of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+      [ "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+      [ "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/items/required", "#/items/required", "/0" ],
+      [ false, "AssertionTypeStrict", "/items/properties/bar/type", "#/items/properties/bar/type", "/0/bar" ],
+      [ false, "LogicalWhenType", "/items/properties", "#/items/properties", "/0" ],
+      [ false, "LoopItems", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", \"baz\", and \"foo\"",
+      "The value was expected to be of type integer but it was of type number",
+      "The object value was expected to validate against the defined properties subschemas",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  }
+}
