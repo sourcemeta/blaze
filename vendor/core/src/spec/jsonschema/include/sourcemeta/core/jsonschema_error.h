@@ -104,15 +104,6 @@ private:
 };
 
 /// @ingroup jsonschema
-/// An error that represents that the dialect of the schema could not determined
-class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaUnknownDialectError
-    : public Error {
-public:
-  SchemaUnknownDialectError() noexcept
-      : Error{"Could not determine the dialect of the schema"} {}
-};
-
-/// @ingroup jsonschema
 /// An error that represents that the base dialect of the schema could not
 /// determined
 class SOURCEMETA_CORE_JSONSCHEMA_EXPORT SchemaUnknownBaseDialectError

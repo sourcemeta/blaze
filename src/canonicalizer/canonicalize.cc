@@ -694,6 +694,98 @@ auto reference_slots(const sourcemeta::core::JSON &body, const Profile &profile)
   collect(body, core::Pointer{}, collect);
   return result;
 }
+
+// Survey the schema for the subschemas that become graph nodes and the
+// references that become edges, and say whether it can be lifted at all:
+// every subschema has to land on one spelling of one form the profile
+// covers, the document must not name itself, and there has to be at
+// least one node to lift
+auto survey_nodes_and_links(
+    const sourcemeta::core::JSON &schema,
+    const sourcemeta::core::SchemaWalker &walker,
+    const sourcemeta::core::SchemaResolver &resolver,
+    const std::string_view default_dialect, const std::string_view default_id,
+    const Profile *&profile, std::vector<core::Pointer> &nodes,
+    std::vector<std::pair<core::Pointer, core::Pointer>> &links) -> bool {
+  const core::SchemaFrame frame{core::SchemaFrame::Mode::References,
+                                schema,
+                                walker,
+                                resolver,
+                                default_dialect,
+                                default_id,
+                                core::SchemaFrame::IdentifierMode::Fallback};
+
+  // Every subschema has to land on the same spelling of the form, and on
+  // one the form covers at all. Draft 3 and its hyper-schema share a
+  // profile: by now the rules have dropped everything the hyper-schema
+  // vocabulary adds, none of which takes part in whether an instance is
+  // valid
+  bool unsupported{false};
+  frame.for_each_subschema(
+      [&profile,
+       &unsupported](const core::SchemaFrame::Location &location) -> void {
+        const auto *current{
+            profile_for(location.base_dialect, location.dialect)};
+        if (current == nullptr || (profile != nullptr && profile != current)) {
+          unsupported = true;
+        } else {
+          profile = current;
+        }
+      });
+
+  if (unsupported || profile == nullptr || names_itself(frame, schema)) {
+    return false;
+  }
+
+  frame.for_each_subschema(
+      [&nodes, &schema,
+       profile](const core::SchemaFrame::Location &location) -> void {
+        const auto &body{core::get(schema, location.pointer)};
+        if (!profile->boolean_nodes && body.is_boolean()) {
+          return;
+        }
+
+        // The test runs on what the body would be once the container
+        // keywords are stripped, so that a root already in graph form is
+        // recognised as the wrapper it is
+        if (is_edge(without_containers(body, *profile), *profile)) {
+          return;
+        }
+
+        auto pointer{core::to_pointer(location.pointer)};
+        if (!std::ranges::contains(nodes, pointer)) {
+          nodes.push_back(std::move(pointer));
+        }
+      });
+
+  if (nodes.empty()) {
+    return false;
+  }
+
+  // The frame is free to enumerate subschemas in any order, so fix one here
+  // and let nothing downstream depend on which order that was
+  std::ranges::sort(nodes, pointer_before);
+
+  frame.for_each_reference(
+      [&links, &frame](const core::SchemaReferenceType,
+                       const core::WeakPointer &origin,
+                       const core::SchemaFrame::Reference &reference) -> void {
+        assert(!origin.empty() && origin.back().is_property());
+        if (origin.back().to_property() != "$ref") {
+          return;
+        }
+
+        const auto destination{frame.traverse(reference.destination)};
+        if (destination.has_value()) {
+          links.emplace_back(
+              core::to_pointer(origin),
+              core::to_pointer(destination.value().get().pointer));
+        }
+      });
+
+  return true;
+}
+
 /// Rewrite a Draft 3 document into its graph form: every subschema becomes an
 /// entry of a single `definitions` at the root, nesting is replaced by
 /// references between those entries, and the root becomes a wrapper that
@@ -701,6 +793,12 @@ auto reference_slots(const sourcemeta::core::JSON &body, const Profile &profile)
 ///
 /// Like identifier elimination, this only applies to documents that are Draft 3
 /// throughout, and it runs once the rules have finished reshaping the schema
+// Lifting runs as a sequence of phases over one graph, and every phase
+// reads and writes the same handful of tables, so the shape of it is a
+// list of steps rather than a tree of calls. The two pieces that stand on
+// their own are already out, and taking the rest apart would hand each
+// phase six or more of those tables and bury the order they run in
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 auto lift_subschemas(sourcemeta::core::JSON &schema,
                      const sourcemeta::core::SchemaWalker &walker,
                      const sourcemeta::core::SchemaResolver &resolver,
@@ -716,81 +814,9 @@ auto lift_subschemas(sourcemeta::core::JSON &schema,
   std::vector<std::pair<core::Pointer, core::Pointer>> links;
   std::vector<std::pair<core::Pointer, std::size_t>> reference_targets;
 
-  {
-    const core::SchemaFrame frame{core::SchemaFrame::Mode::References,
-                                  schema,
-                                  walker,
-                                  resolver,
-                                  default_dialect,
-                                  default_id,
-                                  core::SchemaFrame::IdentifierMode::Fallback};
-
-    // Every subschema has to land on the same spelling of the form, and on
-    // one the form covers at all. Draft 3 and its hyper-schema share a
-    // profile: by now the rules have dropped everything the hyper-schema
-    // vocabulary adds, none of which takes part in whether an instance is
-    // valid
-    bool unsupported{false};
-    frame.for_each_subschema([&profile, &unsupported](
-                                 const core::SchemaFrame::Location &location)
-                                 -> void {
-      const auto *current{profile_for(location.base_dialect, location.dialect)};
-      if (current == nullptr || (profile != nullptr && profile != current)) {
-        unsupported = true;
-      } else {
-        profile = current;
-      }
-    });
-
-    if (unsupported || profile == nullptr || names_itself(frame, schema)) {
-      return;
-    }
-
-    frame.for_each_subschema(
-        [&nodes, &schema,
-         profile](const core::SchemaFrame::Location &location) -> void {
-          const auto &body{core::get(schema, location.pointer)};
-          if (!profile->boolean_nodes && body.is_boolean()) {
-            return;
-          }
-
-          // The test runs on what the body would be once the container
-          // keywords are stripped, so that a root already in graph form is
-          // recognised as the wrapper it is
-          if (is_edge(without_containers(body, *profile), *profile)) {
-            return;
-          }
-
-          auto pointer{core::to_pointer(location.pointer)};
-          if (!std::ranges::contains(nodes, pointer)) {
-            nodes.push_back(std::move(pointer));
-          }
-        });
-
-    if (nodes.empty()) {
-      return;
-    }
-
-    // The frame is free to enumerate subschemas in any order, so fix one here
-    // and let nothing downstream depend on which order that was
-    std::ranges::sort(nodes, pointer_before);
-
-    frame.for_each_reference(
-        [&links, &frame](
-            const core::SchemaReferenceType, const core::WeakPointer &origin,
-            const core::SchemaFrame::Reference &reference) -> void {
-          assert(!origin.empty() && origin.back().is_property());
-          if (origin.back().to_property() != "$ref") {
-            return;
-          }
-
-          const auto destination{frame.traverse(reference.destination)};
-          if (destination.has_value()) {
-            links.emplace_back(
-                core::to_pointer(origin),
-                core::to_pointer(destination.value().get().pointer));
-          }
-        });
+  if (!survey_nodes_and_links(schema, walker, resolver, default_dialect,
+                              default_id, profile, nodes, links)) {
+    return;
   }
 
   // A reference can target a subschema that is itself an edge, so follow such

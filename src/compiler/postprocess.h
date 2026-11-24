@@ -1127,6 +1127,138 @@ inline auto hoist_discriminators(Instructions &instructions) -> void {
   }
 }
 
+// Whether a fused simple-properties instruction at the same location
+// already enforces what this sibling says, so that the sibling can go.
+// Only the names it marks as required are presence, and every fused
+// instruction rejects a non-object, so it can also stand in for an
+// object type assertion
+// Whether a fused simple-properties instruction at the same location already
+// enforces what this sibling says, so that the sibling can go. Only the names
+// it marks as required are presence, and every fused instruction rejects a
+// non-object, so it can also stand in for an object type assertion
+inline auto subsumed_by_fusion(const Instruction &instruction,
+                               const std::unordered_set<std::string> &covered)
+    -> bool {
+  switch (instruction.type) {
+    case InstructionIndex::AssertionDefinesAllStrict:
+    case InstructionIndex::AssertionDefinesAll: {
+      const auto &value{std::get<ValueStringSet>(instruction.value)};
+      for (const auto &property : value) {
+        if (!covered.contains(property.first)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+    case InstructionIndex::AssertionDefinesStrict:
+    case InstructionIndex::AssertionDefines:
+      return covered.contains(std::get<ValueProperty>(instruction.value).first);
+    case InstructionIndex::AssertionTypeStrict:
+    case InstructionIndex::AssertionType:
+      return std::get<ValueType>(instruction.value) ==
+             sourcemeta::core::JSON::Type::Object;
+    default:
+      return false;
+  }
+}
+
+// A conditional stores where its branches begin, so when this pass drops or
+// expands any child those indices have to be read off the rewritten list
+inline auto remap_boundaries(Instruction &owner,
+                             const std::vector<std::size_t> &boundaries,
+                             Instructions &result) -> void {
+  auto &cursors{std::get<ValueIndexPair>(owner.value)};
+  const auto then_start{boundaries[cursors.first]};
+  if (then_start == 0) {
+    // The condition dropped to nothing, so it is always true: the then
+    // branch applies unconditionally and the else branch is dead. Keep
+    // only the then instructions and record an empty condition with no
+    // else, which the evaluator runs as the consequence
+    const auto else_start{cursors.second > 0 ? boundaries[cursors.second]
+                                             : result.size()};
+    result.erase(result.begin() + static_cast<std::ptrdiff_t>(else_start),
+                 result.end());
+    cursors.first = 0;
+    cursors.second = 0;
+  } else {
+    cursors.first = then_start;
+    if (cursors.second > 0) {
+      cursors.second = boundaries[cursors.second];
+    }
+  }
+}
+
+// What a group of fused simple-properties instructions requires, by the
+// instance location each of them speaks about
+using SimplePropertiesFusions = std::vector<
+    std::pair<sourcemeta::core::Pointer, std::unordered_set<std::string>>>;
+
+// What the fused simple-properties instructions of one conjunction already
+// require, grouped by the instance location they speak about
+inline auto simple_properties_fusions(const Instructions &instructions)
+    -> SimplePropertiesFusions {
+  SimplePropertiesFusions fusions;
+  for (const auto &instruction : instructions) {
+    if (instruction.type != InstructionIndex::AssertionObjectPropertiesSimple) {
+      continue;
+    }
+
+    auto match{std::ranges::find_if(
+        fusions, [&instruction](const auto &entry) -> bool {
+          return entry.first == instruction.relative_instance_location;
+        })};
+    if (match == fusions.end()) {
+      fusions.emplace_back(instruction.relative_instance_location,
+                           std::unordered_set<std::string>{});
+      match = std::prev(fusions.end());
+    }
+
+    for (const auto &entry :
+         std::get<ValueObjectProperties>(instruction.value)) {
+      if (std::get<2>(entry)) {
+        match->second.insert(std::get<0>(entry));
+      }
+    }
+  }
+
+  return fusions;
+}
+
+// Every children list of a target, each paired with the instruction that owns
+// it and with whether it is reached through a disjunction or a conditional.
+// Children come before the list that holds them, so a rewrite of one has
+// already happened by the time its parent is looked at. Whether a list is
+// reached through a branch is carried down the walk, as what holds for a
+// branch holds for everything nested inside it
+inline auto build_worklist(Instructions &target)
+    -> std::vector<std::tuple<Instructions *, Instruction *, bool>> {
+  std::vector<std::tuple<Instructions *, Instruction *, bool>> worklist;
+  std::vector<std::tuple<Instructions *, std::size_t, Instruction *, bool>>
+      stack;
+  stack.emplace_back(&target, 0, nullptr, false);
+
+  while (!stack.empty()) {
+    auto [current, index, owner, branching] = stack.back();
+    stack.pop_back();
+
+    while (index < current->size() && (*current)[index].children.empty()) {
+      ++index;
+    }
+
+    if (index < current->size()) {
+      stack.emplace_back(current, index + 1, owner, branching);
+      stack.emplace_back(&(*current)[index].children, 0, &(*current)[index],
+                         branching || is_disjunction((*current)[index].type) ||
+                             is_conditional((*current)[index].type));
+    } else {
+      worklist.emplace_back(current, owner, branching);
+    }
+  }
+
+  return worklist;
+}
+
 inline auto postprocess(std::vector<Instructions> &targets,
                         InstructionExtras &extra, const Tweaks &tweaks)
     -> void {
@@ -1157,29 +1289,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
       // Whether a list is reached through a disjunction or a conditional is
       // carried down the walk, as what holds for a branch holds for
       // everything nested inside it
-      std::vector<std::tuple<Instructions *, Instruction *, bool>> worklist;
-      std::vector<std::tuple<Instructions *, std::size_t, Instruction *, bool>>
-          stack;
-      stack.emplace_back(&target, 0, nullptr, false);
-
-      while (!stack.empty()) {
-        auto [current, index, owner, branching] = stack.back();
-        stack.pop_back();
-
-        while (index < current->size() && (*current)[index].children.empty()) {
-          ++index;
-        }
-
-        if (index < current->size()) {
-          stack.emplace_back(current, index + 1, owner, branching);
-          stack.emplace_back(&(*current)[index].children, 0, &(*current)[index],
-                             branching ||
-                                 is_disjunction((*current)[index].type) ||
-                                 is_conditional((*current)[index].type));
-        } else {
-          worklist.emplace_back(current, owner, branching);
-        }
-      }
+      const auto worklist{build_worklist(target)};
 
       for (const auto &[current, owner, branching] : worklist) {
         Instructions result;
@@ -1237,34 +1347,8 @@ inline auto postprocess(std::vector<Instructions> &targets,
         // subsume a sibling object type assertion. None of that says anything
         // about the rest of the instance, so a fused instruction may only
         // subsume siblings that apply to the very same instance location
-        std::vector<std::pair<sourcemeta::core::Pointer,
-                              std::unordered_set<std::string>>>
-            fusions;
-        if (!disjoint) {
-          for (const auto &instruction : *current) {
-            if (instruction.type !=
-                InstructionIndex::AssertionObjectPropertiesSimple) {
-              continue;
-            }
-
-            auto match{std::ranges::find_if(
-                fusions, [&instruction](const auto &entry) -> bool {
-                  return entry.first == instruction.relative_instance_location;
-                })};
-            if (match == fusions.end()) {
-              fusions.emplace_back(instruction.relative_instance_location,
-                                   std::unordered_set<std::string>{});
-              match = std::prev(fusions.end());
-            }
-
-            for (const auto &entry :
-                 std::get<ValueObjectProperties>(instruction.value)) {
-              if (std::get<2>(entry)) {
-                match->second.insert(std::get<0>(entry));
-              }
-            }
-          }
-        }
+        const auto fusions{disjoint ? SimplePropertiesFusions{}
+                                    : simple_properties_fusions(*current)};
 
         // A positional owner pairs child N with entry N of its own data, and
         // every entry past the last child only carries a presence requirement.
@@ -1288,44 +1372,10 @@ inline auto postprocess(std::vector<Instructions> &targets,
                 return entry.first == instruction.relative_instance_location;
               })};
 
-          if (fusion != fusions.cend()) {
-            switch (instruction.type) {
-              case InstructionIndex::AssertionDefinesAllStrict:
-              case InstructionIndex::AssertionDefinesAll: {
-                const auto &value{std::get<ValueStringSet>(instruction.value)};
-                bool all_covered{true};
-                for (const auto &property : value) {
-                  if (!fusion->second.contains(property.first)) {
-                    all_covered = false;
-                    break;
-                  }
-                }
-                if (all_covered) {
-                  target_changed = true;
-                  continue;
-                }
-                break;
-              }
-              case InstructionIndex::AssertionDefinesStrict:
-              case InstructionIndex::AssertionDefines: {
-                const auto &value{std::get<ValueProperty>(instruction.value)};
-                if (fusion->second.contains(value.first)) {
-                  target_changed = true;
-                  continue;
-                }
-                break;
-              }
-              case InstructionIndex::AssertionTypeStrict:
-              case InstructionIndex::AssertionType:
-                if (std::get<ValueType>(instruction.value) ==
-                    sourcemeta::core::JSON::Type::Object) {
-                  target_changed = true;
-                  continue;
-                }
-                break;
-              default:
-                break;
-            }
+          if (fusion != fusions.cend() &&
+              subsumed_by_fusion(instruction, fusion->second)) {
+            target_changed = true;
+            continue;
           }
 
           if (transform_instruction(instruction, result, extra, targets,
@@ -1363,27 +1413,7 @@ inline auto postprocess(std::vector<Instructions> &targets,
 
         if (remap) {
           boundaries.push_back(result.size());
-          auto &cursors{std::get<ValueIndexPair>(owner->value)};
-          const auto then_start{boundaries[cursors.first]};
-          if (then_start == 0) {
-            // The condition dropped to nothing, so it is always true: the then
-            // branch applies unconditionally and the else branch is dead. Keep
-            // only the then instructions and record an empty condition with no
-            // else, which the evaluator runs as the consequence
-            const auto else_start{cursors.second > 0
-                                      ? boundaries[cursors.second]
-                                      : result.size()};
-            result.erase(result.begin() +
-                             static_cast<std::ptrdiff_t>(else_start),
-                         result.end());
-            cursors.first = 0;
-            cursors.second = 0;
-          } else {
-            cursors.first = then_start;
-            if (cursors.second > 0) {
-              cursors.second = boundaries[cursors.second];
-            }
-          }
+          remap_boundaries(*owner, boundaries, result);
         }
 
         *current = std::move(result);
