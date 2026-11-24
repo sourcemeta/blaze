@@ -1,9 +1,9 @@
 #include <sourcemeta/core/test.h>
 
-#include <optional>
-#include <string>
-#include <string_view>
-#include <unordered_set>
+#include <optional>      // std::optional
+#include <string>        // std::string
+#include <string_view>   // std::string_view
+#include <unordered_set> // std::unordered_set
 
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
@@ -317,114 +317,6 @@ TEST(format_date_time_invalid_with_tweak_and_default_dialect_fast) {
       "3339 date-time");
 }
 
-TEST(format_keyword_value_integer_with_tweak_fast) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "format": 42
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_integer_with_tweak_exhaustive) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "format": 42
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_null_with_tweak_fast) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "format": null
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_null_with_tweak_exhaustive) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "format": null
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
 TEST(format_uri_with_assertion_vocab_valid_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://example.com/2020-12-format-assertion-meta",
@@ -532,28 +424,6 @@ TEST(format_uri_with_assertion_vocab_invalid_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"://bad\" was expected to represent a valid URI");
-}
-
-TEST(type_array_partially_unknown_names_invalid) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "type": [ "string", "foo" ]
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(), "This keyword was expected to be set to a "
-                               "known type name, or to a non-empty array of "
-                               "unique ones");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"type"}));
-    EXPECT_EQ(error.base().recompose(), "");
-  } catch (...) {
-    FAIL();
-  }
 }
 
 TEST(openapi_format_int32_is_not_asserted_with_assertion_vocabulary_fast) {

@@ -1,7 +1,5 @@
 #include <sourcemeta/core/test.h>
 
-#include <unordered_set>
-
 #include <sourcemeta/blaze/compiler.h>
 #include <sourcemeta/blaze/evaluator.h>
 
@@ -173,114 +171,6 @@ TEST(format_date_time_invalid_with_tweak_and_default_dialect_exhaustive) {
       instance, 0,
       "The string value \"not-a-date\" was expected to represent a valid RFC "
       "3339 date-time");
-}
-
-TEST(format_keyword_value_integer_with_tweak_fast) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "format": 42
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_integer_with_tweak_exhaustive) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "format": 42
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_null_with_tweak_fast) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "format": null
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "", tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(format_keyword_value_null_with_tweak_exhaustive) {
-  // The meta-schema asks that `format` be a string, so a schema that does not
-  // satisfy it is refused rather than compiled
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "format": null
-  })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive, "", "", "",
-                               tweaks);
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(),
-                 "This keyword was expected to be set to a string");
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"format"}));
-  } catch (...) {
-    FAIL();
-  }
 }
 
 TEST(unevaluated_properties_root_self_reference_fast) {

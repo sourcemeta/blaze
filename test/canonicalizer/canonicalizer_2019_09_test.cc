@@ -7,7 +7,6 @@
 #include <sourcemeta/core/jsonschema.h>
 
 #include <filesystem> // std::filesystem::path
-#include <memory>     // std::unique_ptr
 
 #include "canonicalizer_test_utils.h"
 

@@ -1,0 +1,42 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "required": [ "foo", "bar" ],
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "integer" }, "bar": { "type": "integer" } }
+  },
+  "instance": {
+    "foo": 99999999999999999999999999999999999.0,
+    "bar": 99999999999999999999999999999999999.0
+  },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ false, "LoopPropertiesExactlyTypeStrictHash", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The required object properties were expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesExactly", "/required", "#/required", "" ],
+      [ false, "AssertionTypeStrict", "/properties/bar/type", "#/properties/bar/type", "/bar" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to only define properties \"bar\", and \"foo\"",
+      "The value was expected to be of type integer but it was of type number",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}

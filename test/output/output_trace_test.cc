@@ -7,10 +7,9 @@
 
 #include <sourcemeta/core/jsonpointer.h>
 
-#include <map>     // std::map
-#include <sstream> // std::ostringstream
-#include <string>  // std::string
-#include <vector>  // std::vector
+#include <optional> // std::nullopt
+#include <string>   // std::string
+#include <vector>   // std::vector
 
 struct StoredTrace {
   sourcemeta::blaze::TraceOutput::EntryType type;

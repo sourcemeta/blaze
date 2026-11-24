@@ -12,8 +12,7 @@
 #include <sourcemeta/core/jsonpointer.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <string>      // std::string
-#include <string_view> // std::string_view
+#include <string> // std::string
 
 // The format has a schema of its own, in `schemas/table-format.json`. Every
 // document a test produces is held to it, so this module and the format it

@@ -1,5 +1,4 @@
 #include <cstdint>
-#include <stdexcept>
 #include <string>
 
 #include <sourcemeta/blaze/binpack_encoder_cache.h>
