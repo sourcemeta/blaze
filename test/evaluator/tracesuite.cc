@@ -314,7 +314,12 @@ auto main(int argc, char **argv) -> int {
     // The Sourcemeta extension vocabulary has a meta-schema per draft it
     // builds on, and a fixture answers to the base dialect of the one it
     // declares, so each of them holds its fixtures in a directory of its own.
-    // The meta-schemas themselves come from each directory's resolver
+    // Every fixture here resolves that meta-schema itself, reduced to the
+    // vocabulary declarations that make the extension keywords compile, so the
+    // check against it says only that the schema is well-formed for the draft
+    // underneath. The dialect these stand in for is in `schemas/`, and
+    // reaching for it instead would mean carrying its vocabulary document
+    // through every fixture
     register_tests(suite / "sourcemeta_v1_2019_09" / "valid",
                    "Evaluator_trace_sourcemeta_v1_2019_09",
                    "tag:sourcemeta.com,2026:extension/v1/2019-09", "",
