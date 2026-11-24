@@ -32,6 +32,7 @@ auto run_canonicalize_test(const std::string &name,
                            const sourcemeta::core::JSON &data,
                            const sourcemeta::blaze::Mode mode,
                            const std::string &default_dialect) -> void {
+  const FixtureResolver resolver{data};
   auto schema{data.at("schema")};
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
@@ -42,17 +43,16 @@ auto run_canonicalize_test(const std::string &name,
   // self-identification only arrives from the outside
   auto dialect{declared_dialect(schema)};
   if (dialect.empty()) {
-    dialect = default_dialect;
+    dialect = fixture_default_dialect(data, default_dialect);
   }
 
   sourcemeta::blaze::canonicalize(schema, sourcemeta::core::schema_walker,
-                                  sourcemeta::core::schema_resolver, dialect);
+                                  resolver, dialect);
 
   const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker,
-      sourcemeta::core::schema_resolver,
-      sourcemeta::blaze::default_schema_compiler, mode, dialect, "", "",
-      fixture_tweaks(name, data))};
+      schema, sourcemeta::core::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler, mode, dialect, "",
+      fixture_entrypoint(data), fixture_tweaks(name, data))};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
 
   sourcemeta::blaze::Evaluator evaluator;
@@ -76,6 +76,18 @@ register_tests(const std::filesystem::path &directory,
 
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
+    // An entrypoint names a place inside the document as it was written, and
+    // canonicalisation is free to restructure what it finds: it renumbers the
+    // definitions it rewrites, and drops a subschema nothing refers to. What
+    // the entrypoint named need not exist afterwards, so there is nothing here
+    // for this suite to compare. The plain trace suite still runs these
+    if (test_case.defines("entrypoint")) {
+      // NOLINTNEXTLINE(modernize-use-std-print)
+      std::fprintf(stderr, "-- Not canonicalising (names an entrypoint): %s\n",
+                   name.c_str());
+      continue;
+    }
+
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "_fast", sourcemeta::blaze::Mode::FastValidation},
@@ -115,6 +127,12 @@ auto main(int argc, char **argv) -> int {
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
     register_tests(suite / "2019_09" / "valid", "Canonicalize_2019_09",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_tests(suite / "sourcemeta_v1_2019_09" / "valid",
+                   "Canonicalize_sourcemeta_v1_2019_09",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_tests(suite / "sourcemeta_v1_2020_12" / "valid",
+                   "Canonicalize_sourcemeta_v1_2020_12",
+                   sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
     register_tests(suite / "draft6" / "valid", "Canonicalize_draft6",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
     register_tests(suite / "2020_12" / "valid", "Canonicalize_2020_12",

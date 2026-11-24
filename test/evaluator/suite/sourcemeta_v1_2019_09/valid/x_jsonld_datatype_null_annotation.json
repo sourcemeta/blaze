@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+    "x-jsonld-datatype": null,
+    "x-jsonld-override": true
+  },
+  "resolve": {
+    "tag:sourcemeta.com,2026:extension/v1/2019-09": {
+      "$id": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2019-09/vocab/core": true,
+        "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+        "https://json-schema.org/draft/2019-09/vocab/validation": true,
+        "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+        "https://json-schema.org/draft/2019-09/vocab/format": false,
+        "https://json-schema.org/draft/2019-09/vocab/content": true,
+        "tag:sourcemeta.com,2026:extension/v1": true
+      }
+    }
+  },
+  "instance": "foo",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-jsonld-datatype", "#/x-jsonld-datatype", "" ],
+      [ "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-jsonld-datatype", "#/x-jsonld-datatype", "", null ],
+      [ true, "Annotation", "/x-jsonld-override", "#/x-jsonld-override", "", true ]
+    ],
+    "descriptions": [
+      "The JSON-LD datatype was expected to be removed",
+      "The sibling JSON-LD annotations were expected to override the nested annotations they shadow"
+    ]
+  }
+}

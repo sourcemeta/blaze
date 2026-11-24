@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/string" } ],
+    "definitions": { "string": { "type": "string" } }
+  },
+  "instance": "foo",
+  "valid": true,
+  "entrypoint": "#/allOf/0",
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "#/definitions/string/type", "" ],
+      [ true, "ControlJump", "/$ref", "#/allOf/0/$ref", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema"
+    ]
+  }
+}

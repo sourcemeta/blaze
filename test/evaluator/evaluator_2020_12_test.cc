@@ -195,53 +195,6 @@ TEST(reference_from_unknown_keyword) {
   }
 }
 
-TEST(annotation_fast_whitelist_entrypoint_scope_short_circuits) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://example.com/top",
-    "x-test-custom": "Root",
-    "anyOf": [
-      { "type": "string" },
-      { "type": "integer" }
-    ],
-    "$defs": {
-      "inner": {
-        "$id": "https://example.com/inner",
-        "anyOf": [
-          { "type": "string" },
-          { "type": "integer" }
-        ]
-      }
-    }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"foo"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.annotations =
-      std::unordered_set<sourcemeta::core::JSON::StringView>{"x-test-custom"};
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2,
-                                           "https://example.com/inner", tweaks);
-
-  EVALUATE_TRACE_PRE(0, LogicalOr, "/anyOf", "https://example.com/inner#/anyOf",
-                     "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/anyOf/0/type",
-                     "https://example.com/inner#/anyOf/0/type", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/anyOf/0/type",
-                              "https://example.com/inner#/anyOf/0/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(1, LogicalOr, "/anyOf",
-                              "https://example.com/inner#/anyOf", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type string");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The string value was expected to validate "
-      "against at least one of the 2 given subschemas");
-}
-
 TEST(unevaluated_properties_annotations_none_still_tracks) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -269,52 +222,6 @@ TEST(unevaluated_properties_annotations_none_still_tracks) {
   const sourcemeta::core::JSON evaluated{
       sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
   EXPECT_TRUE(evaluator.validate(compiled_schema, evaluated));
-}
-
-TEST(format_date_time_valid_with_tweak_and_default_dialect_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_WITH_DEFAULT_DIALECT(
-      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema",
-      tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
-TEST(format_date_time_invalid_with_tweak_and_default_dialect_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not-a-date"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_WITH_DEFAULT_DIALECT(
-      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema",
-      tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not-a-date\" was expected to represent a valid RFC "
-      "3339 date-time");
 }
 
 TEST(format_uri_with_assertion_vocab_valid_fast) {
@@ -424,29 +331,6 @@ TEST(format_uri_with_assertion_vocab_invalid_exhaustive) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The string value \"://bad\" was expected to represent a valid URI");
-}
-
-TEST(openapi_format_int32_is_not_asserted_with_assertion_vocabulary_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "int32"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json("2147483648")};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
-                                            test_resolver);
-}
-
-TEST(openapi_format_float_is_not_asserted_with_assertion_vocabulary_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "float"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{3.14};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(schema, instance, 0, "",
-                                            test_resolver);
 }
 
 TEST(unevaluated_properties_root_self_reference_fast) {

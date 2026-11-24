@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "x-definitions": { "A": { "type": "integer" } },
+    "allOf": [ { "$ref": "#/x-definitions/A", "nullable": "not a boolean" } ]
+  },
+  "instance": 5,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/x-definitions/A/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/x-definitions/A/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "#/x-definitions/A/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "#/x-definitions/A/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the given subschema"
+    ]
+  }
+}

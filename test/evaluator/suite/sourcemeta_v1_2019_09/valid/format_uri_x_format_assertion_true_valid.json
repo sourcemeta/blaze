@@ -1,0 +1,52 @@
+{
+  "schema": {
+    "$schema": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+    "format": "uri",
+    "x-format-assertion": true
+  },
+  "resolve": {
+    "tag:sourcemeta.com,2026:extension/v1/2019-09": {
+      "$id": "tag:sourcemeta.com,2026:extension/v1/2019-09",
+      "$schema": "https://json-schema.org/draft/2019-09/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2019-09/vocab/core": true,
+        "https://json-schema.org/draft/2019-09/vocab/applicator": true,
+        "https://json-schema.org/draft/2019-09/vocab/validation": true,
+        "https://json-schema.org/draft/2019-09/vocab/meta-data": true,
+        "https://json-schema.org/draft/2019-09/vocab/format": false,
+        "https://json-schema.org/draft/2019-09/vocab/content": true,
+        "tag:sourcemeta.com,2026:extension/v1": true
+      }
+    }
+  },
+  "instance": "https://example.com",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ],
+      [ "Annotation", "/x-format-assertion", "#/x-format-assertion", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uri" ],
+      [ true, "Annotation", "/x-format-assertion", "#/x-format-assertion", "", true ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The logical type of the instance was expected to be \"uri\"",
+      "A sibling `format` keyword was expected to be enforced as an assertion"
+    ]
+  }
+}

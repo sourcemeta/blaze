@@ -1,0 +1,29 @@
+{
+  "schema": { "format": "date-time" },
+  "instance": "not-a-date",
+  "valid": false,
+  "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-a-date\" was expected to represent a valid RFC 3339 date-time"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-a-date\" was expected to represent a valid RFC 3339 date-time"
+    ]
+  }
+}

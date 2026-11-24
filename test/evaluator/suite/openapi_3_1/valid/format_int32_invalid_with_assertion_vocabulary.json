@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "https://example.com/openapi-3-1-format-assertion-meta",
+    "format": "int32"
+  },
+  "resolve": {
+    "https://example.com/openapi-3-1-format-assertion-meta": {
+      "$id": "https://example.com/openapi-3-1-format-assertion-meta",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true,
+        "https://spec.openapis.org/oas/3.1/vocab/base": true
+      },
+      "$dynamicAnchor": "meta",
+      "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" },
+        {
+          "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion"
+        },
+        { "$ref": "https://spec.openapis.org/oas/3.1/meta/base" }
+      ]
+    }
+  },
+  "instance": 2147483648,
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2147483648 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value 2147483648 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  }
+}

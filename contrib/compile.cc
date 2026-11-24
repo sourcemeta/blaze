@@ -33,8 +33,15 @@ static auto parse_resolve_directory(const std::string_view value)
 }
 
 static auto resolve_schema(const std::string_view identifier,
-                           const ResolveDirectories &resolve_directories)
+                           const ResolveDirectories &resolve_directories,
+                           const sourcemeta::core::JSON &schemas)
     -> sourcemeta::core::SchemaResolverResult {
+  const auto *named{
+      schemas.try_at(sourcemeta::core::JSON::StringView{identifier})};
+  if (named != nullptr) {
+    return *named;
+  }
+
   for (const auto &[prefix, directory] : resolve_directories) {
     if (!identifier.starts_with(prefix)) {
       continue;
@@ -67,6 +74,8 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("default-dialect", {"d"});
   options.option("resolve-directory", {"r"});
   options.option("path", {"p"});
+  options.option("entrypoint", {"e"});
+  options.option("resolve-path", {});
   register_tweak_options(options);
 
   try {
@@ -81,7 +90,9 @@ auto main(int argc, char **argv) noexcept -> int {
     std::cerr << "Usage: " << argv[0]
               << " [--fast] [--default-dialect <uri>] "
                  "[--resolve-directory <uri-prefix>,<dir>]... "
-                 "[--path <pointer>] [--format-assertion] "
+                 "[--resolve-path <pointer>] "
+                 "[--path <pointer>] [--entrypoint <uri-or-pointer>] "
+                 "[--format-assertion] "
                  "[--annotations <keyword>]... [--no-annotations] "
                  "<schema.json>\n";
     return EXIT_FAILURE;
@@ -130,15 +141,38 @@ auto main(int argc, char **argv) noexcept -> int {
       }
     }
 
-    const auto resolver{
-        [&resolve_directories](const std::string_view identifier)
-            -> sourcemeta::core::SchemaResolverResult {
-          return resolve_schema(identifier, resolve_directories);
-        }};
-
     auto document{
         sourcemeta::core::read_json(std::filesystem::path{positional.front()})};
     std::cerr << "Input: " << positional.front() << "\n";
+
+    // The schemas the input itself supplies for the URIs its schema reaches
+    // for, named by a pointer the way `--path` names the schema. Read before
+    // `--path` narrows the document to the schema alone
+    auto schemas{sourcemeta::core::JSON::make_object()};
+    if (options.contains("resolve-path")) {
+      const auto pointer{
+          sourcemeta::core::to_pointer(options.at("resolve-path").front())};
+      const auto *result{sourcemeta::core::try_get(document, pointer)};
+      if (result == nullptr) {
+        std::cerr << "error: resolve path not found in input: "
+                  << options.at("resolve-path").front() << "\n";
+        return EXIT_FAILURE;
+      }
+
+      if (!result->is_object()) {
+        std::cerr << "error: expected an object of URIs to schemas at: "
+                  << options.at("resolve-path").front() << "\n";
+        return EXIT_FAILURE;
+      }
+
+      schemas = *result;
+    }
+
+    const auto resolver{
+        [&resolve_directories, &schemas](const std::string_view identifier)
+            -> sourcemeta::core::SchemaResolverResult {
+          return resolve_schema(identifier, resolve_directories, schemas);
+        }};
 
     if (options.contains("path")) {
       const auto pointer{
@@ -155,10 +189,16 @@ auto main(int argc, char **argv) noexcept -> int {
     }
 
     const auto compile_start{std::chrono::high_resolution_clock::now()};
+    std::string entrypoint;
+    if (options.contains("entrypoint")) {
+      entrypoint = options.at("entrypoint").front();
+      std::cerr << "Entrypoint: " << entrypoint << "\n";
+    }
+
     const auto schema_template{sourcemeta::blaze::compile(
         document, sourcemeta::core::schema_walker, resolver,
         sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-        "", tweaks)};
+        entrypoint, tweaks)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{
         std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -

@@ -1,0 +1,15 @@
+{
+  "schema": { "format": "uri" },
+  "instance": "://bad",
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

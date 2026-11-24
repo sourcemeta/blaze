@@ -1,0 +1,16 @@
+{
+  "schema": { "format": "uri-template" },
+  "instance": "{unclosed",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

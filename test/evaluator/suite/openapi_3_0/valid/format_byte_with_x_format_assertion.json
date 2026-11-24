@@ -1,0 +1,27 @@
+{
+  "schema": { "format": "byte", "x-format-assertion": true },
+  "instance": "Zm9vYmF",
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zm9vYmF\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zm9vYmF\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

@@ -710,17 +710,3 @@ TEST(top_level_ref_with_id_exhaustive) {
                  "introducing undefined behavior");
   }
 }
-
-TEST(boolean_subschema_entrypoint) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "definitions": {
-      "everything": true
-    }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"foo"};
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0,
-                                   "#/definitions/everything");
-}

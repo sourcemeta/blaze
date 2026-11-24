@@ -36,8 +36,22 @@ export function compileSchema(schemaPath, options) {
     args.push('--resolve-directory', options.resolveDirectory);
   }
 
+  // Where in the same file the schemas it supplies for the URIs it references
+  // are, named the way `--path` names the schema
+  // An empty pointer names the whole document, so what decides this is whether
+  // the caller asked at all rather than whether the pointer says anything
+  if (options && options.resolvePath !== undefined) {
+    args.push('--resolve-path', options.resolvePath);
+  }
+
   if (options && options.path) {
     args.push('--path', options.path);
+  }
+
+  // Where the schema itself starts, which is not the same question as where the
+  // schema sits in the file `--path` reads it out of
+  if (options && options.entrypoint) {
+    args.push('--entrypoint', options.entrypoint);
   }
 
   // The fixtures name compiler knobs, and this port borrows the C++ compiler,

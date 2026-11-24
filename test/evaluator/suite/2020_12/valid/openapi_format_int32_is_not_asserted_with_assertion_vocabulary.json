@@ -1,0 +1,39 @@
+{
+  "schema": {
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "int32"
+  },
+  "resolve": {
+    "https://example.com/2020-12-format-assertion-meta": {
+      "$id": "https://example.com/2020-12-format-assertion-meta",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+      },
+      "$dynamicAnchor": "meta",
+      "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" },
+        {
+          "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion"
+        }
+      ]
+    }
+  },
+  "instance": 2147483648,
+  "valid": true,
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}
