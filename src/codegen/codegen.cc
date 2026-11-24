@@ -55,22 +55,40 @@ auto is_validation_subschema(
 using Subschemas = std::vector<
     std::reference_wrapper<const sourcemeta::core::SchemaFrame::Location>>;
 
-/// The innermost subschema a given one sits inside, or nothing when it is the
-/// document itself
-auto enclosing_subschema(const Subschemas &subschemas,
-                         const sourcemeta::core::WeakPointer &pointer)
-    -> const sourcemeta::core::SchemaFrame::Location * {
-  const sourcemeta::core::SchemaFrame::Location *result{nullptr};
+/// Where the document holds a subschema, by the place it sits at
+using Subschemata = std::unordered_map<
+    sourcemeta::core::WeakPointer,
+    std::reference_wrapper<const sourcemeta::core::SchemaFrame::Location>,
+    sourcemeta::core::WeakPointer::Hasher,
+    sourcemeta::core::WeakPointer::Comparator>;
+
+auto index_subschemas(const Subschemas &subschemas) -> Subschemata {
+  Subschemata result;
+  result.reserve(subschemas.size());
   for (const auto &candidate : subschemas) {
-    const auto &other{candidate.get()};
-    if (pointer.size() > other.pointer.size() &&
-        pointer.starts_with(other.pointer) &&
-        (result == nullptr || other.pointer.size() > result->pointer.size())) {
-      result = &other;
-    }
+    result.emplace(candidate.get().pointer, candidate);
   }
 
   return result;
+}
+
+/// The innermost subschema a given one sits inside, or nothing when it is the
+/// document itself. Walking out a token at a time stops at the first place the
+/// document holds a subschema, which is the innermost one, so what this costs
+/// is how deep the place sits rather than how many subschemas there are
+auto enclosing_subschema(const Subschemata &subschemata,
+                         const sourcemeta::core::WeakPointer &pointer)
+    -> const sourcemeta::core::SchemaFrame::Location * {
+  auto current{pointer};
+  while (!current.empty()) {
+    current.pop_back();
+    const auto match{subschemata.find(current)};
+    if (match != subschemata.cend()) {
+      return &match->second.get();
+    }
+  }
+
+  return nullptr;
 }
 
 /// Whether the keyword leading from one subschema to another says only what an
@@ -137,11 +155,13 @@ using Edges = std::unordered_map<sourcemeta::core::WeakPointer, Edge,
 auto edges(const sourcemeta::core::SchemaFrame &frame,
            const sourcemeta::core::SchemaWalker &walker,
            const sourcemeta::core::SchemaResolver &resolver,
-           const Subschemas &subschemas) -> Edges {
+           const Subschemas &subschemas, const Subschemata &subschemata)
+    -> Edges {
   Edges result;
+  result.reserve(subschemas.size());
   for (const auto &candidate : subschemas) {
     const auto &subschema{candidate.get()};
-    const auto *node{enclosing_subschema(subschemas, subschema.pointer)};
+    const auto *node{enclosing_subschema(subschemata, subschema.pointer)};
     if (node != nullptr) {
       result.emplace(subschema.pointer,
                      Edge{.validates = edge_only_validates(
@@ -239,22 +259,20 @@ auto references(const sourcemeta::core::SchemaFrame &frame, const Edges &edges)
 
 /// The node a subschema belongs to: itself where a reference names it, and
 /// otherwise the innermost node holding it. The document is a node of its
-/// own, so every subschema belongs to one
+/// own, so every subschema belongs to one, and walking out a token at a time
+/// arrives at the innermost of them
 auto owner(const Nodes &nodes, const sourcemeta::core::WeakPointer &pointer)
     -> sourcemeta::core::WeakPointer {
-  if (nodes.contains(pointer)) {
-    return pointer;
-  }
-
-  auto result{sourcemeta::core::EMPTY_WEAK_POINTER};
-  for (const auto &node : nodes) {
-    if (pointer.size() > node.size() && pointer.starts_with(node) &&
-        node.size() > result.size()) {
-      result = node;
+  auto current{pointer};
+  while (!current.empty()) {
+    if (nodes.contains(current)) {
+      return current;
     }
+
+    current.pop_back();
   }
 
-  return result;
+  return sourcemeta::core::EMPTY_WEAK_POINTER;
 }
 
 /// The subschemas that say what an instance looks like. While a dialect keeps
@@ -394,7 +412,9 @@ auto compile(const sourcemeta::core::JSON &input,
   frame.for_each_subschema(
       [&subschemas](const sourcemeta::core::SchemaFrame::Location &location)
           -> void { subschemas.emplace_back(location); });
-  const auto document_edges{edges(frame, walker, resolver, subschemas)};
+  const auto subschemata{index_subschemas(subschemas)};
+  const auto document_edges{
+      edges(frame, walker, resolver, subschemas, subschemata)};
   const auto reached{describing(subschemas, document_edges,
                                 references(frame, document_edges))};
   CodegenIRResult result;
