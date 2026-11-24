@@ -1,0 +1,61 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "required": [ "foo" ],
+    "additionalProperties": false,
+    "properties": { "foo": { "type": "string" } }
+  },
+  "instance": { "foo": "bar", "extra": 1 },
+  "valid": false,
+  "tweaks": { "annotations": [ "properties" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to be of type string",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define additional properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ],
+      [ "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ],
+      [ "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ]
+    ],
+    "post": [
+      [ true, "AssertionDefinesStrict", "/required", "#/required", "" ],
+      [ true, "AssertionTypeStrict", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ false, "AssertionFail", "/additionalProperties", "#/additionalProperties", "/extra" ],
+      [ false, "LoopPropertiesExcept", "/additionalProperties", "#/additionalProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be an object that defines the property \"foo\"",
+      "The value was expected to be of type string",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas",
+      "The object value was not expected to define the property \"extra\"",
+      "The object value was not expected to define additional properties"
+    ]
+  }
+}

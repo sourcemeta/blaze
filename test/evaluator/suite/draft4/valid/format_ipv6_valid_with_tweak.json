@@ -1,0 +1,28 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-04/schema#", "format": "ipv6" },
+  "instance": "2001:db8::1",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"2001:db8::1\" was expected to represent a valid IPv6 address"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"2001:db8::1\" was expected to represent a valid IPv6 address"
+    ]
+  }
+}

@@ -76,17 +76,13 @@ register_tests(const std::filesystem::path &directory,
 
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
-
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "_fast", sourcemeta::blaze::Mode::FastValidation},
           std::pair<const char *, sourcemeta::blaze::Mode>{
               "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
-
-      const auto title{name + mode_suffix};
-
       sourcemeta::core::test_register(
-          suite_name, title, __FILE__, __LINE__,
+          suite_name, name + mode_suffix, __FILE__, __LINE__,
           [name, test_case, mode, default_dialect]() -> void {
             run_canonicalize_test(name, test_case, mode, default_dialect);
           });

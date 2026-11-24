@@ -1,0 +1,47 @@
+{
+  "comment": "The root-level cases cannot tell a correctly placed assertion from one that only ever reports the schema and instance roots, so a property schema pins the nested keyword and instance locations",
+  "schema": {
+    "type": "object",
+    "properties": { "data": { "type": "string", "format": "byte" } }
+  },
+  "instance": { "data": "Zg==" },
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/properties/data/format", "#/properties/data/format", "/data" ],
+      [ "AssertionPropertyTypeStrict", "/properties/data/type", "#/properties/data/type", "/data" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/properties/data/format", "#/properties/data/format", "/data" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/data/type", "#/properties/data/type", "/data" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\" was expected to represent a valid RFC 4648 Base64 string",
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionStringType", "/properties/data/format", "#/properties/data/format", "/data" ],
+      [ "AssertionTypeStrict", "/properties/data/type", "#/properties/data/type", "/data" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/properties/data/format", "#/properties/data/format", "/data" ],
+      [ true, "AssertionTypeStrict", "/properties/data/type", "#/properties/data/type", "/data" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\" was expected to represent a valid RFC 4648 Base64 string",
+      "The value was expected to be of type string",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

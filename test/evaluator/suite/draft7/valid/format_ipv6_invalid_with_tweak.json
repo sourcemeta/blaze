@@ -1,0 +1,28 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-07/schema#", "format": "ipv6" },
+  "instance": "not-an-ipv6",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-an-ipv6\" was expected to represent a valid IPv6 address"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not-an-ipv6\" was expected to represent a valid IPv6 address"
+    ]
+  }
+}

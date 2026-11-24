@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "value": {
+        "oneOf": [
+          { "type": "string", "x-test-custom": "First" },
+          { "type": "integer", "x-test-custom": "Second" }
+        ]
+      }
+    }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalXor", "/properties/value/oneOf", "#/properties/value/oneOf", "/value" ],
+      [ "Annotation", "/properties/value/oneOf/0/x-test-custom", "#/properties/value/oneOf/0/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/oneOf/0/type", "#/properties/value/oneOf/0/type", "/value" ],
+      [ "Annotation", "/properties/value/oneOf/1/x-test-custom", "#/properties/value/oneOf/1/x-test-custom", "/value" ],
+      [ "AssertionType", "/properties/value/oneOf/1/type", "#/properties/value/oneOf/1/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/oneOf/0/x-test-custom", "#/properties/value/oneOf/0/x-test-custom", "/value", "First" ],
+      [ true, "AssertionTypeStrict", "/properties/value/oneOf/0/type", "#/properties/value/oneOf/0/type", "/value" ],
+      [ true, "Annotation", "/properties/value/oneOf/1/x-test-custom", "#/properties/value/oneOf/1/x-test-custom", "/value", "Second" ],
+      [ false, "AssertionType", "/properties/value/oneOf/1/type", "#/properties/value/oneOf/1/type", "/value" ],
+      [ true, "LogicalXor", "/properties/value/oneOf", "#/properties/value/oneOf", "/value" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Second\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against one and only one of the 2 given subschemas",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalXor", "/properties/value/oneOf", "#/properties/value/oneOf", "/value" ],
+      [ "Annotation", "/properties/value/oneOf/0/x-test-custom", "#/properties/value/oneOf/0/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/oneOf/0/type", "#/properties/value/oneOf/0/type", "/value" ],
+      [ "Annotation", "/properties/value/oneOf/1/x-test-custom", "#/properties/value/oneOf/1/x-test-custom", "/value" ],
+      [ "AssertionType", "/properties/value/oneOf/1/type", "#/properties/value/oneOf/1/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/oneOf/0/x-test-custom", "#/properties/value/oneOf/0/x-test-custom", "/value", "First" ],
+      [ true, "AssertionTypeStrict", "/properties/value/oneOf/0/type", "#/properties/value/oneOf/0/type", "/value" ],
+      [ true, "Annotation", "/properties/value/oneOf/1/x-test-custom", "#/properties/value/oneOf/1/x-test-custom", "/value", "Second" ],
+      [ false, "AssertionType", "/properties/value/oneOf/1/type", "#/properties/value/oneOf/1/type", "/value" ],
+      [ true, "LogicalXor", "/properties/value/oneOf", "#/properties/value/oneOf", "/value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"First\"",
+      "The value was expected to be of type string",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Second\"",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against one and only one of the 2 given subschemas",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

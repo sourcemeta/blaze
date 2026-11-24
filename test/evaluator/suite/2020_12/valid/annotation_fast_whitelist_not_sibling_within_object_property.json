@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": { "value": { "not": { "type": "integer" }, "x-test-custom": "Not" } }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalNot", "/properties/value/not", "#/properties/value/not", "/value" ],
+      [ "AssertionType", "/properties/value/not/type", "#/properties/value/not/type", "/value" ],
+      [ "Annotation", "/properties/value/x-test-custom", "#/properties/value/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/properties/value/not/type", "#/properties/value/not/type", "/value" ],
+      [ true, "LogicalNot", "/properties/value/not", "#/properties/value/not", "/value" ],
+      [ true, "Annotation", "/properties/value/x-test-custom", "#/properties/value/x-test-custom", "/value", "Not" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to not validate against the given subschema",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Not\"",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalNot", "/properties/value/not", "#/properties/value/not", "/value" ],
+      [ "AssertionType", "/properties/value/not/type", "#/properties/value/not/type", "/value" ],
+      [ "Annotation", "/properties/value/x-test-custom", "#/properties/value/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionType", "/properties/value/not/type", "#/properties/value/not/type", "/value" ],
+      [ true, "LogicalNot", "/properties/value/not", "#/properties/value/not", "/value" ],
+      [ true, "Annotation", "/properties/value/x-test-custom", "#/properties/value/x-test-custom", "/value", "Not" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to not validate against the given subschema",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Not\"",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

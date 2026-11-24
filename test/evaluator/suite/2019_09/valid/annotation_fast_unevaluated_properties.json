@@ -1,0 +1,53 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "type": "integer" } },
+    "unevaluatedProperties": { "type": "string" }
+  },
+  "instance": { "foo": 1, "bar": "y" },
+  "valid": true,
+  "tweaks": { "annotations": [ "unevaluatedProperties" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ true, "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "", "bar" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type string",
+      "The object property \"bar\" successfully validated against the subschema for unevaluated properties",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ],
+      [ "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/properties/foo/type", "#/properties/foo/type", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/unevaluatedProperties/type", "#/unevaluatedProperties/type", "/bar" ],
+      [ true, "Annotation", "/unevaluatedProperties", "#/unevaluatedProperties", "", "bar" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "#/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type string",
+      "The object property \"bar\" successfully validated against the subschema for unevaluated properties",
+      "The object properties not covered by other object keywords were expected to validate against this subschema"
+    ]
+  }
+}

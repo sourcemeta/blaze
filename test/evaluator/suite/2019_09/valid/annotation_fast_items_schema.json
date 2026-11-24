@@ -1,0 +1,49 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": { "type": "string" }
+  },
+  "instance": [ "a" ],
+  "valid": true,
+  "tweaks": { "annotations": [ "items" ] },
+  "fast": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "LogicalWhenType", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenType", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The value was expected to be of type array"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItems", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ "LogicalWhenType", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/0" ],
+      [ true, "LoopItems", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenType", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The value was expected to be of type array"
+    ]
+  }
+}

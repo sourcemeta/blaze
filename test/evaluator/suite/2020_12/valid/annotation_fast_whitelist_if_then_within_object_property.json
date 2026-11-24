@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "value": { "if": { "type": "string" }, "then": { "x-test-custom": "Then" } }
+    }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalCondition", "/properties/value/if", "#/properties/value/if", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/if/type", "#/properties/value/if/type", "/value" ],
+      [ "Annotation", "/properties/value/then/x-test-custom", "#/properties/value/then/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/value/if/type", "#/properties/value/if/type", "/value" ],
+      [ true, "Annotation", "/properties/value/then/x-test-custom", "#/properties/value/then/x-test-custom", "/value", "Then" ],
+      [ true, "LogicalCondition", "/properties/value/if", "#/properties/value/if", "/value" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Then\"",
+      "The string value was expected to validate against the given conditional",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "LogicalCondition", "/properties/value/if", "#/properties/value/if", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/if/type", "#/properties/value/if/type", "/value" ],
+      [ "Annotation", "/properties/value/then/x-test-custom", "#/properties/value/then/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/value/if/type", "#/properties/value/if/type", "/value" ],
+      [ true, "Annotation", "/properties/value/then/x-test-custom", "#/properties/value/then/x-test-custom", "/value", "Then" ],
+      [ true, "LogicalCondition", "/properties/value/if", "#/properties/value/if", "/value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Then\"",
+      "The string value was expected to validate against the given conditional",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

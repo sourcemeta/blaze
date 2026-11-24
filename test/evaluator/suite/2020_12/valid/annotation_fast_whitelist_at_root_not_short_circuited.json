@@ -1,0 +1,50 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "x-test-custom": "Root",
+    "anyOf": [ { "type": "string" }, { "type": "integer" } ]
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ "Annotation", "/x-test-custom", "#/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ true, "Annotation", "/x-test-custom", "#/x-test-custom", "", "Root" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Root\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ "Annotation", "/x-test-custom", "#/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ false, "AssertionType", "/anyOf/1/type", "#/anyOf/1/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ true, "Annotation", "/x-test-custom", "#/x-test-custom", "", "Root" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The value was expected to be of type integer but it was of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas",
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Root\""
+    ]
+  }
+}

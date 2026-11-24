@@ -1,0 +1,38 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "data": { "$ref": "#/x-definitions/S" } },
+    "x-definitions": { "S": { "type": "string", "format": "byte" } }
+  },
+  "instance": { "data": "not base64" },
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/properties/data/$ref/format", "#/x-definitions/S/format", "/data" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/properties/data/$ref/format", "#/x-definitions/S/format", "/data" ]
+    ],
+    "descriptions": [
+      "The string value \"not base64\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/data/$ref", "#/properties/data/$ref", "/data" ],
+      [ "AssertionStringType", "/properties/data/$ref/format", "#/x-definitions/S/format", "/data" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/properties/data/$ref/format", "#/x-definitions/S/format", "/data" ],
+      [ false, "ControlJump", "/properties/data/$ref", "#/properties/data/$ref", "/data" ],
+      [ false, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"not base64\" was expected to represent a valid RFC 4648 Base64 string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

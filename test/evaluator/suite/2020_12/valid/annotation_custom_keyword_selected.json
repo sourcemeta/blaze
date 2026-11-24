@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "My title",
+    "x-test-custom": "hello"
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/x-test-custom", "#/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-test-custom", "#/x-test-custom", "", "hello" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"hello\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "Annotation", "/x-test-custom", "#/x-test-custom", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/x-test-custom", "#/x-test-custom", "", "hello" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"hello\""
+    ]
+  }
+}

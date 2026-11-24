@@ -1,0 +1,32 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "string",
+    "format": "uri"
+  },
+  "instance": 42,
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ false, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string but it was of type integer"
+    ]
+  }
+}

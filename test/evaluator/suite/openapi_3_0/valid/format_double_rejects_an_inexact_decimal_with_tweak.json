@@ -1,0 +1,29 @@
+{
+  "comment": "A decimal literal is only a binary64 value when it lands on one exactly, so the ones an API typically carries do not satisfy this format",
+  "schema": { "format": "double" },
+  "instance": 3.14,
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 3.14 was expected to be exactly representable as an IEEE 754 double precision floating point number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 3.14 was expected to be exactly representable as an IEEE 754 double precision floating point number"
+    ]
+  }
+}

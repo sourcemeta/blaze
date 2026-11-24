@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "format": "date-time"
+  },
+  "instance": 42,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

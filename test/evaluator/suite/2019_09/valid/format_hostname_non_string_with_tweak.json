@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "hostname"
+  },
+  "instance": null,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

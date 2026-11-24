@@ -1,0 +1,29 @@
+{
+  "comment": "Annotation extraction only exists from 2019-09 onwards, so even exhaustive mode compiles a format assertion to that one instruction and nothing else",
+  "schema": { "format": "byte" },
+  "instance": "Zm9vYmFy",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zm9vYmFy\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zm9vYmFy\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

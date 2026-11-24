@@ -1,0 +1,29 @@
+{
+  "comment": "Padding is part of the canonical form, so a strict check accepts it",
+  "schema": { "format": "byte" },
+  "instance": "Zg==",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

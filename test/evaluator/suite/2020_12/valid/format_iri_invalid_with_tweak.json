@@ -1,0 +1,28 @@
+{
+  "schema": { "$schema": "https://json-schema.org/draft/2020-12/schema", "format": "iri" },
+  "instance": "://bad",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid IRI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"://bad\" was expected to represent a valid IRI"
+    ]
+  }
+}

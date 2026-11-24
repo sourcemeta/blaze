@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "format": "uuid"
+  },
+  "instance": "550e8400-e29b-41d4-a716-446655440000",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"550e8400-e29b-41d4-a716-446655440000\" was expected to represent a valid UUID"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uuid" ]
+    ],
+    "descriptions": [
+      "The string value \"550e8400-e29b-41d4-a716-446655440000\" was expected to represent a valid UUID",
+      "The logical type of the instance was expected to be \"uuid\""
+    ]
+  }
+}

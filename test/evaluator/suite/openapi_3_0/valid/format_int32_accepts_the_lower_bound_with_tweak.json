@@ -1,0 +1,29 @@
+{
+  "comment": "Two's complement makes each lower bound one further from zero than its upper bound, which is exactly where a hand-written range check slips",
+  "schema": { "format": "int32" },
+  "instance": -2147483648,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value -2147483648 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value -2147483648 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  }
+}

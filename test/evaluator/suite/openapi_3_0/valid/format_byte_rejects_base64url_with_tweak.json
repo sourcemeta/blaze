@@ -1,0 +1,29 @@
+{
+  "comment": "The specification names RFC 4648 Section 4, whose alphabet is not the Section 5 one that spells the last two characters as `-` and `_`",
+  "schema": { "format": "byte" },
+  "instance": "a-_b",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a-_b\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a-_b\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": { "format": "double" },
+  "instance": 1e+300,
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 1e+300 was expected to be exactly representable as an IEEE 754 double precision floating point number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 1e+300 was expected to be exactly representable as an IEEE 754 double precision floating point number"
+    ]
+  }
+}

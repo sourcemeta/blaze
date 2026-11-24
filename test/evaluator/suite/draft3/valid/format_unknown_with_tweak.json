@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "format": "not-a-real-format"
+  },
+  "instance": "anything",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

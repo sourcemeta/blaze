@@ -53,16 +53,41 @@ inline auto check_fixture_keys(
   }
 }
 
+// A fixture says what it is through its file name, so a comment is only there
+// to say why it exists. One line keeps it to that, rather than letting prose
+// that belongs in a document grow inside the data
+inline auto check_fixture_comment(const std::filesystem::path &path,
+                                  const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto *comment{fixture.try_at("comment")};
+  if (comment == nullptr) {
+    return;
+  }
+
+  if (!comment->is_string() || comment->empty()) {
+    throw std::runtime_error{path.string() +
+                             ": expected `comment` to be a non-empty string"};
+  }
+
+  if (comment->to_string().find('\n') != sourcemeta::core::JSON::String::npos) {
+    throw std::runtime_error{path.string() +
+                             ": expected `comment` to be a single line"};
+  }
+}
+
 inline auto check_fixture(const std::filesystem::path &path,
                           const FixtureKind kind,
                           const sourcemeta::core::JSON &fixture) -> void {
   if (kind == FixtureKind::Trace) {
     check_fixture_keys(path, fixture,
                        {"schema", "instance", "valid", "fast", "exhaustive"},
-                       {"tweaks"});
+                       {"comment", "tweaks"});
   } else {
-    check_fixture_keys(path, fixture, {"schema", "error"}, {"tweaks"});
+    check_fixture_keys(path, fixture, {"schema", "error"},
+                       {"comment", "tweaks"});
   }
+
+  check_fixture_comment(path, fixture);
 }
 
 // The compiler knobs a fixture asks for, if it asks for any. Only the knobs the

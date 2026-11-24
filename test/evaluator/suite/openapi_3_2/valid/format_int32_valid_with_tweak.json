@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "int32"
+  },
+  "instance": 5,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "int32" ]
+    ],
+    "descriptions": [
+      "The integer value 5 was expected to be an integer between -2147483648 and 2147483647",
+      "The logical type of the instance was expected to be \"int32\""
+    ]
+  }
+}

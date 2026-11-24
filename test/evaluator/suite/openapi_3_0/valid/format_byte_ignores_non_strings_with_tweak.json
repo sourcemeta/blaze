@@ -1,0 +1,16 @@
+{
+  "schema": { "format": "byte" },
+  "instance": 1,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

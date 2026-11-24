@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "prefixItems": [ { "type": "integer" } ],
+    "items": { "type": "string" }
+  },
+  "instance": [ 1, "a" ],
+  "valid": true,
+  "tweaks": { "annotations": [ "items" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first one was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/prefixItems/0/type", "#/prefixItems/0/type", "/0" ],
+      [ true, "AssertionArrayPrefix", "/prefixItems", "#/prefixItems", "" ],
+      [ true, "AssertionTypeStrict", "/items/type", "#/items/type", "/1" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first one was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

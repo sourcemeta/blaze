@@ -1,0 +1,56 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "items": [ { "type": "integer" } ],
+    "additionalItems": { "type": "string" }
+  },
+  "instance": [ 1, "a" ],
+  "valid": true,
+  "tweaks": { "annotations": [ "items" ] },
+  "fast": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first one was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ "Annotation", "/items", "#/items", "" ],
+      [ "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ],
+      [ "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/items/0/type", "#/items/0/type", "/0" ],
+      [ true, "Annotation", "/items", "#/items", "", 0 ],
+      [ true, "AssertionArrayPrefix", "/items", "#/items", "" ],
+      [ true, "AssertionTypeStrict", "/additionalItems/type", "#/additionalItems/type", "/1" ],
+      [ true, "LoopItemsFrom", "/additionalItems", "#/additionalItems", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The first item of the array value successfully validated against the first positional subschema",
+      "The first item of the array value was expected to validate against the corresponding subschemas",
+      "The value was expected to be of type string",
+      "Every item in the array value except for the first one was expected to validate against the given subschema"
+    ]
+  }
+}

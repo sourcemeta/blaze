@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "$schema": "https://spec.openapis.org/oas/3.1/dialect/base",
+    "format": "decimal"
+  },
+  "instance": "not a decimal",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

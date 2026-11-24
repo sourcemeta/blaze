@@ -1,0 +1,37 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "anyOf": [ { "type": "string" }, true ]
+  },
+  "instance": "foo",
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalOr", "/anyOf", "#/anyOf", "" ],
+      [ "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/anyOf/0/type", "#/anyOf/0/type", "" ],
+      [ true, "LogicalOr", "/anyOf", "#/anyOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against at least one of the 2 given subschemas"
+    ]
+  }
+}

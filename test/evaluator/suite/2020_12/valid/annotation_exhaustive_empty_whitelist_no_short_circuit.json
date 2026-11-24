@@ -1,0 +1,40 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "contains": { "type": "integer" }
+  },
+  "instance": [ 1, 2 ],
+  "valid": true,
+  "tweaks": { "annotations": [] },
+  "fast": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionType", "/contains/type", "#/contains/type", "/0" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopContains", "/contains", "#/contains", "" ],
+      [ "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+      [ "AssertionType", "/contains/type", "#/contains/type", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionType", "/contains/type", "#/contains/type", "/0" ],
+      [ true, "AssertionType", "/contains/type", "#/contains/type", "/1" ],
+      [ true, "LoopContains", "/contains", "#/contains", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type integer",
+      "The value was expected to be of type integer",
+      "The array value was expected to contain at least 1 item that validates against the given subschema"
+    ]
+  }
+}

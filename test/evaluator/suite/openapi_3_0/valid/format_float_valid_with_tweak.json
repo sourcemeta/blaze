@@ -1,0 +1,28 @@
+{
+  "schema": { "format": "float" },
+  "instance": 0.5,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.5 was expected to be exactly representable as an IEEE 754 single precision floating point number"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 0.5 was expected to be exactly representable as an IEEE 754 single precision floating point number"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": { "type": "string", "nullable": true, "format": "byte" },
+  "instance": "notbase64!",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"notbase64!\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"notbase64!\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

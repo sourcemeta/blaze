@@ -2212,50 +2212,6 @@ TEST(type_number_valid_decimal_lexical_bignum_fast) {
                                "The value was expected to be of type number");
 }
 
-TEST(format_date_time_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
-TEST(format_date_time_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not-a-date"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not-a-date\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
 TEST(format_date_time_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2265,50 +2221,6 @@ TEST(format_date_time_no_tweak_fast) {
   const sourcemeta::core::JSON instance{"not-a-date"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_email_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"user@example.com"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"user@example.com\" was expected to represent a "
-      "valid email address");
-}
-
-TEST(format_email_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not-an-email"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not-an-email\" was expected to represent a "
-      "valid email address");
 }
 
 TEST(format_email_no_tweak_fast) {
@@ -2322,50 +2234,6 @@ TEST(format_email_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_hostname_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"www.example.com"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"www.example.com\" was expected to represent a "
-      "valid hostname");
-}
-
-TEST(format_hostname_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"-bad-host"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"-bad-host\" was expected to represent a "
-      "valid hostname");
-}
-
 TEST(format_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2375,50 +2243,6 @@ TEST(format_hostname_no_tweak_fast) {
   const sourcemeta::core::JSON instance{"-bad-host"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_ipv4_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"192.168.1.1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"192.168.1.1\" was expected to represent a "
-      "valid IPv4 address");
-}
-
-TEST(format_ipv4_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"999.0.0.1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"999.0.0.1\" was expected to represent a "
-      "valid IPv4 address");
 }
 
 TEST(format_ipv4_no_tweak_fast) {
@@ -2432,50 +2256,6 @@ TEST(format_ipv4_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_ipv6_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2001:db8::1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2001:db8::1\" was expected to represent a "
-      "valid IPv6 address");
-}
-
-TEST(format_ipv6_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not an address"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not an address\" was expected to represent a "
-      "valid IPv6 address");
-}
-
 TEST(format_ipv6_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2485,50 +2265,6 @@ TEST(format_ipv6_no_tweak_fast) {
   const sourcemeta::core::JSON instance{"not an address"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_uri_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"https://example.com/path"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com/path\" was expected to represent "
-      "a valid URI");
-}
-
-TEST(format_uri_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"relative/path"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"relative/path\" was expected to represent a valid "
-      "URI");
 }
 
 TEST(format_uri_no_tweak_fast) {
@@ -2542,66 +2278,6 @@ TEST(format_uri_no_tweak_fast) {
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_unknown_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "not-a-real-format"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"anything"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_date_time_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2026-05-15T14:00:00Z"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2026-05-15T14:00:00Z\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
-TEST(format_date_time_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not-a-date"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not-a-date\" was expected to represent a "
-      "valid RFC 3339 date-time");
-}
-
 TEST(format_date_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2611,52 +2287,6 @@ TEST(format_date_time_no_tweak_exhaustive) {
   const sourcemeta::core::JSON instance{"not-a-date"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_email_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"user@example.com"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"user@example.com\" was expected to represent a "
-      "valid email address");
-}
-
-TEST(format_email_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not-an-email"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not-an-email\" was expected to represent a "
-      "valid email address");
 }
 
 TEST(format_email_no_tweak_exhaustive) {
@@ -2670,52 +2300,6 @@ TEST(format_email_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_hostname_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"www.example.com"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"www.example.com\" was expected to represent a "
-      "valid hostname");
-}
-
-TEST(format_hostname_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"-bad-host"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"-bad-host\" was expected to represent a "
-      "valid hostname");
-}
-
 TEST(format_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2725,52 +2309,6 @@ TEST(format_hostname_no_tweak_exhaustive) {
   const sourcemeta::core::JSON instance{"-bad-host"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_ipv4_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"192.168.1.1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"192.168.1.1\" was expected to represent a "
-      "valid IPv4 address");
-}
-
-TEST(format_ipv4_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"999.0.0.1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"999.0.0.1\" was expected to represent a "
-      "valid IPv4 address");
 }
 
 TEST(format_ipv4_no_tweak_exhaustive) {
@@ -2784,52 +2322,6 @@ TEST(format_ipv4_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_ipv6_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"2001:db8::1"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"2001:db8::1\" was expected to represent a "
-      "valid IPv6 address");
-}
-
-TEST(format_ipv6_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"not an address"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"not an address\" was expected to represent a "
-      "valid IPv6 address");
-}
-
 TEST(format_ipv6_no_tweak_exhaustive) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2839,52 +2331,6 @@ TEST(format_ipv6_no_tweak_exhaustive) {
   const sourcemeta::core::JSON instance{"not an address"};
 
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_uri_valid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"https://example.com/path"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com/path\" was expected to represent "
-      "a valid URI");
-}
-
-TEST(format_uri_invalid_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"relative/path"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED(schema, instance, 1, "",
-                                                 tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"relative/path\" was expected to represent a valid "
-      "URI");
 }
 
 TEST(format_uri_no_tweak_exhaustive) {
@@ -2898,21 +2344,6 @@ TEST(format_uri_no_tweak_exhaustive) {
   EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, 0, "");
 }
 
-TEST(format_unknown_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "not-a-real-format"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"anything"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
 TEST(format_uri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -2922,20 +2353,6 @@ TEST(format_uri_reference_no_tweak_fast) {
   const sourcemeta::core::JSON instance{"://bad"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_uri_reference_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri-reference"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"://bad"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
 }
 
 TEST(format_uri_template_no_tweak_fast) {
@@ -2972,194 +2389,6 @@ TEST(format_json_pointer_no_tweak_fast) {
   const sourcemeta::core::JSON instance{"no-leading-slash"};
 
   EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 0, "");
-}
-
-TEST(format_json_pointer_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "json-pointer"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"no-leading-slash"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_date_time_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{42};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_date_time_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "date-time"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{42};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
-TEST(format_email_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{true};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_email_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "email"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{true};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
-TEST(format_hostname_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{nullptr};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_hostname_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "hostname"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{nullptr};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
-TEST(format_ipv4_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_ipv4_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv4"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
-TEST(format_ipv6_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_ipv6_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "ipv6"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
-}
-
-TEST(format_uri_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{3.14};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 0, "", tweaks);
-}
-
-TEST(format_uri_non_string_with_tweak_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{3.14};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED(schema, instance, 0, "",
-                                                 tweaks);
 }
 
 TEST(format_keyword_value_integer_with_tweak_fast) {
@@ -3307,225 +2536,6 @@ TEST(format_keyword_value_null_with_tweak_exhaustive) {
   } catch (...) {
     FAIL();
   }
-}
-
-TEST(format_under_properties_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {
-      "x": { "format": "uri" }
-    }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
-      R"JSON({ "x": "https://example.com" })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/properties/x/format",
-                     "#/properties/x/format", "/x");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/properties/x/format",
-                              "#/properties/x/format", "/x");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-}
-
-TEST(format_under_properties_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "properties": {
-      "x": { "format": "uri" }
-    }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{
-      sourcemeta::core::parse_json(R"JSON({ "x": "relative/path" })JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/properties/x/format",
-                     "#/properties/x/format", "/x");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/properties/x/format",
-                              "#/properties/x/format", "/x");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"relative/path\" was expected to represent a valid "
-      "URI");
-}
-
-TEST(format_under_items_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "items": { "format": "uri" }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
-      R"JSON([ "https://example.com", "https://example.org" ])JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 3, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(1, AssertionStringType, "/items/format", "#/items/format",
-                     "/0");
-  EVALUATE_TRACE_PRE(2, AssertionStringType, "/items/format", "#/items/format",
-                     "/1");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/items/format",
-                              "#/items/format", "/0");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionStringType, "/items/format",
-                              "#/items/format", "/1");
-  EVALUATE_TRACE_POST_SUCCESS(2, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The string value \"https://example.org\" was expected to represent a "
-      "valid URI");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "Every item in the array value was expected to validate against the "
-      "given subschema");
-}
-
-TEST(format_under_items_invalid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "items": { "format": "uri" }
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json(
-      R"JSON([ "https://example.com", "relative/path" ])JSON")};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 3, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_PRE(1, AssertionStringType, "/items/format", "#/items/format",
-                     "/0");
-  EVALUATE_TRACE_PRE(2, AssertionStringType, "/items/format", "#/items/format",
-                     "/1");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/items/format",
-                              "#/items/format", "/0");
-  EVALUATE_TRACE_POST_FAILURE(1, AssertionStringType, "/items/format",
-                              "#/items/format", "/1");
-  EVALUATE_TRACE_POST_FAILURE(2, LoopItems, "/items", "#/items", "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The string value \"relative/path\" was expected to represent a valid "
-      "URI");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 2,
-      "Every item in the array value was expected to validate against the "
-      "given subschema");
-}
-
-TEST(format_with_type_string_valid_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"https://example.com"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 2, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_SUCCESS(1, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
-                               "The value was expected to be of type string");
-}
-
-TEST(format_with_type_string_invalid_format_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"relative/path"};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"relative/path\" was expected to represent a valid "
-      "URI");
-}
-
-TEST(format_with_type_string_non_string_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "string",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{42};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The value was expected to be of type string but it was of type integer");
-}
-
-TEST(format_with_type_integer_short_circuits_with_tweak_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "type": "integer",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{42};
-
-  sourcemeta::blaze::Tweaks tweaks;
-  tweaks.format_assertion = true;
-
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED(schema, instance, 1, "", tweaks);
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/type", "#/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type integer");
 }
 
 TEST(integer_type_with_integral_enum_real_fast) {

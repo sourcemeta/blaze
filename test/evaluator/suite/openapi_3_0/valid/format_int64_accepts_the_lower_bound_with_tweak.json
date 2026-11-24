@@ -1,0 +1,28 @@
+{
+  "schema": { "format": "int64" },
+  "instance": -9223372036854775808,
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value -9223372036854775808 was expected to be an integer between -9223372036854775808 and 9223372036854775807"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The integer value -9223372036854775808 was expected to be an integer between -9223372036854775808 and 9223372036854775807"
+    ]
+  }
+}

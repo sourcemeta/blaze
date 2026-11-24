@@ -1,0 +1,51 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "atom": { "type": "string", "x-test-custom": "Atom" } },
+    "type": "object",
+    "properties": { "value": { "$ref": "#/$defs/atom" } }
+  },
+  "instance": { "value": "foo" },
+  "valid": true,
+  "tweaks": { "annotations": [ "x-test-custom" ] },
+  "fast": {
+    "pre": [
+      [ "Annotation", "/properties/value/$ref/x-test-custom", "#/$defs/atom/x-test-custom", "/value" ],
+      [ "AssertionPropertyTypeStrict", "/properties/value/$ref/type", "#/$defs/atom/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/$ref/x-test-custom", "#/$defs/atom/x-test-custom", "/value", "Atom" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/value/$ref/type", "#/$defs/atom/type", "/value" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Atom\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/value/$ref", "#/properties/value/$ref", "/value" ],
+      [ "Annotation", "/properties/value/$ref/x-test-custom", "#/$defs/atom/x-test-custom", "/value" ],
+      [ "AssertionTypeStrict", "/properties/value/$ref/type", "#/$defs/atom/type", "/value" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/properties/value/$ref/x-test-custom", "#/$defs/atom/x-test-custom", "/value", "Atom" ],
+      [ true, "AssertionTypeStrict", "/properties/value/$ref/type", "#/$defs/atom/type", "/value" ],
+      [ true, "ControlJump", "/properties/value/$ref", "#/properties/value/$ref", "/value" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The unrecognized keyword \"x-test-custom\" was collected as the annotation \"Atom\"",
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object"
+    ]
+  }
+}

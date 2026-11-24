@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "items": { "format": "json-pointer" }
+  },
+  "instance": [ "/foo", "/bar/baz" ],
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo\" was expected to represent a valid JSON Pointer",
+      "The string value \"/bar/baz\" was expected to represent a valid JSON Pointer",
+      "Every item in the array value was expected to validate against the given subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopItemsFrom", "/items", "#/items", "" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ "Annotation", "/items/format", "#/items/format", "/0" ],
+      [ "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ "Annotation", "/items/format", "#/items/format", "/1" ],
+      [ "LogicalWhenArraySizeGreater", "/items", "#/items", "" ],
+      [ "Annotation", "/items", "#/items", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/0" ],
+      [ true, "Annotation", "/items/format", "#/items/format", "/0", "json-pointer" ],
+      [ true, "AssertionStringType", "/items/format", "#/items/format", "/1" ],
+      [ true, "Annotation", "/items/format", "#/items/format", "/1", "json-pointer" ],
+      [ true, "LoopItemsFrom", "/items", "#/items", "" ],
+      [ true, "Annotation", "/items", "#/items", "", true ],
+      [ true, "LogicalWhenArraySizeGreater", "/items", "#/items", "" ]
+    ],
+    "descriptions": [
+      "The string value \"/foo\" was expected to represent a valid JSON Pointer",
+      "The logical type of the instance location \"/0\" was expected to be \"json-pointer\"",
+      "The string value \"/bar/baz\" was expected to represent a valid JSON Pointer",
+      "The logical type of the instance location \"/1\" was expected to be \"json-pointer\"",
+      "Every item in the array value was expected to validate against the given subschema",
+      "Every item in the array value was successfully validated",
+      "The array value contains additional items not described by related keywords"
+    ]
+  }
+}

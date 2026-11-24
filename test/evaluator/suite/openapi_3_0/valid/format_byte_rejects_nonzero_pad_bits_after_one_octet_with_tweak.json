@@ -1,0 +1,29 @@
+{
+  "comment": "RFC 4648 Section 3.5 lets an implementation reject an encoding whose pad bits are not zero, and the strict check does, so that every octet sequence has exactly one accepted encoding",
+  "schema": { "format": "byte" },
+  "instance": "Zh==",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zh==\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zh==\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

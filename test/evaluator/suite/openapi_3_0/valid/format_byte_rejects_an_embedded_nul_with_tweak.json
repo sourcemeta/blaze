@@ -1,0 +1,29 @@
+{
+  "comment": "The check reads every byte of the string, so a NUL does not end it early and a byte outside ASCII is just another byte outside the alphabet",
+  "schema": { "format": "byte" },
+  "instance": "Zg==\u0000",
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\u0000\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"Zg==\u0000\" was expected to represent a valid RFC 4648 Base64 string"
+    ]
+  }
+}

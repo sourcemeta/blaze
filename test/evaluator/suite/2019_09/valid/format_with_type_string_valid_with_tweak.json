@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "type": "string",
+    "format": "uri"
+  },
+  "instance": "https://example.com",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ],
+      [ "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uri" ],
+      [ true, "AssertionTypeStrict", "/type", "#/type", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The logical type of the instance was expected to be \"uri\"",
+      "The value was expected to be of type string"
+    ]
+  }
+}

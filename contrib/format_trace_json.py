@@ -19,9 +19,10 @@ import sys
 MAX_LINE_LENGTH = 80
 
 TRACE_ENTRY_KEYS = (
-    "description", "schema", "instance", "valid", "tweaks", "fast", "exhaustive"
+    "comment", "description", "schema", "instance", "valid", "tweaks",
+    "fast", "exhaustive"
 )
-ERROR_ENTRY_KEYS = ("description", "schema", "tweaks", "error")
+ERROR_ENTRY_KEYS = ("comment", "description", "schema", "tweaks", "error")
 
 
 def compact_json(value):

@@ -1,0 +1,34 @@
+{
+  "schema": {
+    "$schema": "https://spec.openapis.org/oas/3.2/dialect/2025-09-17",
+    "format": "uri"
+  },
+  "instance": "https://example.com",
+  "valid": true,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uri" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The logical type of the instance was expected to be \"uri\""
+    ]
+  }
+}

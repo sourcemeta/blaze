@@ -1,0 +1,28 @@
+{
+  "schema": { "format": "int32" },
+  "instance": 1.5,
+  "valid": false,
+  "tweaks": { "formatAssertion": true },
+  "fast": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.5 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ false, "AssertionNumberIntegerBounded", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The number value 1.5 was expected to be an integer between -2147483648 and 2147483647"
+    ]
+  }
+}
