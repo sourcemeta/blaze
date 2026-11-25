@@ -1,0 +1,33 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "foo": { "pattern": "^[a-zA-Z0-9\\/\\_]{1,32}$" } }
+  },
+  "instance": { "foo": "a/b_c" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ]
+    ],
+    "descriptions": [
+      "The string value \"a/b_c\" was expected to match the regular expression \"^[a-zA-Z0-9\\/\\_]{1,32}$\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/properties/foo/pattern", "#/properties/foo/pattern", "/foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a/b_c\" was expected to match the regular expression \"^[a-zA-Z0-9\\/\\_]{1,32}$\"",
+      "The object value was expected to validate against the single defined property subschema"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": { "foo": { "id": "https://nested.com", "pattern": "(" } }
+  },
+  "error": {
+    "type": "CompilerInvalidRegexError",
+    "message": "Invalid regular expression",
+    "base": "https://nested.com/",
+    "location": "/properties/foo/pattern",
+    "regex": "("
+  }
+}

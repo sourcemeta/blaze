@@ -6,7 +6,11 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <type_traits> // std::is_copy_constructible_v, etc.
+#include <optional>      // std::optional
+#include <string>        // std::string
+#include <string_view>   // std::string_view
+#include <type_traits>   // std::is_copy_constructible_v, etc.
+#include <unordered_set> // std::unordered_set
 
 #include "evaluator_utils.h"
 
@@ -956,4 +960,2171 @@ TEST(items_as_a_bounded_array_of_typed_items_on_a_non_array) {
       sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
   const auto result{evaluator.validate(compiled_schema, instance)};
   EXPECT_TRUE(result);
+}
+
+// JSON Schema Draft 4
+TEST(items_integer_bounded_decimal_in_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
+  instance.push_back(sourcemeta::core::JSON{sourcemeta::core::Decimal{"50.5"}});
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, LoopItemsIntegerBounded, "/items", "#/items",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be a number within the "
+      "given range");
+}
+
+TEST(items_integer_bounded_decimal_out_of_range) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "items": { "type": "number", "minimum": 0, "maximum": 100 }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::JSON::Array{}};
+  instance.push_back(
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"200.5"}});
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, LoopItemsIntegerBounded, "/items", "#/items", "");
+  EVALUATE_TRACE_POST_FAILURE(0, LoopItemsIntegerBounded, "/items", "#/items",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "Every item in the array was expected to be a number within the "
+      "given range");
+}
+
+TEST(prop_type_integer_bounded_strict_decimal_3_0_fails) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "properties": {
+      "x": { "type": "integer", "minimum": 0, "maximum": 100 }
+    }
+  })JSON")};
+
+  sourcemeta::core::JSON instance{sourcemeta::core::parse_json("{}")};
+  instance.assign("x",
+                  sourcemeta::core::JSON{sourcemeta::core::Decimal{"3.0"}});
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeIntegerBoundedStrict,
+                     "/properties/x/minimum", "#/properties/x/minimum", "/x");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeIntegerBoundedStrict,
+                              "/properties/x/minimum", "#/properties/x/minimum",
+                              "/x");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be an integer within the given range");
+}
+
+// JSON Schema Draft 6
+TEST(exclusiveMinimum_5) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{10};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_6) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_7) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_8) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_9) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{3.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(exclusiveMinimum_10) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be greater than the number 2.5");
+}
+
+TEST(exclusiveMinimum_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"10"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 10 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be greater than the integer 5");
+}
+
+TEST(exclusiveMinimum_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 3.0 was expected to be greater than the number 2.5");
+}
+
+TEST(exclusiveMinimum_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMinimum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be greater than the number 2.5");
+}
+
+TEST(exclusiveMinimum_17) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.7"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.7 was expected to be greater than the number 0.5");
+}
+
+TEST(exclusiveMinimum_18) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMinimum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionGreater, "/exclusiveMinimum",
+                     "#/exclusiveMinimum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionGreater, "/exclusiveMinimum",
+                              "#/exclusiveMinimum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.5 was expected to be greater than the number 0.5");
+}
+
+TEST(exclusiveMaximum_5) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{3};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_6) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_7) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_8) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_9) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.0};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(exclusiveMaximum_10) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"2.5"}});
+
+  const sourcemeta::core::JSON instance{2.5};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be less than the number 2.5");
+}
+
+TEST(exclusiveMaximum_11) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 3 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_12) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The integer value 5 was expected to be less than the integer 5");
+}
+
+TEST(exclusiveMaximum_13) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.0"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.0 was expected to be less than the number 2.5");
+}
+
+TEST(exclusiveMaximum_14) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "exclusiveMaximum": 2.5
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"2.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 2.5 was expected to be less than the number 2.5");
+}
+
+TEST(exclusiveMaximum_17) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.3"}};
+  EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.3 was expected to be less than the number 0.5");
+}
+
+TEST(exclusiveMaximum_18) {
+  auto schema{sourcemeta::core::JSON::make_object()};
+  schema.assign_assume_new(
+      "$schema",
+      sourcemeta::core::JSON{"http://json-schema.org/draft-06/schema#"});
+  schema.assign_assume_new(
+      "exclusiveMaximum",
+      sourcemeta::core::JSON{sourcemeta::core::Decimal{"0.5"}});
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::Decimal{"0.5"}};
+  EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, 1, "");
+  EVALUATE_TRACE_PRE(0, AssertionLess, "/exclusiveMaximum",
+                     "#/exclusiveMaximum", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionLess, "/exclusiveMaximum",
+                              "#/exclusiveMaximum", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The number value 0.5 was expected to be less than the number 0.5");
+}
+
+// JSON Schema 2020-12
+// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
+static const std::string FORMAT_ASSERTION_METASCHEMA_URI{
+    "https://example.com/2020-12-format-assertion-meta"};
+
+static auto format_assertion_resolver(std::string_view identifier)
+    -> sourcemeta::core::SchemaResolverResult {
+  if (identifier == FORMAT_ASSERTION_METASCHEMA_URI) {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$id": "https://example.com/2020-12-format-assertion-meta",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+      },
+      "$dynamicAnchor": "meta",
+      "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion" }
+      ]
+    })JSON");
+  }
+
+  return sourcemeta::core::schema_resolver(identifier);
+}
+
+// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
+
+TEST(dynamicRef_with_multiple_anchors_from_json) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$dynamicRef": "https://example.com/target#meta",
+    "$defs": {
+      "target": {
+        "$id": "https://example.com/target",
+        "$dynamicAnchor": "meta",
+        "type": "boolean"
+      },
+      "other": {
+        "$id": "https://example.com/other",
+        "$dynamicAnchor": "meta",
+        "type": "number"
+      }
+    }
+  })JSON")};
+
+  const auto original{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation)};
+
+  const auto roundtripped{
+      sourcemeta::blaze::from_json(sourcemeta::blaze::to_json(original))};
+  EXPECT_TRUE(roundtripped.has_value());
+
+  const sourcemeta::core::JSON instance{true};
+  EVALUATE_WITH_TRACE(roundtripped.value(), instance, 2);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, ControlDynamicAnchorJump, "/$dynamicRef",
+                     "#/$dynamicRef", "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
+                     "https://example.com/target#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
+                              "https://example.com/target#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(1, ControlDynamicAnchorJump, "/$dynamicRef",
+                              "#/$dynamicRef", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The boolean value was expected to validate against the first subschema "
+      "in scope that declared the dynamic anchor \"meta\"");
+}
+
+TEST(unevaluated_properties_annotations_none_still_tracks) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "properties": { "a": { "type": "integer" } },
+    "unevaluatedProperties": false
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1, "b": 2 })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.annotations.emplace();
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive, "", "", "", tweaks)};
+
+  // Even with all annotations filtered out, evaluation tracking still marks "a"
+  // as evaluated, so the unevaluated "b" is rejected
+  sourcemeta::blaze::Evaluator evaluator;
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+
+  const sourcemeta::core::JSON evaluated{
+      sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, evaluated));
+}
+
+TEST(format_uri_with_assertion_vocab_valid_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+}
+
+TEST(format_uri_with_assertion_vocab_invalid_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+TEST(format_uri_with_assertion_vocab_valid_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"https://example.com"};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 2)
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"https://example.com\" was expected to represent a "
+      "valid URI");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The logical type of the instance was expected to be \"uri\"");
+}
+
+TEST(format_uri_with_assertion_vocab_invalid_exhaustive) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "uri"
+  })JSON")};
+
+  const sourcemeta::core::JSON instance{"://bad"};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The string value \"://bad\" was expected to represent a valid URI");
+}
+
+// OpenAPI 3.0
+// Only what the JSON trace suites cannot express belongs here. That suite reads
+// every schema under one dialect and holds it to that dialect's meta-schema,
+// which rules out a schema that declares a dialect of its own, and it has no
+// way of asking for a compiler tweak
+static constexpr auto OPENAPI_3_0_DIALECT{
+    "tag:spec.openapis.org,2024-10-18:oas/3.0/dialect"};
+
+TEST(explicit_schema_with_root_ref_keeps_the_sibling_type_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "string": { "type": "string" } },
+    "$ref": "#/$defs/string",
+    "type": "integer"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  // The declared dialect keeps the assertion beside `$ref` alive, so a string
+  // that satisfies the reference still fails the sibling type
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("foo")JSON")};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(explicit_schema_with_root_ref_keeps_the_reference_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": { "string": { "type": "string" } },
+    "$ref": "#/$defs/string",
+    "type": "integer"
+  })JSON")};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  // The declared dialect keeps the reference alive, so an integer that
+  // satisfies the sibling type still fails the referenced string schema
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON(1)JSON")};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(external_reference_inherits_the_default_dialect_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "object",
+    "properties": {
+      "name": { "$ref": "https://example.com/name" }
+    }
+  })JSON")};
+
+  auto test_resolver = [](const std::string_view identifier)
+      -> sourcemeta::core::SchemaResolverResult {
+    if (identifier == "https://example.com/name") {
+      return sourcemeta::core::parse_json(R"JSON({
+                "type": "string",
+                "nullable": true
+              })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  // Only this dialect gives `nullable` a meaning, so a null passing is what
+  // shows the default dialect reached the externally resolved document
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "name": null })JSON")};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(external_reference_enforces_the_target_constraints_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "object",
+    "properties": {
+      "name": { "$ref": "https://example.com/name" }
+    }
+  })JSON")};
+
+  auto test_resolver = [](const std::string_view identifier)
+      -> sourcemeta::core::SchemaResolverResult {
+    if (identifier == "https://example.com/name") {
+      return sourcemeta::core::parse_json(R"JSON({
+                "type": "string",
+                "nullable": true
+              })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "name": 1 })JSON")};
+  EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(root_reference_without_siblings_accepts_null_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$ref": "https://example.com/target"
+  })JSON")};
+
+  auto test_resolver = [](const std::string_view identifier)
+      -> sourcemeta::core::SchemaResolverResult {
+    if (identifier == "https://example.com/target") {
+      return sourcemeta::core::parse_json(R"JSON({
+                "type": "integer",
+                "nullable": true
+              })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("null")};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+                     "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+      "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer and it was of type null");
+}
+
+TEST(root_reference_without_siblings_accepts_an_integer_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$ref": "https://example.com/target"
+  })JSON")};
+
+  auto test_resolver = [](const std::string_view identifier)
+      -> sourcemeta::core::SchemaResolverResult {
+    if (identifier == "https://example.com/target") {
+      return sourcemeta::core::parse_json(R"JSON({
+                "type": "integer",
+                "nullable": true
+              })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+                     "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+      "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer and it was of type integer");
+}
+
+TEST(root_reference_without_siblings_rejects_a_string_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$ref": "https://example.com/target"
+  })JSON")};
+
+  auto test_resolver = [](const std::string_view identifier)
+      -> sourcemeta::core::SchemaResolverResult {
+    if (identifier == "https://example.com/target") {
+      return sourcemeta::core::parse_json(R"JSON({
+                "type": "integer",
+                "nullable": true
+              })JSON");
+    }
+
+    return sourcemeta::core::schema_resolver(identifier);
+  };
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, test_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("\"1\"")};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+                     "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_FAILURE(
+      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
+      "#/x-definitions/https:~1~1example.com~1target/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer but it was of type string");
+}
+
+// Serialized templates are a product surface, and textual round-trip equality
+// alone cannot show the rebuilt instructions still evaluate, so these run the
+// deserialized template
+TEST(format_byte_accepts_through_a_deserialized_template_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "byte"
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation,
+                                 OPENAPI_3_0_DIALECT, "", "", tweaks)};
+  const auto restored{sourcemeta::blaze::from_json(
+      sourcemeta::blaze::to_json(compiled_schema))};
+  EXPECT_TRUE(restored.has_value());
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("Zg==")JSON")};
+  EVALUATE_WITH_TRACE(restored.value(), instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"Zg==\" was expected to "
+                               "represent a valid RFC 4648 Base64 string");
+}
+
+TEST(format_byte_rejects_through_a_deserialized_template_with_tweak_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "format": "byte"
+  })JSON")};
+
+  sourcemeta::blaze::Tweaks tweaks;
+  tweaks.format_assertion = true;
+
+  const auto compiled_schema{
+      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
+                                 sourcemeta::core::schema_resolver,
+                                 sourcemeta::blaze::default_schema_compiler,
+                                 sourcemeta::blaze::Mode::FastValidation,
+                                 OPENAPI_3_0_DIALECT, "", "", tweaks)};
+  const auto restored{sourcemeta::blaze::from_json(
+      sourcemeta::blaze::to_json(compiled_schema))};
+  EXPECT_TRUE(restored.has_value());
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON("not base64")JSON")};
+  EVALUATE_WITH_TRACE(restored.value(), instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
+                              "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The string value \"not base64\" was expected "
+                               "to represent a valid RFC 4648 Base64 string");
+}
+
+TEST(nullable_through_the_frame_overload_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "string",
+    "nullable": true
+  })JSON")};
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{nullptr};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+TEST(nullable_array_type_is_refused_through_the_frame_overload_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": [ "string", "null" ],
+    "nullable": true
+  })JSON")};
+
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References, schema,
+      sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, frame, frame.root(),
+        sourcemeta::blaze::Mode::FastValidation)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(
+        std::string{error.what()},
+        "The value this keyword is set to is not supported by this dialect");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/type");
+  }
+}
+
+// A subschema the walker cannot reach, such as one parked under an `x-`
+// container, still compiles under the external default when named as an
+// entrypoint through an explicitly framed path
+TEST(nullable_through_a_nested_entrypoint_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "foo": { "type": "string", "nullable": true }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer foo{"x-definitions", "foo"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(foo)}};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, "#/x-definitions/foo",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  sourcemeta::blaze::Evaluator evaluator;
+  const sourcemeta::core::JSON instance{nullptr};
+  EXPECT_TRUE(evaluator.validate(compiled_schema, instance));
+}
+
+// Framing a second, invalid schema must not leak into the selected
+// entrypoint: compilation answers for the named schema and nothing else
+TEST(nested_entrypoint_ignores_an_unrelated_framed_schema_accepts_null_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "good": { "type": "string", "nullable": true },
+      "bad": { "type": "null" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer good{"x-definitions", "good"};
+  const sourcemeta::core::Pointer bad{"x-definitions", "bad"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(good),
+       sourcemeta::core::to_weak_pointer(bad)}};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, "#/x-definitions/good",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("null")};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type",
+                     "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/type",
+                              "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "string and it was of type null");
+}
+
+TEST(
+    nested_entrypoint_ignores_an_unrelated_framed_schema_accepts_a_string_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "good": { "type": "string", "nullable": true },
+      "bad": { "type": "null" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer good{"x-definitions", "good"};
+  const sourcemeta::core::Pointer bad{"x-definitions", "bad"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(good),
+       sourcemeta::core::to_weak_pointer(bad)}};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, "#/x-definitions/good",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"a"};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type",
+                     "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/type",
+                              "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "string and it was of type string");
+}
+
+TEST(
+    nested_entrypoint_ignores_an_unrelated_framed_schema_rejects_an_integer_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "good": { "type": "string", "nullable": true },
+      "bad": { "type": "null" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer good{"x-definitions", "good"};
+  const sourcemeta::core::Pointer bad{"x-definitions", "bad"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(good),
+       sourcemeta::core::to_weak_pointer(bad)}};
+
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler, frame, "#/x-definitions/good",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type",
+                     "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/type",
+                              "#/x-definitions/good/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "string but it was of type integer");
+}
+
+TEST(invalid_nested_entrypoint_is_still_rejected_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "x-definitions": {
+      "good": { "type": "string", "nullable": true },
+      "bad": { "type": "null" }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer good{"x-definitions", "good"};
+  const sourcemeta::core::Pointer bad{"x-definitions", "bad"};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      OPENAPI_3_0_DIALECT,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      {sourcemeta::core::to_weak_pointer(good),
+       sourcemeta::core::to_weak_pointer(bad)}};
+
+  try {
+    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker,
+        sourcemeta::core::schema_resolver,
+        sourcemeta::blaze::default_schema_compiler, frame,
+        "#/x-definitions/bad", sourcemeta::blaze::Mode::FastValidation)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(
+        std::string{error.what()},
+        "The value this keyword is set to is not supported by this dialect");
+    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
+              "/x-definitions/bad/type");
+  }
+}
+
+// A custom compiler callback may start an independent compilation of an
+// unrelated schema while the outer one is in flight. The dialect keeps no
+// state across compilations, so the nested schema compiles exactly as it
+// does standalone
+TEST(nested_independent_compilation_accepts_null_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "string",
+    "nullable": true
+  })JSON")};
+
+  std::optional<sourcemeta::blaze::Template> nested;
+  auto nesting_compiler =
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
+                const sourcemeta::blaze::Instructions &current)
+      -> sourcemeta::blaze::Instructions {
+    if (!nested.has_value()) {
+      const sourcemeta::core::JSON inner{sourcemeta::core::parse_json(R"JSON({
+        "type": "integer",
+        "nullable": true
+      })JSON")};
+      nested = sourcemeta::blaze::compile(
+          inner, sourcemeta::core::schema_walker,
+          sourcemeta::core::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler,
+          sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
+    }
+
+    return sourcemeta::blaze::default_schema_compiler(context, current);
+  };
+
+  [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, nesting_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+  EXPECT_TRUE(nested.has_value());
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("null")};
+  EVALUATE_WITH_TRACE(nested.value(), instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer and it was of type null");
+}
+
+TEST(nested_independent_compilation_accepts_an_integer_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "string",
+    "nullable": true
+  })JSON")};
+
+  std::optional<sourcemeta::blaze::Template> nested;
+  auto nesting_compiler =
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
+                const sourcemeta::blaze::Instructions &current)
+      -> sourcemeta::blaze::Instructions {
+    if (!nested.has_value()) {
+      const sourcemeta::core::JSON inner{sourcemeta::core::parse_json(R"JSON({
+        "type": "integer",
+        "nullable": true
+      })JSON")};
+      nested = sourcemeta::blaze::compile(
+          inner, sourcemeta::core::schema_walker,
+          sourcemeta::core::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler,
+          sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
+    }
+
+    return sourcemeta::blaze::default_schema_compiler(context, current);
+  };
+
+  [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, nesting_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+  EXPECT_TRUE(nested.has_value());
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE(nested.value(), instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer and it was of type integer");
+}
+
+TEST(nested_independent_compilation_rejects_a_string_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "string",
+    "nullable": true
+  })JSON")};
+
+  std::optional<sourcemeta::blaze::Template> nested;
+  auto nesting_compiler =
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
+                const sourcemeta::blaze::Instructions &current)
+      -> sourcemeta::blaze::Instructions {
+    if (!nested.has_value()) {
+      const sourcemeta::core::JSON inner{sourcemeta::core::parse_json(R"JSON({
+        "type": "integer",
+        "nullable": true
+      })JSON")};
+      nested = sourcemeta::blaze::compile(
+          inner, sourcemeta::core::schema_walker,
+          sourcemeta::core::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler,
+          sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
+    }
+
+    return sourcemeta::blaze::default_schema_compiler(context, current);
+  };
+
+  [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, nesting_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+  EXPECT_TRUE(nested.has_value());
+
+  const sourcemeta::core::JSON instance{"a"};
+  EVALUATE_WITH_TRACE(nested.value(), instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_FAILURE(0, AssertionTypeStrictAny, "/type", "#/type", "");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type null, or "
+                               "integer but it was of type string");
+}
+
+TEST(nested_independent_compilation_matches_a_standalone_compilation_fast) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "type": "string",
+    "nullable": true
+  })JSON")};
+
+  std::optional<sourcemeta::blaze::Template> nested;
+  auto nesting_compiler =
+      [&nested](const sourcemeta::blaze::KeywordContext &context,
+                const sourcemeta::blaze::Instructions &current)
+      -> sourcemeta::blaze::Instructions {
+    if (!nested.has_value()) {
+      const sourcemeta::core::JSON inner{sourcemeta::core::parse_json(R"JSON({
+        "type": "integer",
+        "nullable": true
+      })JSON")};
+      nested = sourcemeta::blaze::compile(
+          inner, sourcemeta::core::schema_walker,
+          sourcemeta::core::schema_resolver,
+          sourcemeta::blaze::default_schema_compiler,
+          sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT);
+    }
+
+    return sourcemeta::blaze::default_schema_compiler(context, current);
+  };
+
+  [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, nesting_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+  EXPECT_TRUE(nested.has_value());
+
+  const sourcemeta::core::JSON inner{sourcemeta::core::parse_json(R"JSON({
+    "type": "integer",
+    "nullable": true
+  })JSON")};
+
+  const auto standalone{sourcemeta::blaze::compile(
+      inner, sourcemeta::core::schema_walker, sourcemeta::core::schema_resolver,
+      sourcemeta::blaze::default_schema_compiler,
+      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
+
+  EXPECT_EQ(sourcemeta::blaze::to_json(nested.value()),
+            sourcemeta::blaze::to_json(standalone));
+}
+
+// Widening a scalar type with `nullable` must not loosen the type itself, and
+// this rung keeps Draft 4's rule that a real is no integer. The JavaScript
+// port cannot carry this case, as `JSON.parse` renders `2.0` as `2`
+
+// schemas embedded in a document
+static auto embedded_resolver(std::string_view identifier)
+    -> sourcemeta::core::SchemaResolverResult {
+  if (identifier == "https://example.com/pet.json") {
+    return sourcemeta::core::parse_json(R"JSON({
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "https://example.com/pet.json",
+      "type": "string"
+    })JSON");
+  }
+
+  return sourcemeta::core::schema_resolver(identifier);
+}
+
+static auto compile_embedded(const sourcemeta::core::JSON &document,
+                             const sourcemeta::core::SchemaFrame::Paths &paths,
+                             const std::string_view entrypoint,
+                             const sourcemeta::blaze::Mode mode)
+    -> sourcemeta::blaze::Template {
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      document,
+      sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver,
+      "https://spec.openapis.org/oas/3.1/dialect/base",
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      paths,
+      "https://example.com/openapi.json"};
+  return sourcemeta::blaze::compile(document, sourcemeta::core::schema_walker,
+                                    sourcemeta::core::schema_resolver,
+                                    sourcemeta::blaze::default_schema_compiler,
+                                    frame, entrypoint, mode);
+}
+
+TEST(entrypoint_at_embedded_root_success) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" },
+        "Order": { "type": "integer" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(entrypoint_at_embedded_root_failure) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" },
+        "Order": { "type": "integer" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{1};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_FAILURE(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "The value was expected to be of type string but it was of type integer");
+}
+
+TEST(entrypoint_at_embedded_subschema) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "properties": {
+            "name": { "type": "string" }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet/properties/"
+      "name",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/type",
+                     "https://example.com/openapi.json#/components/schemas/"
+                     "Pet/properties/name/type",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/properties/"
+      "name/type",
+      "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(reference_to_embedded_sibling_by_pointer) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" },
+        "Order": { "$ref": "#/components/schemas/Pet" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Order",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(reference_to_embedded_sibling_by_identifier) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "$id": "pet", "type": "string" },
+        "Order": { "$ref": "pet" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Order",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
+                     "https://example.com/pet#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
+                              "https://example.com/pet#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(entrypoint_at_embedded_shell) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+
+  try {
+    [[maybe_unused]] const auto schema_template{
+        compile_embedded(document, {sourcemeta::core::to_weak_pointer(pet)},
+                         "https://example.com/openapi.json#/info",
+                         sourcemeta::blaze::Mode::FastValidation)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(), "https://example.com/openapi.json#/info");
+    EXPECT_STREQ(error.what(),
+                 "The given entry point URI is not a valid subschema");
+  }
+}
+
+TEST(entrypoint_at_embedded_missing_location) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+
+  try {
+    [[maybe_unused]] const auto schema_template{compile_embedded(
+        document, {sourcemeta::core::to_weak_pointer(pet)},
+        "https://example.com/openapi.json#/components/schemas/Missing",
+        sourcemeta::blaze::Mode::FastValidation)};
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(error.identifier(),
+              "https://example.com/openapi.json#/components/schemas/Missing");
+    EXPECT_STREQ(error.what(),
+                 "The given entry point URI does not exist in the schema");
+  }
+}
+
+TEST(reference_from_embedded_schema_into_shell) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "#/info" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+
+  try {
+    [[maybe_unused]] const auto schema_template{compile_embedded(
+        document, {sourcemeta::core::to_weak_pointer(pet)},
+        "https://example.com/openapi.json#/components/schemas/Pet",
+        sourcemeta::blaze::Mode::FastValidation)};
+    FAIL();
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "The referenced schema is not considered to be a valid "
+                 "subschema given the dialect and vocabularies in use");
+    EXPECT_EQ(error.identifier(), "https://example.com/openapi.json#/info");
+    EXPECT_EQ(error.location(), sourcemeta::core::Pointer(
+                                    {"components", "schemas", "Pet", "$ref"}));
+  }
+}
+
+TEST(reference_to_embedded_sibling_by_anchor) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "$anchor": "pet", "type": "string" },
+        "Order": { "$ref": "#pet" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Order",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(reference_to_embedded_sibling_subschema) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "properties": {
+            "name": { "type": "string" }
+          }
+        },
+        "Order": { "$ref": "#/components/schemas/Pet/properties/name" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const sourcemeta::core::Pointer order{"components", "schemas", "Order"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(order)},
+      "https://example.com/openapi.json#/components/schemas/Order",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
+                     "https://example.com/openapi.json#/components/schemas/"
+                     "Pet/properties/name/type",
+                     "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
+                              "https://example.com/openapi.json#/components/"
+                              "schemas/Pet/properties/name/type",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(entrypoint_at_embedded_false_schema) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": false
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_FALSE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionFail, "",
+                     "https://example.com/openapi.json#/components/schemas/Pet",
+                     "");
+  EVALUATE_TRACE_POST_FAILURE(
+      0, AssertionFail, "",
+      "https://example.com/openapi.json#/components/schemas/Pet", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 0,
+      "No instance is expected to succeed against the false schema");
+}
+
+TEST(entrypoint_at_embedded_true_schema) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": true
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 0);
+  EXPECT_TRUE(result);
+}
+
+TEST(dynamic_reference_within_embedded_schema) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "$dynamicRef": "https://example.com/target#meta",
+          "$defs": {
+            "target": {
+              "$id": "https://example.com/target",
+              "$dynamicAnchor": "meta",
+              "type": "boolean"
+            },
+            "other": {
+              "$id": "https://example.com/other",
+              "$dynamicAnchor": "meta",
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{true};
+  EVALUATE_WITH_TRACE(schema_template, instance, 2);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, ControlDynamicAnchorJump, "/$dynamicRef",
+      "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef",
+      "");
+  EVALUATE_TRACE_PRE(1, AssertionTypeStrict, "/$dynamicRef/type",
+                     "https://example.com/target#/type", "");
+
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$dynamicRef/type",
+                              "https://example.com/target#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      1, ControlDynamicAnchorJump, "/$dynamicRef",
+      "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef",
+      "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type boolean");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 1,
+      "The boolean value was expected to validate against the first subschema "
+      "in scope that declared the dynamic anchor \"meta\"");
+}
+
+TEST(embedded_schema_declaring_its_own_dialect) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "string"
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
+}
+
+TEST(embedded_schema_with_default_dialect_vocabulary_keyword) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "type": "object",
+          "discriminator": { "propertyName": "kind" }
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document, {sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::Exhaustive)};
+
+  const sourcemeta::core::JSON instance{sourcemeta::core::JSON::make_object()};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+}
+
+TEST(unevaluated_properties_through_reference_to_embedded_sibling) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Base": {
+          "type": "object",
+          "properties": { "shared": true }
+        },
+        "Pet": {
+          "type": "object",
+          "allOf": [ { "$ref": "#/components/schemas/Base" } ],
+          "properties": { "local": true },
+          "unevaluatedProperties": false
+        }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer base{"components", "schemas", "Base"};
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  const auto schema_template{compile_embedded(
+      document,
+      {sourcemeta::core::to_weak_pointer(base),
+       sourcemeta::core::to_weak_pointer(pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{
+      sourcemeta::core::parse_json(R"JSON({ "shared": 1 })JSON")};
+  EVALUATE_WITH_TRACE(schema_template, instance, 3);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(
+      0, AssertionTypeStrict, "/allOf/0/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Base/type", "");
+  EVALUATE_TRACE_PRE(
+      1, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_PRE(2, LoopPropertiesExcept, "/unevaluatedProperties",
+                     "https://example.com/openapi.json#/components/schemas/"
+                     "Pet/unevaluatedProperties",
+                     "");
+
+  EVALUATE_TRACE_POST_SUCCESS(
+      0, AssertionTypeStrict, "/allOf/0/$ref/type",
+      "https://example.com/openapi.json#/components/schemas/Base/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(
+      1, AssertionTypeStrict, "/type",
+      "https://example.com/openapi.json#/components/schemas/Pet/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(2, LoopPropertiesExcept, "/unevaluatedProperties",
+                              "https://example.com/openapi.json#/components/"
+                              "schemas/Pet/unevaluatedProperties",
+                              "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 1,
+                               "The value was expected to be of type object");
+  EVALUATE_TRACE_POST_DESCRIBE(
+      instance, 2,
+      "The object value was not expected to define unevaluated properties");
+}
+
+TEST(entrypoint_at_embedded_root_with_bundled_external_reference) {
+  const sourcemeta::core::JSON document{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "pet.json" }
+      }
+    }
+  })JSON")};
+
+  const sourcemeta::core::Pointer pet{"components", "schemas", "Pet"};
+  sourcemeta::core::SchemaBundleOptions options;
+  options.mode = sourcemeta::core::SchemaBundleOptions::Mode::References;
+  options.default_container = sourcemeta::core::Pointer{"x-bundled"};
+  options.paths = {sourcemeta::core::to_weak_pointer(pet)};
+  options.default_base = "https://example.com/openapi.json";
+  const sourcemeta::core::JSON bundled{sourcemeta::core::schema_bundle(
+      document, sourcemeta::core::schema_walker, embedded_resolver,
+      "https://spec.openapis.org/oas/3.1/dialect/base", "", options)};
+
+  const sourcemeta::core::JSON expected{sourcemeta::core::parse_json(R"JSON({
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "$ref": "https://example.com/pet.json" }
+      }
+    },
+    "x-bundled": {
+      "https://example.com/pet.json": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$id": "https://example.com/pet.json",
+        "type": "string"
+      }
+    }
+  })JSON")};
+
+  EXPECT_EQ(bundled, expected);
+
+  const sourcemeta::core::Pointer bundled_pet{"x-bundled",
+                                              "https://example.com/pet.json"};
+  const auto schema_template{compile_embedded(
+      bundled,
+      {sourcemeta::core::to_weak_pointer(pet),
+       sourcemeta::core::to_weak_pointer(bundled_pet)},
+      "https://example.com/openapi.json#/components/schemas/Pet",
+      sourcemeta::blaze::Mode::FastValidation)};
+
+  const sourcemeta::core::JSON instance{"foo"};
+  EVALUATE_WITH_TRACE(schema_template, instance, 1);
+  EXPECT_TRUE(result);
+
+  EVALUATE_TRACE_PRE(0, AssertionTypeStrict, "/$ref/type",
+                     "https://example.com/pet.json#/type", "");
+  EVALUATE_TRACE_POST_SUCCESS(0, AssertionTypeStrict, "/$ref/type",
+                              "https://example.com/pet.json#/type", "");
+
+  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
+                               "The value was expected to be of type string");
 }

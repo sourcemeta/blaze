@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "properties": { "foo": { "$ref": "#/definitions/bar" }, "baz": { "type": "string" } },
+    "definitions": { "bar": { "$ref": "#/properties/baz" } }
+  },
+  "instance": { "foo": "bar" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyTypeStrict", "/properties/foo/$ref/$ref/type", "#/properties/baz/type", "/foo" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/foo/$ref/$ref/type", "#/properties/baz/type", "/foo" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalWhenType", "/properties", "#/properties", "" ],
+      [ "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+      [ "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/bar/$ref", "/foo" ],
+      [ "AssertionTypeStrict", "/properties/foo/$ref/$ref/type", "#/properties/baz/type", "/foo" ],
+      [ "Annotation", "/properties", "#/properties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/foo/$ref/$ref/type", "#/properties/baz/type", "/foo" ],
+      [ true, "ControlJump", "/properties/foo/$ref/$ref", "#/definitions/bar/$ref", "/foo" ],
+      [ true, "ControlJump", "/properties/foo/$ref", "#/properties/foo/$ref", "/foo" ],
+      [ true, "Annotation", "/properties", "#/properties", "", "foo" ],
+      [ true, "LogicalWhenType", "/properties", "#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema",
+      "The string value was expected to validate against the referenced schema",
+      "The object property \"foo\" successfully validated against its property subschema",
+      "The object value was expected to validate against the defined properties subschemas"
+    ]
+  }
+}
