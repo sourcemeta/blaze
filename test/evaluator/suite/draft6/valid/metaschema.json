@@ -1,0 +1,33 @@
+{
+  "schema": "http://json-schema.org/draft-06/schema#",
+  "instance": {},
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ "AssertionTypeAny", "/type", "http://json-schema.org/draft-06/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ true, "AssertionTypeAny", "/type", "http://json-schema.org/draft-06/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 38 defined properties subschemas",
+      "The value was expected to be of type boolean, or object and it was of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ "AssertionTypeAny", "/type", "http://json-schema.org/draft-06/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ true, "AssertionTypeAny", "/type", "http://json-schema.org/draft-06/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value was expected to validate against the 38 defined properties subschemas",
+      "The value was expected to be of type boolean, or object and it was of type object"
+    ]
+  }
+}

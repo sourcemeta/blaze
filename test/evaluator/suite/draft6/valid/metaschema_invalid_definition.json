@@ -1,0 +1,75 @@
+{
+  "schema": "http://json-schema.org/draft-06/schema#",
+  "instance": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "definitions": { "foo": { "type": 1 } }
+  },
+  "valid": false,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-06/schema#/properties/$schema/type", "/$schema" ],
+      [ "LoopProperties", "/properties/definitions/additionalProperties", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties", "/definitions" ],
+      [ "ControlJump", "/properties/definitions/additionalProperties/$ref", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties/$ref", "/definitions/foo" ],
+      [ "LoopPropertiesMatch", "/properties/definitions/additionalProperties/$ref/properties", "http://json-schema.org/draft-06/schema#/properties", "/definitions/foo" ],
+      [ "LogicalOr", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf", "http://json-schema.org/draft-06/schema#/properties/type/anyOf", "/definitions/foo/type" ],
+      [ "AssertionEqualsAnyStringHash", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref/enum", "http://json-schema.org/draft-06/schema#/definitions/simpleTypes/enum", "/definitions/foo/type" ],
+      [ "AssertionTypeArrayBounded", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/1/type", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/1/type", "/definitions/foo/type" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-06/schema#/properties/$schema/type", "/$schema" ],
+      [ false, "AssertionEqualsAnyStringHash", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref/enum", "http://json-schema.org/draft-06/schema#/definitions/simpleTypes/enum", "/definitions/foo/type" ],
+      [ false, "AssertionTypeArrayBounded", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/1/type", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/1/type", "/definitions/foo/type" ],
+      [ false, "LogicalOr", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf", "http://json-schema.org/draft-06/schema#/properties/type/anyOf", "/definitions/foo/type" ],
+      [ false, "LoopPropertiesMatch", "/properties/definitions/additionalProperties/$ref/properties", "http://json-schema.org/draft-06/schema#/properties", "/definitions/foo" ],
+      [ false, "ControlJump", "/properties/definitions/additionalProperties/$ref", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties/$ref", "/definitions/foo" ],
+      [ false, "LoopProperties", "/properties/definitions/additionalProperties", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties", "/definitions" ],
+      [ false, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The integer value 1 was expected to equal one of the given declared values",
+      "The value was expected to consist of an array of at least 1 item",
+      "The integer value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the 38 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the 38 defined properties subschemas"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-06/schema#/properties/$schema/type", "/$schema" ],
+      [ "LoopProperties", "/properties/definitions/additionalProperties", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties", "/definitions" ],
+      [ "ControlJump", "/properties/definitions/additionalProperties/$ref", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties/$ref", "/definitions/foo" ],
+      [ "LoopPropertiesMatch", "/properties/definitions/additionalProperties/$ref/properties", "http://json-schema.org/draft-06/schema#/properties", "/definitions/foo" ],
+      [ "LogicalOr", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf", "http://json-schema.org/draft-06/schema#/properties/type/anyOf", "/definitions/foo/type" ],
+      [ "ControlJump", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/0/$ref", "/definitions/foo/type" ],
+      [ "AssertionEqualsAny", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref/enum", "http://json-schema.org/draft-06/schema#/definitions/simpleTypes/enum", "/definitions/foo/type" ],
+      [ "AssertionTypeStrict", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/1/type", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/1/type", "/definitions/foo/type" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-06/schema#/properties/$schema/type", "/$schema" ],
+      [ false, "AssertionEqualsAny", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref/enum", "http://json-schema.org/draft-06/schema#/definitions/simpleTypes/enum", "/definitions/foo/type" ],
+      [ false, "ControlJump", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/0/$ref", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/0/$ref", "/definitions/foo/type" ],
+      [ false, "AssertionTypeStrict", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf/1/type", "http://json-schema.org/draft-06/schema#/properties/type/anyOf/1/type", "/definitions/foo/type" ],
+      [ false, "LogicalOr", "/properties/definitions/additionalProperties/$ref/properties/type/anyOf", "http://json-schema.org/draft-06/schema#/properties/type/anyOf", "/definitions/foo/type" ],
+      [ false, "LoopPropertiesMatch", "/properties/definitions/additionalProperties/$ref/properties", "http://json-schema.org/draft-06/schema#/properties", "/definitions/foo" ],
+      [ false, "ControlJump", "/properties/definitions/additionalProperties/$ref", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties/$ref", "/definitions/foo" ],
+      [ false, "LoopProperties", "/properties/definitions/additionalProperties", "http://json-schema.org/draft-06/schema#/properties/definitions/additionalProperties", "/definitions" ],
+      [ false, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-06/schema#/properties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The integer value 1 was expected to equal one of the following values: \"array\", \"boolean\", \"integer\", \"null\", \"number\", \"object\", and \"string\"",
+      "The integer value was expected to validate against the referenced schema",
+      "The value was expected to be of type array but it was of type integer",
+      "The integer value was expected to validate against at least one of the 2 given subschemas",
+      "The object value was expected to validate against the 38 defined properties subschemas",
+      "The object value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the 38 defined properties subschemas"
+    ]
+  }
+}

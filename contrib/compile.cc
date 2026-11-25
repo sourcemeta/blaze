@@ -188,6 +188,20 @@ auto main(int argc, char **argv) noexcept -> int {
       document = std::move(extracted);
     }
 
+    // A document that is a string names the schema rather than being one, the
+    // same way a fixture may name the schema it puts under test by URI
+    if (document.is_string()) {
+      std::cerr << "Named schema: " << document.to_string() << "\n";
+      auto named{resolver(document.to_string())};
+      if (!named.has_value()) {
+        std::cerr << "error: could not resolve the schema named by the input: "
+                  << document.to_string() << "\n";
+        return EXIT_FAILURE;
+      }
+
+      document = std::move(named).to_owned();
+    }
+
     const auto compile_start{std::chrono::high_resolution_clock::now()};
     std::string entrypoint;
     if (options.contains("entrypoint")) {

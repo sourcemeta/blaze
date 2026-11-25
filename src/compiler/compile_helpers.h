@@ -669,6 +669,13 @@ inline auto tracks_evaluation(const KeywordContext &context) -> bool {
 
 inline auto annotations_enabled(const KeywordContext &context,
                                 const std::string_view keyword) -> bool {
+  // A subschema applied to a property name runs against something that is not
+  // a location in the instance, so an annotation it reports has no location to
+  // attach to and nothing can collect it
+  if (context.local.is_property_name) {
+    return false;
+  }
+
   if (context.global.tweaks.annotations.has_value()) {
     return context.global.tweaks.annotations.value().contains(keyword);
   }

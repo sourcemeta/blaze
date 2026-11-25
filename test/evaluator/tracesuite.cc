@@ -63,8 +63,8 @@ auto metaschema_template(const std::string &uri)
 // must agree with this: a schema the meta-schema accepts must compile, and one
 // it rejects must not
 auto matches_metaschema(const std::string &uri,
-                        const sourcemeta::core::JSON &fixture) -> bool {
-  const auto &schema{fixture.at("schema")};
+                        const sourcemeta::core::JSON &fixture,
+                        const sourcemeta::core::JSON &schema) -> bool {
   sourcemeta::blaze::Evaluator evaluator;
 
   // A fixture that supplies the meta-schema itself stands outside the cache,
@@ -93,8 +93,8 @@ auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const std::string &directory_dialect) -> void {
   const auto default_dialect{fixture_default_dialect(data, directory_dialect)};
   const FixtureResolver resolver{data};
-  const auto &schema{data.at("schema")};
-  EXPECT_TRUE(matches_metaschema(metaschema, data));
+  const auto schema{fixture_schema(data, resolver)};
+  EXPECT_TRUE(matches_metaschema(metaschema, data, schema));
 
   const auto &instance{data.at("instance")};
   const bool expected_valid{data.at("valid").to_boolean()};
@@ -187,7 +187,7 @@ auto run_error_test(const std::string &name, const sourcemeta::core::JSON &data,
                     const sourcemeta::blaze::Mode mode) -> void {
   const auto &expected{data.at("error")};
   const FixtureResolver resolver{data};
-  EXPECT_FALSE(matches_metaschema(metaschema, data));
+  EXPECT_FALSE(matches_metaschema(metaschema, data, data.at("schema")));
 
   try {
     sourcemeta::blaze::compile(data.at("schema"),

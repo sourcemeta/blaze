@@ -1,0 +1,103 @@
+{
+  "schema": "http://json-schema.org/draft-03/schema#",
+  "instance": {
+    "$schema": "http://json-schema.org/draft-03/schema#",
+    "type": "object",
+    "properties": { "foo": { "type": "string", "required": true } }
+  },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ "AssertionPropertyTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-03/schema#/properties/$schema/type", "/$schema" ],
+      [ "AssertionPropertyTypeStrictAny", "/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/type" ],
+      [ "AssertionPropertyTypeStrict", "/properties/properties/type", "http://json-schema.org/draft-03/schema#/properties/properties/type", "/properties" ],
+      [ "LoopProperties", "/properties/properties/additionalProperties", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties", "/properties" ],
+      [ "ControlJump", "/properties/properties/additionalProperties/$ref", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties/$ref", "/properties/foo" ],
+      [ "AssertionPropertyDependencies", "/properties/properties/additionalProperties/$ref/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "/properties/foo" ],
+      [ "LoopPropertiesMatch", "/properties/properties/additionalProperties/$ref/properties", "http://json-schema.org/draft-03/schema#/properties", "/properties/foo" ],
+      [ "AssertionPropertyTypeStrictAny", "/properties/properties/additionalProperties/$ref/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/properties/foo/type" ],
+      [ "AssertionPropertyTypeStrict", "/properties/properties/additionalProperties/$ref/properties/required/type", "http://json-schema.org/draft-03/schema#/properties/required/type", "/properties/foo/required" ],
+      [ "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/type", "http://json-schema.org/draft-03/schema#/type", "/properties/foo" ],
+      [ "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-03/schema#/properties/$schema/type", "/$schema" ],
+      [ true, "AssertionPropertyTypeStrictAny", "/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/type" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/properties/type", "http://json-schema.org/draft-03/schema#/properties/properties/type", "/properties" ],
+      [ true, "AssertionPropertyDependencies", "/properties/properties/additionalProperties/$ref/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "/properties/foo" ],
+      [ true, "AssertionPropertyTypeStrictAny", "/properties/properties/additionalProperties/$ref/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/properties/foo/type" ],
+      [ true, "AssertionPropertyTypeStrict", "/properties/properties/additionalProperties/$ref/properties/required/type", "http://json-schema.org/draft-03/schema#/properties/required/type", "/properties/foo/required" ],
+      [ true, "LoopPropertiesMatch", "/properties/properties/additionalProperties/$ref/properties", "http://json-schema.org/draft-03/schema#/properties", "/properties/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/type", "http://json-schema.org/draft-03/schema#/type", "/properties/foo" ],
+      [ true, "ControlJump", "/properties/properties/additionalProperties/$ref", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties/$ref", "/properties/foo" ],
+      [ true, "LoopProperties", "/properties/properties/additionalProperties", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties", "/properties" ],
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string, or array and it was of type string",
+      "The value was expected to be of type object",
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The value was expected to be of type string, or array and it was of type string",
+      "The value was expected to be of type boolean",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ "AssertionTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-03/schema#/properties/$schema/type", "/$schema" ],
+      [ "AssertionTypeStrictAny", "/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/type" ],
+      [ "AssertionTypeStrict", "/properties/properties/type", "http://json-schema.org/draft-03/schema#/properties/properties/type", "/properties" ],
+      [ "LoopProperties", "/properties/properties/additionalProperties", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties", "/properties" ],
+      [ "ControlJump", "/properties/properties/additionalProperties/$ref", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties/$ref", "/properties/foo" ],
+      [ "AssertionPropertyDependencies", "/properties/properties/additionalProperties/$ref/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "/properties/foo" ],
+      [ "LoopPropertiesMatch", "/properties/properties/additionalProperties/$ref/properties", "http://json-schema.org/draft-03/schema#/properties", "/properties/foo" ],
+      [ "AssertionTypeStrictAny", "/properties/properties/additionalProperties/$ref/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/properties/foo/type" ],
+      [ "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/properties/required/type", "http://json-schema.org/draft-03/schema#/properties/required/type", "/properties/foo/required" ],
+      [ "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/type", "http://json-schema.org/draft-03/schema#/type", "/properties/foo" ],
+      [ "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionPropertyDependencies", "/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "" ],
+      [ true, "AssertionTypeStrict", "/properties/$schema/type", "http://json-schema.org/draft-03/schema#/properties/$schema/type", "/$schema" ],
+      [ true, "AssertionTypeStrictAny", "/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/type" ],
+      [ true, "AssertionTypeStrict", "/properties/properties/type", "http://json-schema.org/draft-03/schema#/properties/properties/type", "/properties" ],
+      [ true, "AssertionPropertyDependencies", "/properties/properties/additionalProperties/$ref/dependencies", "http://json-schema.org/draft-03/schema#/dependencies", "/properties/foo" ],
+      [ true, "AssertionTypeStrictAny", "/properties/properties/additionalProperties/$ref/properties/type/type", "http://json-schema.org/draft-03/schema#/properties/type/type", "/properties/foo/type" ],
+      [ true, "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/properties/required/type", "http://json-schema.org/draft-03/schema#/properties/required/type", "/properties/foo/required" ],
+      [ true, "LoopPropertiesMatch", "/properties/properties/additionalProperties/$ref/properties", "http://json-schema.org/draft-03/schema#/properties", "/properties/foo" ],
+      [ true, "AssertionTypeStrict", "/properties/properties/additionalProperties/$ref/type", "http://json-schema.org/draft-03/schema#/type", "/properties/foo" ],
+      [ true, "ControlJump", "/properties/properties/additionalProperties/$ref", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties/$ref", "/properties/foo" ],
+      [ true, "LoopProperties", "/properties/properties/additionalProperties", "http://json-schema.org/draft-03/schema#/properties/properties/additionalProperties", "/properties" ],
+      [ true, "LoopPropertiesMatch", "/properties", "http://json-schema.org/draft-03/schema#/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "http://json-schema.org/draft-03/schema#/type", "" ]
+    ],
+    "descriptions": [
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The value was expected to be of type string",
+      "The value was expected to be of type string, or array and it was of type string",
+      "The value was expected to be of type object",
+      "The object value did not define \"exclusiveMaximum\", or \"exclusiveMinimum\"",
+      "The value was expected to be of type string, or array and it was of type string",
+      "The value was expected to be of type boolean",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object properties not covered by other adjacent object keywords were expected to validate against this subschema",
+      "The object value was expected to validate against the 29 defined properties subschemas",
+      "The value was expected to be of type object"
+    ]
+  }
+}

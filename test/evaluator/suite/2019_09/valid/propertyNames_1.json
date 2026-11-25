@@ -25,16 +25,14 @@
   },
   "instance": { "foo": 1 },
   "valid": true,
-  "fast": {},
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
   "exhaustive": {
-    "pre": [
-      [ "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
-    ],
-    "post": [
-      [ true, "LoopKeys", "/propertyNames", "#/propertyNames", "" ]
-    ],
-    "descriptions": [
-      "The object value was expected to validate the property names \"foo\" against the given subschema"
-    ]
+    "pre": [],
+    "post": [],
+    "descriptions": []
   }
 }
