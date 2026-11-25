@@ -53,68 +53,20 @@ auto emit_error(const std::string_view type, const std::string_view message,
   std::cout << "\n";
 }
 
-// What a fixture records about the exception that was raised, where it is one
-// of the kinds the suites name. The kind is tested here rather than caught in
-// an arm of its own, because the entry point below is `noexcept` and so has
-// nowhere to rethrow what it does not recognise
-auto emit_error_fixture(const std::exception &raised) -> bool {
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::blaze::CompilerInvalidRegexError *>(
-              &raised)}) {
-    emit_error("CompilerInvalidRegexError", error->what(),
-               {{"base", error->base().recompose()},
-                {"location", sourcemeta::core::to_string(error->location())},
-                {"regex", error->regex()}});
-    return true;
+// Reporting the exception that was raised: as a fixture where that is what was
+// asked for, and as a message otherwise. Which kind it is settles at the catch
+// that calls this, because this tool is built without the type information
+// `dynamic_cast` would need
+auto report(const sourcemeta::core::Options &options,
+            const std::exception &error, const std::string_view type,
+            const std::map<std::string, std::string> &fields) -> bool {
+  if (!options.contains("fixture")) {
+    std::cerr << "error: " << error.what() << "\n";
+    return false;
   }
 
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::blaze::CompilerInvalidEntryPoint *>(
-              &raised)}) {
-    emit_error("CompilerInvalidEntryPoint", error->what(),
-               {{"identifier", error->identifier()}});
-    return true;
-  }
-
-  if (const auto *error{dynamic_cast<
-          const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError *>(
-          &raised)}) {
-    emit_error("CompilerReferenceTargetNotSchemaError", error->what(),
-               {{"identifier", error->identifier()},
-                {"location", sourcemeta::core::to_string(error->location())}});
-    return true;
-  }
-
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::blaze::CompilerError *>(&raised)}) {
-    emit_error("CompilerError", error->what(),
-               {{"base", error->base().recompose()},
-                {"location", sourcemeta::core::to_string(error->location())}});
-    return true;
-  }
-
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::blaze::EvaluationError *>(&raised)}) {
-    emit_error("EvaluationError", error->what(), {});
-    return true;
-  }
-
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::core::SchemaReferenceError *>(
-              &raised)}) {
-    emit_error("SchemaReferenceError", error->what(),
-               {{"identifier", std::string{error->identifier()}},
-                {"location", sourcemeta::core::to_string(error->location())}});
-    return true;
-  }
-
-  if (const auto *error{
-          dynamic_cast<const sourcemeta::core::SchemaError *>(&raised)}) {
-    emit_error("SchemaError", error->what(), {});
-    return true;
-  }
-
-  return false;
+  emit_error(type, error.what(), fields);
+  return true;
 }
 
 // is shaped like the fixture itself: the verdict where a fixture keeps it, and
@@ -369,11 +321,49 @@ auto main(int argc, char **argv) noexcept -> int {
     }
 
     std::cerr << "PASS\n";
-  } catch (const std::exception &error) {
-    if (options.contains("fixture") && emit_error_fixture(error)) {
-      return EXIT_SUCCESS;
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    if (!report(options, error, "CompilerInvalidRegexError",
+                {{"base", error.base().recompose()},
+                 {"location", sourcemeta::core::to_string(error.location())},
+                 {"regex", error.regex()}})) {
+      return EXIT_FAILURE;
     }
-
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    if (!report(options, error, "CompilerInvalidEntryPoint",
+                {{"identifier", error.identifier()}})) {
+      return EXIT_FAILURE;
+    }
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    if (!report(
+            options, error, "CompilerReferenceTargetNotSchemaError",
+            {{"identifier", error.identifier()},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
+    }
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    if (!report(
+            options, error, "CompilerError",
+            {{"base", error.base().recompose()},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
+    }
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    if (!report(options, error, "EvaluationError", {})) {
+      return EXIT_FAILURE;
+    }
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+    if (!report(
+            options, error, "SchemaReferenceError",
+            {{"identifier", std::string{error.identifier()}},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
+    }
+  } catch (const sourcemeta::core::SchemaError &error) {
+    if (!report(options, error, "SchemaError", {})) {
+      return EXIT_FAILURE;
+    }
+  } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;
   }
