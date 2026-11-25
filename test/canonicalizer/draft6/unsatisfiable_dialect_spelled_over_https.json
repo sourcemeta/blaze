@@ -1,0 +1,14 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft-06/schema#",
+    "type": "string",
+    "enum": [ 1 ]
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": { "0": { "not": { "$ref": "#/definitions/1" } }, "1": true }
+  },
+  "examples": [],
+  "counterExamples": [ null, true, false, 0, 1, "", "x", [], {} ]
+}

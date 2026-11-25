@@ -5806,3 +5806,69 @@ TEST(unsatisfiable_empty_enum) {
 
   CANONICALIZE_AND_VALIDATE(document, expected, compiled_metaschema());
 }
+
+// The dialect a document declares is the one it is read in, so a reference at
+// the top of this one is the ordinary reference its own dialect makes of it
+// rather than one an older draft overrides its siblings with, whatever name
+// the caller offers alongside for a document that declares none
+TEST(top_level_ref_with_siblings_beside_an_older_name) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$ref": "#/$defs/target",
+    "title": "Standing beside the reference",
+    "$defs": {
+      "target": { "type": "string" }
+    }
+  })JSON");
+
+  const auto expected = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "target": {
+        "type": "string",
+        "minLength": 0
+      }
+    },
+    "allOf": [
+      {
+        "$ref": "#/$defs/target",
+        "title": "Standing beside the reference"
+      }
+    ]
+  })JSON");
+
+  CANONICALIZE_WITH_DIALECT_AND_VALIDATE(
+      document, expected, "http://json-schema.org/draft-06/schema#",
+      compiled_metaschema());
+}
+
+// The same question from the other side: a document declaring a draft whose
+// reference does override its siblings is read in that draft, so the name the
+// caller offers alongside buys it nothing
+TEST(top_level_ref_with_siblings_in_draft_6_beside_a_modern_name) {
+  auto document = sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/foo",
+    "title": "Standing beside the reference",
+    "definitions": {
+      "foo": { "type": "string" }
+    }
+  })JSON");
+
+  const auto original = document;
+
+  try {
+    sourcemeta::blaze::canonicalize(
+        document, sourcemeta::core::schema_walker, canonicalizer_test_resolver,
+        "https://json-schema.org/draft/2020-12/schema");
+    FAIL();
+  } catch (const sourcemeta::core::SchemaError &error) {
+    EXPECT_STREQ(error.what(),
+                 "Cannot canonicalise a JSON Schema Draft 7 or older with a "
+                 "top-level `$ref` (which overrides sibling keywords) without "
+                 "introducing undefined behavior");
+    EXPECT_EQ(document, original);
+  } catch (...) {
+    FAIL();
+  }
+}

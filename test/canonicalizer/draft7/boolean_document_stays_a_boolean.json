@@ -1,0 +1,6 @@
+{
+  "schema": true,
+  "expected": true,
+  "examples": [ null, true, false, 0, 1, "", "x", [], {} ],
+  "counterExamples": []
+}
