@@ -89,48 +89,6 @@
   EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
   EXPECT_FALSE(result);
 
-#define EVALUATE_WITH_TRACE_FAST_SUCCESS_TWEAKED_RESOLVER(                     \
-    schema, instance, count, entrypoint, tweaks, resolver)                     \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker, (resolver),                     \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint),           \
-      (tweaks))};                                                              \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_TRUE(result);
-
-#define EVALUATE_WITH_TRACE_FAST_FAILURE_TWEAKED_RESOLVER(                     \
-    schema, instance, count, entrypoint, tweaks, resolver)                     \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker, (resolver),                     \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::FastValidation, "", "", (entrypoint),           \
-      (tweaks))};                                                              \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_FALSE(result);
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_TWEAKED_RESOLVER(               \
-    schema, instance, count, entrypoint, tweaks, resolver)                     \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker, (resolver),                     \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_TRUE(result);
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_TWEAKED_RESOLVER(               \
-    schema, instance, count, entrypoint, tweaks, resolver)                     \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker, (resolver),                     \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::Exhaustive, "", "", (entrypoint), (tweaks))};   \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_FALSE(result);
-
 #define EVALUATE_WITH_TRACE_FAST_SUCCESS(schema, instance, count, entrypoint)  \
   EVALUATE_WITH_TRACE_FAST_SUCCESS_RESOLVER(                                   \
       schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
@@ -138,60 +96,6 @@
 #define EVALUATE_WITH_TRACE_FAST_FAILURE(schema, instance, count, entrypoint)  \
   EVALUATE_WITH_TRACE_FAST_FAILURE_RESOLVER(                                   \
       schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS(schema, instance, count,        \
-                                               entrypoint)                     \
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_RESOLVER(                             \
-      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE(schema, instance, count,        \
-                                               entrypoint)                     \
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_RESOLVER(                             \
-      schema, instance, count, entrypoint, sourcemeta::core::schema_resolver)
-
-#define EVALUATE_WITH_TRACE_FAST_SUCCESS_WITH_DEFAULT_DIALECT(                 \
-    schema, instance, count, default_dialect)                                  \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::FastValidation, (default_dialect))};            \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_TRUE(result);
-
-#define EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(                 \
-    schema, instance, count, default_dialect)                                  \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::FastValidation, (default_dialect))};            \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_FALSE(result);
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_WITH_DEFAULT_DIALECT(           \
-    schema, instance, count, default_dialect)                                  \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::Exhaustive, (default_dialect))};                \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_TRUE(result);
-
-#define EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_WITH_DEFAULT_DIALECT(           \
-    schema, instance, count, default_dialect)                                  \
-  const auto compiled_schema{sourcemeta::blaze::compile(                       \
-      schema, sourcemeta::core::schema_walker,                                 \
-      sourcemeta::core::schema_resolver,                                       \
-      sourcemeta::blaze::default_schema_compiler,                              \
-      sourcemeta::blaze::Mode::Exhaustive, (default_dialect))};                \
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);                       \
-  EVALUATE_WITH_TRACE(compiled_schema, instance, count)                        \
-  EXPECT_FALSE(result);
 
 #define __EVALUATE_TRACE_PRE(index, instruction_type, evaluate_path,           \
                              expected_keyword_location,                        \

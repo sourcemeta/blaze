@@ -1,0 +1,54 @@
+{
+  "schema": {
+    "$schema": "https://example.com/2020-12-format-assertion-meta",
+    "format": "uri"
+  },
+  "resolve": {
+    "https://example.com/2020-12-format-assertion-meta": {
+      "$id": "https://example.com/2020-12-format-assertion-meta",
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$vocabulary": {
+        "https://json-schema.org/draft/2020-12/vocab/core": true,
+        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
+        "https://json-schema.org/draft/2020-12/vocab/validation": true,
+        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
+      },
+      "$dynamicAnchor": "meta",
+      "allOf": [
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
+        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" },
+        {
+          "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion"
+        }
+      ]
+    }
+  },
+  "instance": "https://example.com",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionStringType", "/format", "#/format", "" ],
+      [ "Annotation", "/format", "#/format", "" ]
+    ],
+    "post": [
+      [ true, "AssertionStringType", "/format", "#/format", "" ],
+      [ true, "Annotation", "/format", "#/format", "", "uri" ]
+    ],
+    "descriptions": [
+      "The string value \"https://example.com\" was expected to represent a valid URI",
+      "The logical type of the instance was expected to be \"uri\""
+    ]
+  }
+}

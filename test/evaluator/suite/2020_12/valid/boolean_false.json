@@ -1,0 +1,28 @@
+{
+  "schema": false,
+  "instance": "foo bar",
+  "valid": false,
+  "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "", "", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "", "", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionFail", "", "", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "", "", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  }
+}

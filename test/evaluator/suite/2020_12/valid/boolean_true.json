@@ -1,0 +1,16 @@
+{
+  "schema": true,
+  "instance": "foo bar",
+  "valid": true,
+  "defaultDialect": "https://json-schema.org/draft/2020-12/schema",
+  "fast": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  },
+  "exhaustive": {
+    "pre": [],
+    "post": [],
+    "descriptions": []
+  }
+}

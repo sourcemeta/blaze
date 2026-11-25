@@ -6,11 +6,10 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <optional>      // std::optional
-#include <string>        // std::string
-#include <string_view>   // std::string_view
-#include <type_traits>   // std::is_copy_constructible_v, etc.
-#include <unordered_set> // std::unordered_set
+#include <optional>    // std::optional
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <type_traits> // std::is_copy_constructible_v, etc.
 
 #include "evaluator_utils.h"
 
@@ -202,52 +201,6 @@ TEST(reuse_after_a_template_that_opens_frames) {
   EXPECT_TRUE(evaluator.validate(tracking_template, instance));
   EXPECT_TRUE(evaluator.validate(plain_template, instance));
   EXPECT_TRUE(evaluator.validate(tracking_template, instance));
-}
-
-TEST(boolean_true_exhaustive) {
-  const sourcemeta::core::JSON schema{true};
-
-  const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_SUCCESS_WITH_DEFAULT_DIALECT(
-      schema, instance, 0, "https://json-schema.org/draft/2020-12/schema");
-}
-
-TEST(boolean_false_exhaustive) {
-  const sourcemeta::core::JSON schema{false};
-
-  const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_EXHAUSTIVE_FAILURE_WITH_DEFAULT_DIALECT(
-      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema");
-
-  EVALUATE_TRACE_PRE(0, AssertionFail, "", "", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "", "", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "No instance is expected to succeed against the false schema");
-}
-
-TEST(boolean_true) {
-  const sourcemeta::core::JSON schema{true};
-
-  const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_FAST_SUCCESS_WITH_DEFAULT_DIALECT(
-      schema, instance, 0, "https://json-schema.org/draft/2020-12/schema");
-}
-
-TEST(boolean_false) {
-  const sourcemeta::core::JSON schema{false};
-
-  const sourcemeta::core::JSON instance{"foo bar"};
-  EVALUATE_WITH_TRACE_FAST_FAILURE_WITH_DEFAULT_DIALECT(
-      schema, instance, 1, "https://json-schema.org/draft/2020-12/schema");
-
-  EVALUATE_TRACE_PRE(0, AssertionFail, "", "", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionFail, "", "", "");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "No instance is expected to succeed against the false schema");
 }
 
 TEST(reusable_evaluator) {
@@ -1509,36 +1462,6 @@ TEST(exclusiveMaximum_18) {
 }
 
 // JSON Schema 2020-12
-// NOLINTBEGIN(cert-err58-cpp,bugprone-throwing-static-initialization)
-static const std::string FORMAT_ASSERTION_METASCHEMA_URI{
-    "https://example.com/2020-12-format-assertion-meta"};
-
-static auto format_assertion_resolver(std::string_view identifier)
-    -> sourcemeta::core::SchemaResolverResult {
-  if (identifier == FORMAT_ASSERTION_METASCHEMA_URI) {
-    return sourcemeta::core::parse_json(R"JSON({
-      "$id": "https://example.com/2020-12-format-assertion-meta",
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "$vocabulary": {
-        "https://json-schema.org/draft/2020-12/vocab/core": true,
-        "https://json-schema.org/draft/2020-12/vocab/applicator": true,
-        "https://json-schema.org/draft/2020-12/vocab/validation": true,
-        "https://json-schema.org/draft/2020-12/vocab/format-assertion": true
-      },
-      "$dynamicAnchor": "meta",
-      "allOf": [
-        { "$ref": "https://json-schema.org/draft/2020-12/meta/core" },
-        { "$ref": "https://json-schema.org/draft/2020-12/meta/applicator" },
-        { "$ref": "https://json-schema.org/draft/2020-12/meta/validation" },
-        { "$ref": "https://json-schema.org/draft/2020-12/meta/format-assertion" }
-      ]
-    })JSON");
-  }
-
-  return sourcemeta::core::schema_resolver(identifier);
-}
-
-// NOLINTEND(cert-err58-cpp,bugprone-throwing-static-initialization)
 
 TEST(dynamicRef_with_multiple_anchors_from_json) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
@@ -1617,115 +1540,6 @@ TEST(unevaluated_properties_annotations_none_still_tracks) {
   const sourcemeta::core::JSON evaluated{
       sourcemeta::core::parse_json(R"JSON({ "a": 1 })JSON")};
   EXPECT_TRUE(evaluator.validate(compiled_schema, evaluated));
-}
-
-TEST(format_uri_with_assertion_vocab_valid_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"https://example.com"};
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation)};
-
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
-  EXPECT_TRUE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-}
-
-TEST(format_uri_with_assertion_vocab_invalid_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"://bad"};
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation)};
-
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
-  EXPECT_FALSE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"://bad\" was expected to represent a valid URI");
-}
-
-TEST(format_uri_with_assertion_vocab_valid_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"https://example.com"};
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
-
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 2)
-  EXPECT_TRUE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_PRE_ANNOTATION(1, "/format", "#/format", "");
-
-  EVALUATE_TRACE_POST_SUCCESS(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_ANNOTATION(1, "/format", "#/format", "", "uri");
-
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"https://example.com\" was expected to represent a "
-      "valid URI");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 1,
-      "The logical type of the instance was expected to be \"uri\"");
-}
-
-TEST(format_uri_with_assertion_vocab_invalid_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://example.com/2020-12-format-assertion-meta",
-    "format": "uri"
-  })JSON")};
-
-  const sourcemeta::core::JSON instance{"://bad"};
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, format_assertion_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::Exhaustive)};
-
-  __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1)
-  EXPECT_FALSE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionStringType, "/format", "#/format", "");
-  EVALUATE_TRACE_POST_FAILURE(0, AssertionStringType, "/format", "#/format",
-                              "");
-  EVALUATE_TRACE_POST_DESCRIBE(
-      instance, 0,
-      "The string value \"://bad\" was expected to represent a valid URI");
 }
 
 // OpenAPI 3.0
@@ -1842,114 +1656,6 @@ TEST(external_reference_enforces_the_target_constraints_fast) {
   const sourcemeta::core::JSON instance{
       sourcemeta::core::parse_json(R"JSON({ "name": 1 })JSON")};
   EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
-}
-
-TEST(root_reference_without_siblings_accepts_null_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$ref": "https://example.com/target"
-  })JSON")};
-
-  auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::core::SchemaResolverResult {
-    if (identifier == "https://example.com/target") {
-      return sourcemeta::core::parse_json(R"JSON({
-                "type": "integer",
-                "nullable": true
-              })JSON");
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  };
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, test_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("null")};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
-  EXPECT_TRUE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-                     "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(
-      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-      "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type null, or "
-                               "integer and it was of type null");
-}
-
-TEST(root_reference_without_siblings_accepts_an_integer_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$ref": "https://example.com/target"
-  })JSON")};
-
-  auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::core::SchemaResolverResult {
-    if (identifier == "https://example.com/target") {
-      return sourcemeta::core::parse_json(R"JSON({
-                "type": "integer",
-                "nullable": true
-              })JSON");
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  };
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, test_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("1")};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
-  EXPECT_TRUE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-                     "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_SUCCESS(
-      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-      "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type null, or "
-                               "integer and it was of type integer");
-}
-
-TEST(root_reference_without_siblings_rejects_a_string_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$ref": "https://example.com/target"
-  })JSON")};
-
-  auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::core::SchemaResolverResult {
-    if (identifier == "https://example.com/target") {
-      return sourcemeta::core::parse_json(R"JSON({
-                "type": "integer",
-                "nullable": true
-              })JSON");
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  };
-
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, test_resolver,
-      sourcemeta::blaze::default_schema_compiler,
-      sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-
-  const sourcemeta::core::JSON instance{sourcemeta::core::parse_json("\"1\"")};
-  EVALUATE_WITH_TRACE(compiled_schema, instance, 1);
-  EXPECT_FALSE(result);
-
-  EVALUATE_TRACE_PRE(0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-                     "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_FAILURE(
-      0, AssertionTypeStrictAny, "/allOf/0/$ref/type",
-      "#/x-definitions/https:~1~1example.com~1target/type", "");
-  EVALUATE_TRACE_POST_DESCRIBE(instance, 0,
-                               "The value was expected to be of type null, or "
-                               "integer but it was of type string");
 }
 
 // Serialized templates are a product surface, and textual round-trip equality

@@ -1,0 +1,34 @@
+{
+  "schema": { "$ref": "https://example.com/target" },
+  "resolve": { "https://example.com/target": { "type": "integer", "nullable": true } },
+  "instance": 1,
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrictAny", "/allOf/0/$ref/type", "#/x-definitions/https:~1~1example.com~1target/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/allOf/0/$ref/type", "#/x-definitions/https:~1~1example.com~1target/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or integer and it was of type integer"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "#/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ "AssertionTypeStrictAny", "/allOf/0/$ref/type", "#/x-definitions/https:~1~1example.com~1target/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrictAny", "/allOf/0/$ref/type", "#/x-definitions/https:~1~1example.com~1target/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "#/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "#/allOf", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type null, or integer and it was of type integer",
+      "The integer value was expected to validate against the referenced schema",
+      "The integer value was expected to validate against the given subschema"
+    ]
+  }
+}
