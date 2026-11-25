@@ -54,6 +54,18 @@ export function compileSchema(schemaPath, options) {
     args.push('--entrypoint', options.entrypoint);
   }
 
+  // Where the schemas inside a wrapper are, and what the wrapper answers to,
+  // which is the only way to compile one of them rather than the wrapper
+  if (options && options.paths) {
+    for (const pointer of options.paths) {
+      args.push('--paths', pointer);
+    }
+  }
+
+  if (options && options.defaultBase) {
+    args.push('--default-base', options.defaultBase);
+  }
+
   // The fixtures name compiler knobs, and this port borrows the C++ compiler,
   // so they have to travel as flags rather than being applied here
   if (options && options.tweaks) {
