@@ -728,6 +728,49 @@ TEST(nested_form_negation_below_contains_generates) {
   EXPECT_IR_NOTHING(result, "/contains/properties/foo/not");
 }
 
+TEST(draft6_graph_form_contained_entry_naming_itself_generates) {
+  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "array",
+    "contains": {
+      "type": "object",
+      "properties": {
+        "next": { "$ref": "#/contains" },
+        "value": { "not": { "type": "string" } }
+      }
+    }
+  })JSON")};
+
+  // An entry that only validates can lead back to itself, and a reference
+  // arriving from inside one is no way in: what such an entry holds still
+  // says nothing about what an instance looks like, so the negation below it
+  // is nothing to generate either
+  const auto result{sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker,
+      sourcemeta::core::schema_resolver, sourcemeta::blaze::default_compiler)};
+
+  using namespace sourcemeta::blaze;
+
+  EXPECT_IR_ANY(result, ir_index_of(result, "/definitions/2"),
+                "/definitions/2");
+  EXPECT_IR_REFERENCE(result, ir_index_of(result, "/definitions/0/items"),
+                      "/definitions/0/items", "/definitions/2");
+  EXPECT_IR_ARRAY(result, ir_index_of(result, "/definitions/0"),
+                  "/definitions/0", "/definitions/0/items");
+  EXPECT_IR_REFERENCE(result, ir_index_of(result, "/allOf/0"), "/allOf/0",
+                      "/definitions/0");
+  EXPECT_IR_REFERENCE(result, ir_index_of(result, ""), "", "/allOf/0");
+  EXPECT_IR_NOTHING(result, "/definitions/0/contains");
+  EXPECT_IR_NOTHING(result, "/definitions/1");
+  EXPECT_IR_NOTHING(result, "/definitions/1/propertyNames");
+  EXPECT_IR_NOTHING(result, "/definitions/1/properties/next");
+  EXPECT_IR_NOTHING(result, "/definitions/1/properties/value");
+  EXPECT_IR_NOTHING(result, "/definitions/1/additionalProperties");
+  EXPECT_IR_NOTHING(result, "/definitions/3");
+  EXPECT_IR_NOTHING(result, "/definitions/3/not");
+  EXPECT_IR_NOTHING(result, "/definitions/4");
+}
+
 TEST(draft6_graph_form_entry_both_contained_and_held_generates) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",

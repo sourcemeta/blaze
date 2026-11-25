@@ -1,0 +1,31 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "type": "object",
+    "properties": {
+      "child": {
+        "$id": "https://example.com/child",
+        "$schema": "https://json-schema.org/draft-06/schema#",
+        "type": "string"
+      }
+    }
+  },
+  "expected": {
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "allOf": [ { "$ref": "#/definitions/0" } ],
+    "definitions": {
+      "0": {
+        "type": "object",
+        "properties": { "child": { "$ref": "#/definitions/2" } },
+        "patternProperties": {},
+        "propertyNames": { "$ref": "#/definitions/1" },
+        "minProperties": 0,
+        "additionalProperties": { "$ref": "#/definitions/1" }
+      },
+      "1": true,
+      "2": { "type": "string", "minLength": 0 }
+    }
+  },
+  "examples": [ {}, { "child": "text" } ],
+  "counterExamples": [ { "child": 1 }, null, true, 1, "text", [] ]
+}
