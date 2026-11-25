@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "pattern": "^[a-zA-Z0-9\\/\\_]{1,32}$"
+  },
+  "instance": "a/b_c",
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a/b_c\" was expected to match the regular expression \"^[a-zA-Z0-9\\/\\_]{1,32}$\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "post": [
+      [ true, "AssertionRegex", "/pattern", "#/pattern", "" ]
+    ],
+    "descriptions": [
+      "The string value \"a/b_c\" was expected to match the regular expression \"^[a-zA-Z0-9\\/\\_]{1,32}$\""
+    ]
+  }
+}

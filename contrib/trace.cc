@@ -53,6 +53,22 @@ auto emit_error(const std::string_view type, const std::string_view message,
   std::cout << "\n";
 }
 
+// Reporting the exception that was raised: as a fixture where that is what was
+// asked for, and as a message otherwise. Which kind it is settles at the catch
+// that calls this, because this tool is built without the type information
+// `dynamic_cast` would need
+auto report(const sourcemeta::core::Options &options,
+            const std::exception &error, const std::string_view type,
+            const std::map<std::string, std::string> &fields) -> bool {
+  if (!options.contains("fixture")) {
+    std::cerr << "error: " << error.what() << "\n";
+    return false;
+  }
+
+  emit_error(type, error.what(), fields);
+  return true;
+}
+
 // is shaped like the fixture itself: the verdict where a fixture keeps it, and
 // the trace under the name of the mode that produced it
 auto emit_fixture_section(const sourcemeta::blaze::Template &schema_template,
@@ -306,58 +322,47 @@ auto main(int argc, char **argv) noexcept -> int {
 
     std::cerr << "PASS\n";
   } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(options, error, "CompilerInvalidRegexError",
+                {{"base", error.base().recompose()},
+                 {"location", sourcemeta::core::to_string(error.location())},
+                 {"regex", error.regex()}})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("CompilerInvalidRegexError", error.what(),
-               {{"base", error.base().recompose()},
-                {"location", sourcemeta::core::to_string(error.location())},
-                {"regex", error.regex()}});
   } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(options, error, "CompilerInvalidEntryPoint",
+                {{"identifier", error.identifier()}})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("CompilerInvalidEntryPoint", error.what(),
-               {{"identifier", error.identifier()}});
   } catch (
       const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(
+            options, error, "CompilerReferenceTargetNotSchemaError",
+            {{"identifier", error.identifier()},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("CompilerReferenceTargetNotSchemaError", error.what(),
-               {{"identifier", error.identifier()},
-                {"location", sourcemeta::core::to_string(error.location())}});
   } catch (const sourcemeta::blaze::CompilerError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(
+            options, error, "CompilerError",
+            {{"base", error.base().recompose()},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("CompilerError", error.what(),
-               {{"base", error.base().recompose()},
-                {"location", sourcemeta::core::to_string(error.location())}});
   } catch (const sourcemeta::blaze::EvaluationError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(options, error, "EvaluationError", {})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("EvaluationError", error.what(), {});
   } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(
+            options, error, "SchemaReferenceError",
+            {{"identifier", std::string{error.identifier()}},
+             {"location", sourcemeta::core::to_string(error.location())}})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("SchemaReferenceError", error.what(),
-               {{"identifier", std::string{error.identifier()}},
-                {"location", sourcemeta::core::to_string(error.location())}});
   } catch (const sourcemeta::core::SchemaError &error) {
-    if (!options.contains("fixture")) {
-      throw;
+    if (!report(options, error, "SchemaError", {})) {
+      return EXIT_FAILURE;
     }
-
-    emit_error("SchemaError", error.what(), {});
   } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;

@@ -1,0 +1,36 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "patternProperties": { "^[a-zA-Z0-9\\_\\.\\-]*$": { "type": "string" } }
+  },
+  "instance": { "a_b.c-d": "x" },
+  "valid": true,
+  "fast": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^[a-zA-Z0-9\\_\\.\\-]*$/type", "#/patternProperties/%5E%5Ba-zA-Z0-9%5C_%5C.%5C-%5D*$/type", "/a_b.c-d" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^[a-zA-Z0-9\\_\\.\\-]*$/type", "#/patternProperties/%5E%5Ba-zA-Z0-9%5C_%5C.%5C-%5D*$/type", "/a_b.c-d" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties that match the regular expression \"^[a-zA-Z0-9\\_\\.\\-]*$\" were expected to validate against the defined pattern property subschema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ],
+      [ "AssertionTypeStrict", "/patternProperties/^[a-zA-Z0-9\\_\\.\\-]*$/type", "#/patternProperties/%5E%5Ba-zA-Z0-9%5C_%5C.%5C-%5D*$/type", "/a_b.c-d" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/patternProperties/^[a-zA-Z0-9\\_\\.\\-]*$/type", "#/patternProperties/%5E%5Ba-zA-Z0-9%5C_%5C.%5C-%5D*$/type", "/a_b.c-d" ],
+      [ true, "LoopPropertiesRegex", "/patternProperties", "#/patternProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The object properties that match the regular expression \"^[a-zA-Z0-9\\_\\.\\-]*$\" were expected to validate against the defined pattern property subschema"
+    ]
+  }
+}
