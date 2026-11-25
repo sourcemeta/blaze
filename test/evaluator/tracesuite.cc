@@ -239,6 +239,20 @@ constexpr std::array<ThrownShape, 7> KNOWN_THROWN{
      {.type = "SchemaError"},
      {.type = "SchemaReferenceError", .location = true, .identifier = true}}};
 
+// What the suite knows about an exception that names itself this way, or
+// nothing where it knows of none. This hands back a pointer rather than an
+// iterator because what an iterator into an array is spelled as differs
+// between standard libraries
+auto known_thrown(const std::string_view type) -> const ThrownShape * {
+  for (const auto &candidate : KNOWN_THROWN) {
+    if (candidate.type == type) {
+      return &candidate;
+    }
+  }
+
+  return nullptr;
+}
+
 // A fixture carries the fields its exception answers for and no others, so a
 // field that moves between exceptions cannot sit unnoticed on the wrong one,
 // and one that is forgotten shows up as a fixture that says less than it could
@@ -252,11 +266,8 @@ auto check_fixture_thrown(const std::filesystem::path &path,
   }
 
   const auto &type{error.at("type").to_string()};
-  const auto *const match{
-      std::ranges::find_if(KNOWN_THROWN, [&type](const auto &candidate) {
-        return candidate.type == type;
-      })};
-  if (match == KNOWN_THROWN.cend()) {
+  const auto *const match{known_thrown(type)};
+  if (match == nullptr) {
     throw std::runtime_error{path.string() + ": `" + type +
                              "` is no exception this suite knows"};
   }
