@@ -1,0 +1,59 @@
+{
+  "schema": {
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": {
+          "$dynamicRef": "https://example.com/target#meta",
+          "$defs": {
+            "target": {
+              "$id": "https://example.com/target",
+              "$dynamicAnchor": "meta",
+              "type": "boolean"
+            },
+            "other": {
+              "$id": "https://example.com/other",
+              "$dynamicAnchor": "meta",
+              "type": "number"
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": [ "/components/schemas/Pet" ],
+  "instance": true,
+  "valid": true,
+  "defaultDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "defaultBase": "https://example.com/openapi.json",
+  "entrypoint": "https://example.com/openapi.json#/components/schemas/Pet",
+  "fast": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef", "" ],
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The boolean value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef", "" ],
+      [ "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$dynamicRef/type", "https://example.com/target#/type", "" ],
+      [ true, "ControlDynamicAnchorJump", "/$dynamicRef", "https://example.com/openapi.json#/components/schemas/Pet/$dynamicRef", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type boolean",
+      "The boolean value was expected to validate against the first subschema in scope that declared the dynamic anchor \"meta\""
+    ]
+  }
+}

@@ -8,7 +8,7 @@
 
 #include "evaluator_utils.h"
 
-#include <algorithm> // std::ranges::find, std::ranges::find_if, std::ranges::sort
+#include <algorithm> // std::ranges::all_of, std::ranges::find, std::ranges::find_if, std::ranges::sort
 #include <array>     // std::array
 #include <cassert>   // assert
 #include <cstdint>   // std::uint8_t
@@ -288,19 +288,58 @@ auto check_fixture_thrown(const std::filesystem::path &path,
   }
 }
 
+// A schema may be wrapped in a document that is not one, and `paths` says
+// where the schemas inside it are, exactly as a frame takes them. A frame
+// given none treats the root as the schema, which is what every other fixture
+// means, so naming an empty set would ask for nothing
+auto check_fixture_paths(const std::filesystem::path &path,
+                         const sourcemeta::core::JSON &fixture) -> void {
+  const auto *paths{fixture.try_at("paths")};
+  if (paths == nullptr) {
+    if (fixture.defines("defaultBase")) {
+      throw std::runtime_error{
+          path.string() +
+          ": `defaultBase` only means something beside `paths`"};
+    }
+
+    return;
+  }
+
+  if (!paths->is_array() || paths->empty()) {
+    throw std::runtime_error{
+        path.string() +
+        ": expected `paths` to be a non-empty array of JSON Pointers"};
+  }
+
+  for (const auto &entry : paths->as_array()) {
+    if (!entry.is_string()) {
+      throw std::runtime_error{path.string() +
+                               ": expected every `paths` entry to be a string"};
+    }
+  }
+
+  const auto *base{fixture.try_at("defaultBase")};
+  if (base != nullptr && (!base->is_string() || base->empty())) {
+    throw std::runtime_error{
+        path.string() + ": expected `defaultBase` to be a non-empty string"};
+  }
+}
+
 auto check_fixture(const std::filesystem::path &path, const FixtureKind kind,
                    const sourcemeta::core::JSON &fixture) -> void {
   if (kind == FixtureKind::Trace) {
-    check_fixture_keys(
-        path, fixture, {"schema", "instance", "valid", "fast", "exhaustive"},
-        {"comment", "defaultDialect", "entrypoint", "resolve", "tweaks"});
+    check_fixture_keys(path, fixture,
+                       {"schema", "instance", "valid", "fast", "exhaustive"},
+                       {"comment", "defaultBase", "defaultDialect",
+                        "entrypoint", "paths", "resolve", "tweaks"});
   } else if (kind == FixtureKind::Invalid) {
     check_fixture_keys(path, fixture, {"schema", "error"},
                        {"comment", "tweaks"});
   } else {
     check_fixture_keys(path, fixture, {"schema", "error"},
-                       {"comment", "defaultDialect", "entrypoint", "instance",
-                        "resolve", "tweaks"});
+                       {"comment", "defaultBase", "defaultDialect",
+                        "entrypoint", "instance", "paths", "resolve",
+                        "tweaks"});
   }
 
   if (kind == FixtureKind::Error) {
@@ -312,6 +351,7 @@ auto check_fixture(const std::filesystem::path &path, const FixtureKind kind,
   check_fixture_entrypoint(path, fixture);
   check_fixture_default_dialect(path, fixture);
   check_fixture_resolve(path, fixture);
+  check_fixture_paths(path, fixture);
 }
 
 // The compiler knobs a fixture asks for, if it asks for any. Only the knobs the
@@ -407,6 +447,45 @@ auto fixture_schema(const sourcemeta::core::JSON &fixture,
 
 // Hyper-schema is the same draft as the validation dialect it builds on, and a
 // suite directory holds the fixtures of either
+// The locations inside a wrapper that are schemas, owned here because a frame
+// borrows the tokens of the pointers it is handed rather than copying them
+auto fixture_pointers(const sourcemeta::core::JSON &fixture)
+    -> std::vector<sourcemeta::core::Pointer> {
+  std::vector<sourcemeta::core::Pointer> pointers;
+  const auto *paths{fixture.try_at("paths")};
+  if (paths == nullptr) {
+    return pointers;
+  }
+
+  pointers.reserve(paths->size());
+  for (const auto &entry : paths->as_array()) {
+    pointers.push_back(sourcemeta::core::to_pointer(entry.to_string()));
+  }
+
+  return pointers;
+}
+
+// The same, as a frame takes them. Whatever was handed in has to outlive the
+// result and the frame built from it
+auto fixture_paths(const std::vector<sourcemeta::core::Pointer> &pointers)
+    -> sourcemeta::core::SchemaFrame::Paths {
+  sourcemeta::core::SchemaFrame::Paths paths;
+  paths.reserve(pointers.size());
+  for (const auto &pointer : pointers) {
+    paths.push_back(sourcemeta::core::to_weak_pointer(pointer));
+  }
+
+  return paths;
+}
+
+// What the wrapper answers to, where the fixture gives it an identity for its
+// entrypoint and its references to be relative to
+auto fixture_default_base(const sourcemeta::core::JSON &fixture)
+    -> sourcemeta::core::JSON::String {
+  const auto *base{fixture.try_at("defaultBase")};
+  return base == nullptr ? sourcemeta::core::JSON::String{} : base->to_string();
+}
+
 auto validation_base_dialect(
     const sourcemeta::core::SchemaBaseDialect base_dialect)
     -> sourcemeta::core::SchemaBaseDialect {
@@ -434,15 +513,15 @@ auto validation_base_dialect(
 // spells, because a fixture may legitimately declare a hyper-schema, a custom
 // meta-schema that extends the dialect, or a URI that only normalisation
 // settles, and every one of those still belongs to its directory's dialect
-auto check_fixture_base_dialect(
-    const std::filesystem::path &path, const sourcemeta::core::JSON &fixture,
-    const sourcemeta::core::SchemaBaseDialect expected,
-    const std::string &default_dialect,
-    const sourcemeta::core::SchemaResolver &resolver) -> void {
+auto check_one_base_dialect(const std::filesystem::path &path,
+                            const sourcemeta::core::JSON &schema,
+                            const sourcemeta::core::SchemaBaseDialect expected,
+                            const std::string &default_dialect,
+                            const sourcemeta::core::SchemaResolver &resolver)
+    -> void {
   const sourcemeta::core::SchemaFrame frame{
-      sourcemeta::core::SchemaFrame::Mode::Root,
-      fixture_schema(fixture, resolver), sourcemeta::core::schema_walker,
-      resolver, default_dialect};
+      sourcemeta::core::SchemaFrame::Mode::Root, schema,
+      sourcemeta::core::schema_walker, resolver, default_dialect};
 
   const auto location{frame.root_location()};
   if (!location.has_value()) {
@@ -456,6 +535,35 @@ auto check_fixture_base_dialect(
     message << path.string() << ": the schema speaks " << actual
             << ", but this directory holds " << expected << " ones";
     throw std::runtime_error{message.str()};
+  }
+}
+
+// Where a wrapper holds the schemas, each of them has to speak the directory's
+// dialect, which is what this says of the schema itself otherwise. What the
+// entrypoint names is no help here, because a fixture may exist to show that
+// it names nothing
+auto check_fixture_base_dialect(
+    const std::filesystem::path &path, const sourcemeta::core::JSON &fixture,
+    const sourcemeta::core::SchemaBaseDialect expected,
+    const std::string &default_dialect,
+    const sourcemeta::core::SchemaResolver &resolver) -> void {
+  const auto schema{fixture_schema(fixture, resolver)};
+  const auto pointers{fixture_pointers(fixture)};
+  if (pointers.empty()) {
+    check_one_base_dialect(path, schema, expected, default_dialect, resolver);
+    return;
+  }
+
+  for (const auto &pointer : pointers) {
+    const auto *embedded{sourcemeta::core::try_get(schema, pointer)};
+    if (embedded == nullptr) {
+      throw std::runtime_error{path.string() +
+                               ": expected a schema at the path: " +
+                               sourcemeta::core::to_string(pointer)};
+    }
+
+    check_one_base_dialect(path, *embedded, expected, default_dialect,
+                           resolver);
   }
 }
 
@@ -523,9 +631,44 @@ auto metaschema_template(const std::string &uri)
 // Whether the schema is one its own dialect considers well-formed. Compilation
 // must agree with this: a schema the meta-schema accepts must compile, and one
 // it rejects must not
-auto matches_metaschema(const std::string &uri,
-                        const sourcemeta::core::JSON &fixture,
-                        const sourcemeta::core::JSON &schema) -> bool {
+// Compiling the schema a fixture puts under test. A fixture that names the
+// locations inside a wrapper is framed first, because a frame is the only way
+// to say which of them are schemas, and the entrypoint picks the one to compile
+auto compile_fixture(const std::string &name,
+                     const sourcemeta::core::JSON &data,
+                     const sourcemeta::core::JSON &schema,
+                     const std::string &default_dialect,
+                     const sourcemeta::blaze::Mode mode,
+                     const sourcemeta::core::SchemaResolver &resolver)
+    -> sourcemeta::blaze::Template {
+  const auto pointers{fixture_pointers(data)};
+  if (pointers.empty()) {
+    return sourcemeta::blaze::compile(
+        schema, sourcemeta::core::schema_walker, resolver,
+        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
+        fixture_entrypoint(data), fixture_tweaks(name, data));
+  }
+
+  const auto paths{fixture_paths(pointers)};
+  const sourcemeta::core::SchemaFrame frame{
+      sourcemeta::core::SchemaFrame::Mode::References,
+      schema,
+      sourcemeta::core::schema_walker,
+      resolver,
+      default_dialect,
+      "",
+      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+      paths,
+      fixture_default_base(data)};
+  return sourcemeta::blaze::compile(
+      schema, sourcemeta::core::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler, frame,
+      fixture_entrypoint(data), mode, fixture_tweaks(name, data));
+}
+
+auto matches_one_metaschema(const std::string &uri,
+                            const sourcemeta::core::JSON &fixture,
+                            const sourcemeta::core::JSON &schema) -> bool {
   sourcemeta::blaze::Evaluator evaluator;
 
   // A fixture that supplies the meta-schema itself stands outside the cache,
@@ -546,6 +689,24 @@ auto matches_metaschema(const std::string &uri,
                                  sourcemeta::blaze::default_schema_compiler,
                                  sourcemeta::blaze::Mode::FastValidation),
       schema);
+}
+
+// Where a wrapper holds the schemas, every one of them has to be a schema of
+// the directory's dialect, which is what this says of the schema itself when
+// the fixture names no locations inside one
+auto matches_metaschema(const std::string &uri,
+                        const sourcemeta::core::JSON &fixture,
+                        const sourcemeta::core::JSON &schema) -> bool {
+  const auto pointers{fixture_pointers(fixture)};
+  if (pointers.empty()) {
+    return matches_one_metaschema(uri, fixture, schema);
+  }
+
+  return std::ranges::all_of(pointers, [&](const auto &pointer) {
+    const auto *embedded{sourcemeta::core::try_get(schema, pointer)};
+    return embedded != nullptr &&
+           matches_one_metaschema(uri, fixture, *embedded);
+  });
 }
 
 auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
@@ -578,10 +739,8 @@ auto run_trace_test(const std::string &name, const sourcemeta::core::JSON &data,
   assert(pre.size() == trace_descriptions.size());
   const auto count{pre.size()};
 
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      schema, sourcemeta::core::schema_walker, resolver,
-      sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-      fixture_entrypoint(data), fixture_tweaks(name, data))};
+  const auto compiled_schema{
+      compile_fixture(name, data, schema, default_dialect, mode, resolver)};
   __ASSERT_TEMPLATE_JSON_SERIALISATION(compiled_schema);
   EVALUATE_WITH_TRACE(compiled_schema, instance, count);
 
@@ -678,11 +837,9 @@ auto ask_for(const std::string &name, const sourcemeta::core::JSON &data,
              const std::string &default_dialect,
              const sourcemeta::blaze::Mode mode,
              const sourcemeta::core::SchemaResolver &resolver) -> void {
-  const auto compiled_schema{sourcemeta::blaze::compile(
-      fixture_schema(data, resolver), sourcemeta::core::schema_walker, resolver,
-      sourcemeta::blaze::default_schema_compiler, mode,
-      fixture_default_dialect(data, default_dialect), "",
-      fixture_entrypoint(data), fixture_tweaks(name, data))};
+  const auto compiled_schema{compile_fixture(
+      name, data, fixture_schema(data, resolver),
+      fixture_default_dialect(data, default_dialect), mode, resolver)};
 
   const auto *instance{data.try_at("instance")};
   if (instance == nullptr) {
@@ -878,6 +1035,10 @@ auto main(int argc, char **argv) -> int {
                    "Evaluator_trace_OpenAPI_3_1",
                    "https://spec.openapis.org/oas/3.1/dialect/base", "",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_thrown_tests(
+        suite / "openapi_3_1" / "error", "Evaluator_thrown_OpenAPI_3_1",
+        "https://spec.openapis.org/oas/3.1/dialect/base",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
     register_tests(suite / "openapi_3_2" / "valid",
                    "Evaluator_trace_OpenAPI_3_2",
                    "https://spec.openapis.org/oas/3.2/dialect/2025-09-17", "",

@@ -179,6 +179,8 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("dialect", {"d"});
   options.option("entrypoint", {"e"});
   options.option("resolve-map", {});
+  options.option("paths", {});
+  options.option("default-base", {});
   register_tweak_options(options);
   options.flag("fixture", {});
 
@@ -212,6 +214,11 @@ auto main(int argc, char **argv) noexcept -> int {
                                             !options.at("entrypoint").empty()
                                         ? options.at("entrypoint").front()
                                         : ""};
+
+  const std::string_view default_base{
+      options.contains("default-base") && !options.at("default-base").empty()
+          ? options.at("default-base").front()
+          : ""};
 
   try {
     const auto schema{
@@ -251,10 +258,38 @@ auto main(int argc, char **argv) noexcept -> int {
       return sourcemeta::core::schema_resolver(identifier);
     }};
 
-    const auto schema_template{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-        entrypoint, tweaks)};
+    // A schema may be wrapped in a document that is not one, and the paths
+    // say where the schemas inside it are. Framing is the only way to tell the
+    // compiler which of them to treat as schemas
+    std::vector<sourcemeta::core::Pointer> pointers;
+    if (options.contains("paths")) {
+      for (const auto &path : options.at("paths")) {
+        pointers.push_back(sourcemeta::core::to_pointer(std::string{path}));
+      }
+    }
+
+    sourcemeta::core::SchemaFrame::Paths paths;
+    paths.reserve(pointers.size());
+    for (const auto &pointer : pointers) {
+      paths.push_back(sourcemeta::core::to_weak_pointer(pointer));
+    }
+
+    const auto schema_template{
+        pointers.empty()
+            ? sourcemeta::blaze::compile(
+                  schema, sourcemeta::core::schema_walker, resolver,
+                  sourcemeta::blaze::default_schema_compiler, mode,
+                  default_dialect, "", entrypoint, tweaks)
+            : sourcemeta::blaze::compile(
+                  schema, sourcemeta::core::schema_walker, resolver,
+                  sourcemeta::blaze::default_schema_compiler,
+                  sourcemeta::core::SchemaFrame{
+                      sourcemeta::core::SchemaFrame::Mode::References, schema,
+                      sourcemeta::core::schema_walker, resolver,
+                      default_dialect, "",
+                      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+                      paths, default_base},
+                  entrypoint, mode, tweaks)};
     const auto instance{
         sourcemeta::core::read_json(std::filesystem::path{positional.at(1)})};
 

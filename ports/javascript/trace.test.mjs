@@ -253,6 +253,8 @@ for (const dialect of suiteDialects) {
               path: '/schema',
               entrypoint: testCase.entrypoint,
               defaultDialect: fixtureDialect,
+              paths: testCase.paths,
+              defaultBase: testCase.defaultBase,
               resolvePath: testCase.resolve === undefined ? undefined : '/resolve',
               tweaks: testCase.tweaks
             });
@@ -361,6 +363,8 @@ for (const dialect of suiteDialects) {
                 path: '/schema',
                 entrypoint: testCase.entrypoint,
                 defaultDialect: fixtureDialect,
+                paths: testCase.paths,
+                defaultBase: testCase.defaultBase,
                 resolvePath: testCase.resolve === undefined ? undefined : '/resolve',
                 tweaks: testCase.tweaks
               });

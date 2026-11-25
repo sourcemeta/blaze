@@ -1,0 +1,43 @@
+{
+  "schema": {
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Pet": { "type": "string" },
+        "Order": { "$ref": "#/components/schemas/Pet" }
+      }
+    }
+  },
+  "paths": [ "/components/schemas/Pet", "/components/schemas/Order" ],
+  "instance": "foo",
+  "valid": true,
+  "defaultDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "defaultBase": "https://example.com/openapi.json",
+  "entrypoint": "https://example.com/openapi.json#/components/schemas/Order",
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/$ref/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "ControlJump", "/$ref", "https://example.com/openapi.json#/components/schemas/Order/$ref", "" ],
+      [ "AssertionTypeStrict", "/$ref/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/$ref/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ],
+      [ true, "ControlJump", "/$ref", "https://example.com/openapi.json#/components/schemas/Order/$ref", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type string",
+      "The string value was expected to validate against the referenced schema"
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "schema": {
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": { "schemas": { "Pet": false } }
+  },
+  "paths": [ "/components/schemas/Pet" ],
+  "instance": "foo",
+  "valid": false,
+  "defaultDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "defaultBase": "https://example.com/openapi.json",
+  "entrypoint": "https://example.com/openapi.json#/components/schemas/Pet",
+  "fast": {
+    "pre": [
+      [ "AssertionFail", "", "https://example.com/openapi.json#/components/schemas/Pet", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "", "https://example.com/openapi.json#/components/schemas/Pet", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "AssertionFail", "", "https://example.com/openapi.json#/components/schemas/Pet", "" ]
+    ],
+    "post": [
+      [ false, "AssertionFail", "", "https://example.com/openapi.json#/components/schemas/Pet", "" ]
+    ],
+    "descriptions": [
+      "No instance is expected to succeed against the false schema"
+    ]
+  }
+}

@@ -19,12 +19,13 @@ import sys
 MAX_LINE_LENGTH = 80
 
 TRACE_ENTRY_KEYS = (
-    "comment", "description", "schema", "resolve", "instance", "valid",
-    "defaultDialect", "entrypoint", "tweaks", "fast", "exhaustive"
+    "comment", "description", "schema", "paths", "resolve", "instance",
+    "valid", "defaultDialect", "defaultBase", "entrypoint", "tweaks", "fast",
+    "exhaustive"
 )
 ERROR_ENTRY_KEYS = (
-    "comment", "description", "schema", "resolve", "instance",
-    "defaultDialect", "entrypoint", "tweaks", "error"
+    "comment", "description", "schema", "paths", "resolve", "instance",
+    "defaultDialect", "defaultBase", "entrypoint", "tweaks", "error"
 )
 
 

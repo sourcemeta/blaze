@@ -1,0 +1,72 @@
+{
+  "schema": {
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": {
+      "schemas": {
+        "Base": { "type": "object", "properties": { "shared": true } },
+        "Pet": {
+          "type": "object",
+          "allOf": [ { "$ref": "#/components/schemas/Base" } ],
+          "properties": { "local": true },
+          "unevaluatedProperties": false
+        }
+      }
+    }
+  },
+  "paths": [ "/components/schemas/Base", "/components/schemas/Pet" ],
+  "instance": { "shared": 1 },
+  "valid": true,
+  "defaultDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "defaultBase": "https://example.com/openapi.json",
+  "entrypoint": "https://example.com/openapi.json#/components/schemas/Pet",
+  "fast": {
+    "pre": [
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://example.com/openapi.json#/components/schemas/Base/type", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "https://example.com/openapi.json#/components/schemas/Pet/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://example.com/openapi.json#/components/schemas/Base/type", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "https://example.com/openapi.json#/components/schemas/Pet/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The value was expected to be of type object",
+      "The value was expected to be of type object",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  },
+  "exhaustive": {
+    "pre": [
+      [ "LogicalAnd", "/allOf", "https://example.com/openapi.json#/components/schemas/Pet/allOf", "" ],
+      [ "ControlJump", "/allOf/0/$ref", "https://example.com/openapi.json#/components/schemas/Pet/allOf/0/$ref", "" ],
+      [ "LogicalWhenType", "/allOf/0/$ref/properties", "https://example.com/openapi.json#/components/schemas/Base/properties", "" ],
+      [ "Annotation", "/allOf/0/$ref/properties", "https://example.com/openapi.json#/components/schemas/Base/properties", "" ],
+      [ "AssertionTypeStrict", "/allOf/0/$ref/type", "https://example.com/openapi.json#/components/schemas/Base/type", "" ],
+      [ "LogicalWhenType", "/properties", "https://example.com/openapi.json#/components/schemas/Pet/properties", "" ],
+      [ "AssertionTypeStrict", "/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ],
+      [ "LoopPropertiesExcept", "/unevaluatedProperties", "https://example.com/openapi.json#/components/schemas/Pet/unevaluatedProperties", "" ]
+    ],
+    "post": [
+      [ true, "Annotation", "/allOf/0/$ref/properties", "https://example.com/openapi.json#/components/schemas/Base/properties", "", "shared" ],
+      [ true, "LogicalWhenType", "/allOf/0/$ref/properties", "https://example.com/openapi.json#/components/schemas/Base/properties", "" ],
+      [ true, "AssertionTypeStrict", "/allOf/0/$ref/type", "https://example.com/openapi.json#/components/schemas/Base/type", "" ],
+      [ true, "ControlJump", "/allOf/0/$ref", "https://example.com/openapi.json#/components/schemas/Pet/allOf/0/$ref", "" ],
+      [ true, "LogicalAnd", "/allOf", "https://example.com/openapi.json#/components/schemas/Pet/allOf", "" ],
+      [ true, "LogicalWhenType", "/properties", "https://example.com/openapi.json#/components/schemas/Pet/properties", "" ],
+      [ true, "AssertionTypeStrict", "/type", "https://example.com/openapi.json#/components/schemas/Pet/type", "" ],
+      [ true, "LoopPropertiesExcept", "/unevaluatedProperties", "https://example.com/openapi.json#/components/schemas/Pet/unevaluatedProperties", "" ]
+    ],
+    "descriptions": [
+      "The object property \"shared\" successfully validated against its property subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was expected to validate against the referenced schema",
+      "The object value was expected to validate against the given subschema",
+      "The object value was expected to validate against the single defined property subschema",
+      "The value was expected to be of type object",
+      "The object value was not expected to define unevaluated properties"
+    ]
+  }
+}

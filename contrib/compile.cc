@@ -76,6 +76,8 @@ auto main(int argc, char **argv) noexcept -> int {
   options.option("path", {"p"});
   options.option("entrypoint", {"e"});
   options.option("resolve-path", {});
+  options.option("paths", {});
+  options.option("default-base", {});
   register_tweak_options(options);
 
   try {
@@ -209,10 +211,43 @@ auto main(int argc, char **argv) noexcept -> int {
       std::cerr << "Entrypoint: " << entrypoint << "\n";
     }
 
-    const auto schema_template{sourcemeta::blaze::compile(
-        document, sourcemeta::core::schema_walker, resolver,
-        sourcemeta::blaze::default_schema_compiler, mode, default_dialect, "",
-        entrypoint, tweaks)};
+    // A schema may be wrapped in a document that is not one, and the paths
+    // say where the schemas inside it are. Framing is the only way to tell the
+    // compiler which of them to treat as schemas
+    std::vector<sourcemeta::core::Pointer> pointers;
+    if (options.contains("paths")) {
+      for (const auto &value : options.at("paths")) {
+        pointers.push_back(sourcemeta::core::to_pointer(std::string{value}));
+      }
+    }
+
+    sourcemeta::core::SchemaFrame::Paths paths;
+    paths.reserve(pointers.size());
+    for (const auto &pointer : pointers) {
+      paths.push_back(sourcemeta::core::to_weak_pointer(pointer));
+    }
+
+    const std::string_view default_base{
+        options.contains("default-base") && !options.at("default-base").empty()
+            ? options.at("default-base").front()
+            : ""};
+
+    const auto schema_template{
+        pointers.empty()
+            ? sourcemeta::blaze::compile(
+                  document, sourcemeta::core::schema_walker, resolver,
+                  sourcemeta::blaze::default_schema_compiler, mode,
+                  default_dialect, "", entrypoint, tweaks)
+            : sourcemeta::blaze::compile(
+                  document, sourcemeta::core::schema_walker, resolver,
+                  sourcemeta::blaze::default_schema_compiler,
+                  sourcemeta::core::SchemaFrame{
+                      sourcemeta::core::SchemaFrame::Mode::References, document,
+                      sourcemeta::core::schema_walker, resolver,
+                      default_dialect, "",
+                      sourcemeta::core::SchemaFrame::IdentifierMode::Additional,
+                      paths, default_base},
+                  entrypoint, mode, tweaks)};
     const auto compile_end{std::chrono::high_resolution_clock::now()};
     const auto compile_duration{
         std::chrono::duration_cast<std::chrono::milliseconds>(compile_end -

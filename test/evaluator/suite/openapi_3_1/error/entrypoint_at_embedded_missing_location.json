@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "openapi": "3.1.1",
+    "info": { "title": "Example", "version": "1.0.0" },
+    "components": { "schemas": { "Pet": { "type": "string" } } }
+  },
+  "paths": [ "/components/schemas/Pet" ],
+  "defaultDialect": "https://spec.openapis.org/oas/3.1/dialect/base",
+  "defaultBase": "https://example.com/openapi.json",
+  "entrypoint": "https://example.com/openapi.json#/components/schemas/Missing",
+  "error": {
+    "type": "CompilerInvalidEntryPoint",
+    "message": "The given entry point URI does not exist in the schema",
+    "identifier": "https://example.com/openapi.json#/components/schemas/Missing"
+  }
+}
