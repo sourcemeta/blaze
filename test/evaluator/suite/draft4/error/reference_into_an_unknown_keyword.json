@@ -1,0 +1,17 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [
+      { "$ref": "#/allOf/1/additionalProperties/x-this-is-invalid/$defs/test" },
+      {
+        "additionalProperties": { "x-this-is-invalid": { "$defs": { "test": { "type": "string" } } } }
+      }
+    ]
+  },
+  "error": {
+    "type": "CompilerReferenceTargetNotSchemaError",
+    "message": "The referenced schema is not considered to be a valid subschema given the dialect and vocabularies in use",
+    "identifier": "#/allOf/1/additionalProperties/x-this-is-invalid/$defs/test",
+    "location": "/allOf/1/additionalProperties/x-this-is-invalid"
+  }
+}

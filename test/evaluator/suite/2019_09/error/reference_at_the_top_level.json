@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2019-09/schema",
+    "$ref": "#/definitions/i-dont-exist"
+  },
+  "error": {
+    "type": "SchemaReferenceError",
+    "message": "Could not resolve schema reference",
+    "identifier": "#/definitions/i-dont-exist",
+    "location": "/$ref"
+  }
+}

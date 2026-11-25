@@ -6,7 +6,8 @@
 #include <sourcemeta/core/json.h>
 #include <sourcemeta/core/jsonschema.h>
 
-#include <algorithm>  // std::ranges::find, std::ranges::sort
+#include <algorithm> // std::ranges::find, std::ranges::find_if, std::ranges::sort
+#include <array>     // std::array
 #include <filesystem> // std::filesystem::path, std::filesystem::recursive_directory_iterator, std::filesystem::directory_entry
 #include <initializer_list> // std::initializer_list
 #include <optional>         // std::optional, std::nullopt
@@ -44,10 +45,14 @@ private:
   sourcemeta::core::JSON schemas{sourcemeta::core::JSON::make_object()};
 };
 
-// What a suite directory expects every fixture it holds to be. A fixture of one
-// kind left in the other kind's directory would otherwise be read as something
-// it is not
-enum class FixtureKind { Trace, Error };
+// What a suite directory expects every fixture it holds to be, named after the
+// directory that holds it. A fixture of one kind left in another kind's
+// directory would otherwise be read as something it is not:
+//
+//   - `valid`   compiles and evaluates, and the fixture says what it reports
+//   - `invalid` is no schema of its dialect, so the compiler turns it down
+//   - `error`   is a schema, but asking for it raises something
+enum class FixtureKind { Trace, Invalid, Error };
 
 // The whole key set is checked, rather than only the keys a runner goes on to
 // read, because that is what keeps an error fixture out of a trace directory
@@ -185,6 +190,82 @@ inline auto check_fixture_schema(const std::filesystem::path &path,
   }
 }
 
+// What an `error` fixture may name, and what each one carries. Every one of
+// them reports a message, and the rest is what that exception answers for
+// beyond it, so a fixture records everything the exception knows rather than
+// only the part a test happened to look at
+struct ThrownShape {
+  std::string_view type;
+  bool base{false};
+  bool location{false};
+  bool identifier{false};
+  bool regex{false};
+};
+
+inline constexpr std::array<ThrownShape, 7> KNOWN_THROWN{
+    {{.type = "CompilerError", .base = true, .location = true},
+     {.type = "CompilerInvalidEntryPoint", .identifier = true},
+     {.type = "CompilerInvalidRegexError",
+      .base = true,
+      .location = true,
+      .regex = true},
+     {.type = "CompilerReferenceTargetNotSchemaError",
+      .location = true,
+      .identifier = true},
+     {.type = "EvaluationError"},
+     {.type = "SchemaError"},
+     {.type = "SchemaReferenceError", .location = true, .identifier = true}}};
+
+// A fixture carries the fields its exception answers for and no others, so a
+// field that moves between exceptions cannot sit unnoticed on the wrong one,
+// and one that is forgotten shows up as a fixture that says less than it could
+inline auto check_fixture_thrown(const std::filesystem::path &path,
+                                 const sourcemeta::core::JSON &fixture)
+    -> void {
+  const auto &error{fixture.at("error")};
+  if (!error.is_object() || !error.defines("type") ||
+      !error.at("type").is_string()) {
+    throw std::runtime_error{path.string() +
+                             ": expected `error` to name a `type`"};
+  }
+
+  const auto &type{error.at("type").to_string()};
+  const auto match{
+      std::ranges::find_if(KNOWN_THROWN, [&type](const auto &candidate) {
+        return candidate.type == type;
+      })};
+  if (match == KNOWN_THROWN.cend()) {
+    throw std::runtime_error{path.string() + ": `" + type +
+                             "` is no exception this suite knows"};
+  }
+
+  for (const auto &[field, expected] :
+       {std::pair{"base", match->base}, std::pair{"location", match->location},
+        std::pair{"identifier", match->identifier},
+        std::pair{"regex", match->regex}}) {
+    if (error.defines(field) != expected) {
+      throw std::runtime_error{
+          path.string() + ": `" + type + "` " +
+          (expected ? "answers for `" : "does not answer for `") + field +
+          "`, so the fixture " + (expected ? "has to name it" : "cannot")};
+    }
+  }
+
+  if (!error.defines("message") || !error.at("message").is_string()) {
+    throw std::runtime_error{path.string() +
+                             ": expected `error` to carry a `message`"};
+  }
+
+  for (const auto &entry : error.as_object()) {
+    if (entry.first != "type" && entry.first != "message" &&
+        entry.first != "base" && entry.first != "location" &&
+        entry.first != "identifier" && entry.first != "regex") {
+      throw std::runtime_error{path.string() + ": the error defines `" +
+                               entry.first + "`, which no exception takes"};
+    }
+  }
+}
+
 inline auto check_fixture(const std::filesystem::path &path,
                           const FixtureKind kind,
                           const sourcemeta::core::JSON &fixture) -> void {
@@ -192,9 +273,17 @@ inline auto check_fixture(const std::filesystem::path &path,
     check_fixture_keys(
         path, fixture, {"schema", "instance", "valid", "fast", "exhaustive"},
         {"comment", "defaultDialect", "entrypoint", "resolve", "tweaks"});
-  } else {
+  } else if (kind == FixtureKind::Invalid) {
     check_fixture_keys(path, fixture, {"schema", "error"},
                        {"comment", "tweaks"});
+  } else {
+    check_fixture_keys(path, fixture, {"schema", "error"},
+                       {"comment", "defaultDialect", "entrypoint", "instance",
+                        "resolve", "tweaks"});
+  }
+
+  if (kind == FixtureKind::Error) {
+    check_fixture_thrown(path, fixture);
   }
 
   check_fixture_schema(path, kind, fixture);

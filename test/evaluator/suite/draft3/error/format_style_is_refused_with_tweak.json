@@ -1,0 +1,10 @@
+{
+  "schema": { "$schema": "http://json-schema.org/draft-03/schema#", "format": "style" },
+  "tweaks": { "formatAssertion": true },
+  "error": {
+    "type": "CompilerError",
+    "message": "The \"style\" format is not supported in assertion mode yet",
+    "base": "",
+    "location": "/format"
+  }
+}

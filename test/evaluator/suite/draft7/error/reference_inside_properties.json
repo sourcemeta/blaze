@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": { "foo": { "$ref": "#/definitions/i-dont-exist" } }
+  },
+  "error": {
+    "type": "SchemaReferenceError",
+    "message": "Could not resolve schema reference",
+    "identifier": "#/definitions/i-dont-exist",
+    "location": "/properties/foo/$ref"
+  }
+}

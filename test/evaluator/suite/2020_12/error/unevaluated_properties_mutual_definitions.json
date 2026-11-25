@@ -1,0 +1,16 @@
+{
+  "schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$defs": {
+      "a": { "$ref": "#/$defs/b", "properties": { "a": true } },
+      "b": { "$ref": "#/$defs/a", "properties": { "a": true } }
+    },
+    "$ref": "#/$defs/a",
+    "unevaluatedProperties": false
+  },
+  "instance": { "a": 1 },
+  "error": {
+    "type": "EvaluationError",
+    "message": "The evaluation path depth limit was reached likely due to infinite recursion"
+  }
+}

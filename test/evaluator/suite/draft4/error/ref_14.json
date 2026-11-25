@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/foo" } ],
+    "definitions": {
+      "foo": { "$ref": "#/definitions/bar" },
+      "bar": { "$ref": "#/definitions/foo" }
+    }
+  },
+  "instance": true,
+  "error": {
+    "type": "EvaluationError",
+    "message": "The evaluation path depth limit was reached likely due to infinite recursion"
+  }
+}

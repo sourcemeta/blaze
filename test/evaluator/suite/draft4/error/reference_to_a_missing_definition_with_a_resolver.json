@@ -1,0 +1,18 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
+  },
+  "resolve": {
+    "https://example.com": {
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "id": "https://example.com"
+    }
+  },
+  "error": {
+    "type": "SchemaReferenceError",
+    "message": "Could not resolve schema reference",
+    "identifier": "#/definitions/i-dont-exist",
+    "location": "/allOf/0/$ref"
+  }
+}

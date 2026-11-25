@@ -123,44 +123,6 @@ TEST(external_reference_enforces_the_target_constraints_fast) {
   EXPECT_FALSE(evaluator.validate(compiled_schema, instance));
 }
 
-TEST(external_reference_answers_to_the_closed_dialect_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "type": "object",
-    "properties": {
-      "name": { "$ref": "https://example.com/name" }
-    }
-  })JSON")};
-
-  auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::core::SchemaResolverResult {
-    if (identifier == "https://example.com/name") {
-      return sourcemeta::core::parse_json(R"JSON({
-                "type": "object",
-                "patternProperties": { "^x": { "type": "string" } }
-              })JSON");
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  };
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker, test_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    // Where the offending keyword sits after bundling embeds the external
-    // document is a bundling detail, so only the refusal itself is pinned
-    EXPECT_EQ(std::string{error.what()},
-              "This keyword is prohibited by this dialect");
-  }
-}
-
-// A root Reference Object is only rejected over the members beside `$ref`, so
-// a root that is nothing but `$ref` must resolve like any other reference.
-// Only this dialect gives `nullable` a meaning, so a null passing is what
-// shows the default dialect reached the externally resolved document
 TEST(root_reference_without_siblings_accepts_null_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$ref": "https://example.com/target"
@@ -334,54 +296,6 @@ TEST(format_byte_rejects_through_a_deserialized_template_with_tweak_fast) {
                                "to represent a valid RFC 4648 Base64 string");
 }
 
-TEST(malformed_nullable_without_ref_is_rejected_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "nullable": "not a boolean"
-  })JSON")};
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "This keyword was expected to be set to a boolean");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()), "/nullable");
-  }
-}
-
-TEST(boolean_reference_target_is_rejected_fast) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {
-      "a": { "$ref": "#/additionalProperties" }
-    }
-  })JSON")};
-
-  try {
-    [[maybe_unused]] const auto compiled_schema{sourcemeta::blaze::compile(
-        schema, sourcemeta::core::schema_walker,
-        sourcemeta::core::schema_resolver,
-        sourcemeta::blaze::default_schema_compiler,
-        sourcemeta::blaze::Mode::FastValidation, OPENAPI_3_0_DIALECT)};
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_EQ(std::string{error.what()},
-              "This dialect does not support boolean schemas");
-    EXPECT_EQ(error.base().recompose(), "");
-    EXPECT_EQ(sourcemeta::core::to_string(error.location()),
-              "/additionalProperties");
-  }
-}
-
-// The overload that takes a pre-built frame must speak the dialect the way
-// the bundling overload does: `nullable` support that lives in a
-// preprocessing step of the latter would vanish on this path
 TEST(nullable_through_the_frame_overload_fast) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "type": "string",
