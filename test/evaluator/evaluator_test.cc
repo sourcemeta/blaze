@@ -6,11 +6,10 @@
 
 #include <sourcemeta/core/json.h>
 
-#include <optional>      // std::optional
-#include <string>        // std::string
-#include <string_view>   // std::string_view
-#include <type_traits>   // std::is_copy_constructible_v, etc.
-#include <unordered_set> // std::unordered_set
+#include <optional>    // std::optional
+#include <string>      // std::string
+#include <string_view> // std::string_view
+#include <type_traits> // std::is_copy_constructible_v, etc.
 
 #include "evaluator_utils.h"
 

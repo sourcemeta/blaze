@@ -8,7 +8,7 @@
 
 #include "evaluator_utils.h"
 
-#include <algorithm> // std::ranges::all_of, std::ranges::find, std::ranges::find_if, std::ranges::sort
+#include <algorithm> // std::ranges::all_of, std::ranges::find, std::ranges::sort
 #include <array>     // std::array
 #include <cassert>   // assert
 #include <cstdint>   // std::uint8_t

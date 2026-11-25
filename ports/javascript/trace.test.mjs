@@ -90,6 +90,10 @@ const SKIPPED_FIXTURES = new Map([
   // rather than through the fixture's tweaks, so these are named one by one.
   // Reading the schema to find out would mistake a property called
   // `x-format-assertion` for the keyword
+  ['2020_12/format_uri_with_assertion_vocabulary_accepts_a_uri',
+   NO_FORMAT_VALIDATORS],
+  ['2020_12/format_uri_with_assertion_vocabulary_rejects_a_non_uri',
+   NO_FORMAT_VALIDATORS],
   ['2019_09/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
   ['2019_09/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
   ['2020_12/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
