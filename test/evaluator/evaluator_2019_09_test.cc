@@ -34,20 +34,3 @@ TEST(reference_from_unknown_keyword) {
     throw;
   }
 }
-
-TEST(invalid_ref_top_level) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "https://json-schema.org/draft/2019-09/schema",
-    "$ref": "#/definitions/i-dont-exist"
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$ref"}));
-  } catch (...) {
-    throw;
-  }
-}

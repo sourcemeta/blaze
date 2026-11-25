@@ -1,0 +1,20 @@
+{
+  "schema": {
+    "$id": "https://example.com",
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "additionalProperties": { "$ref": "#/definitions/bar" },
+    "definitions": {
+      "bar": {
+        "$id": "https://example.com/nested",
+        "additionalProperties": { "$ref": "#/definitions/baz" }
+      },
+      "baz": {}
+    }
+  },
+  "error": {
+    "type": "SchemaReferenceError",
+    "message": "Could not resolve schema reference",
+    "identifier": "https://example.com/nested#/definitions/baz",
+    "location": "/definitions/bar/additionalProperties/$ref"
+  }
+}
