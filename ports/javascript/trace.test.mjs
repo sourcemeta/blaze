@@ -65,12 +65,6 @@ const DECIMAL_ROUNDS_AWAY =
 
 const NO_FORMAT_VALIDATORS = 'this port carries no string format validators';
 
-// Reporting `format` where the dialect makes it an annotation asks for no
-// validator at all, only for the keyword's value to be handed back, and this
-// port hands back nothing
-const NO_FORMAT_ANNOTATION =
-  'this port does not report the `format` annotation';
-
 function skippedByRule(testCase) {
   if (testCase.tweaks && testCase.tweaks.formatAssertion) {
     return NO_FORMAT_VALIDATORS;
@@ -104,7 +98,6 @@ const SKIPPED_FIXTURES = new Map([
   ['2020_12/x_assertion_nested_selective_valid_no_tweak', NO_FORMAT_VALIDATORS],
   ['draft7/format_uri_x_assertion_true_invalid_no_tweak', NO_FORMAT_VALIDATORS],
   ['draft7/format_uri_x_assertion_true_valid_no_tweak', NO_FORMAT_VALIDATORS],
-  ['2020_12/metaschema_hyper_self', NO_FORMAT_ANNOTATION],
   ['openapi_3_0/format_byte_with_x_format_assertion', NO_FORMAT_VALIDATORS],
   ['openapi_3_1/format_uri_invalid_with_assertion_vocabulary', NO_FORMAT_VALIDATORS],
   ['sourcemeta_v1_2019_09/format_uri_x_format_assertion_true_invalid', NO_FORMAT_VALIDATORS],
