@@ -209,6 +209,97 @@ auto run_error_test(const std::string &name, const sourcemeta::core::JSON &data,
     FAIL();
   }
 }
+// Asking for the schema, which is either compiling it or compiling it and then
+// evaluating the instance the fixture carries. A fixture that names an
+// instance expects the throw to come from evaluation, and one that does not
+// expects it from compilation
+auto ask_for(const std::string &name, const sourcemeta::core::JSON &data,
+             const std::string &default_dialect,
+             const sourcemeta::blaze::Mode mode,
+             const sourcemeta::core::SchemaResolver &resolver) -> void {
+  const auto compiled_schema{sourcemeta::blaze::compile(
+      fixture_schema(data, resolver), sourcemeta::core::schema_walker, resolver,
+      sourcemeta::blaze::default_schema_compiler, mode,
+      fixture_default_dialect(data, default_dialect), "",
+      fixture_entrypoint(data), fixture_tweaks(name, data))};
+
+  const auto *instance{data.try_at("instance")};
+  if (instance == nullptr) {
+    return;
+  }
+
+  sourcemeta::blaze::Evaluator evaluator;
+  [[maybe_unused]] const auto result{
+      evaluator.validate(compiled_schema, *instance)};
+}
+
+auto run_thrown_test(const std::string &name,
+                     const sourcemeta::core::JSON &data,
+                     const std::string &default_dialect,
+                     const sourcemeta::blaze::Mode mode) -> void {
+  const auto &expected{data.at("error")};
+  const auto &type{expected.at("type").to_string()};
+  const FixtureResolver resolver{data};
+
+#define EXPECT_THROWN_MESSAGE(error)                                           \
+  EXPECT_EQ(std::string{(error).what()}, expected.at("message").to_string())
+#define EXPECT_THROWN_BASE(error)                                              \
+  EXPECT_EQ((error).base().recompose(), expected.at("base").to_string())
+#define EXPECT_THROWN_LOCATION(error)                                          \
+  EXPECT_EQ(sourcemeta::core::to_string((error).location()),                   \
+            expected.at("location").to_string())
+#define EXPECT_THROWN_IDENTIFIER(error)                                        \
+  EXPECT_EQ(std::string{(error).identifier()},                                 \
+            expected.at("identifier").to_string())
+
+  try {
+    ask_for(name, data, default_dialect, mode, resolver);
+    FAIL();
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    EXPECT_EQ(type, "CompilerInvalidRegexError");
+    EXPECT_THROWN_MESSAGE(error);
+    EXPECT_THROWN_BASE(error);
+    EXPECT_THROWN_LOCATION(error);
+    EXPECT_EQ(error.regex(), expected.at("regex").to_string());
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    EXPECT_EQ(type, "CompilerInvalidEntryPoint");
+    EXPECT_THROWN_MESSAGE(error);
+    EXPECT_THROWN_IDENTIFIER(error);
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    EXPECT_EQ(type, "CompilerReferenceTargetNotSchemaError");
+    EXPECT_THROWN_MESSAGE(error);
+    EXPECT_THROWN_LOCATION(error);
+    EXPECT_THROWN_IDENTIFIER(error);
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    EXPECT_EQ(type, "CompilerError");
+    EXPECT_THROWN_MESSAGE(error);
+    EXPECT_THROWN_BASE(error);
+    EXPECT_THROWN_LOCATION(error);
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    EXPECT_EQ(type, "EvaluationError");
+    EXPECT_THROWN_MESSAGE(error);
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+    EXPECT_EQ(type, "SchemaReferenceError");
+    EXPECT_THROWN_MESSAGE(error);
+    EXPECT_THROWN_LOCATION(error);
+    EXPECT_THROWN_IDENTIFIER(error);
+  } catch (const sourcemeta::core::SchemaError &error) {
+    EXPECT_EQ(type, "SchemaError");
+    EXPECT_THROWN_MESSAGE(error);
+  } catch (const std::exception &error) {
+    // Reporting it here beats letting it escape as an uncaught exception, and
+    // a fixture naming an exception this does not catch lands here too
+    // NOLINTNEXTLINE(modernize-use-std-print)
+    std::fprintf(stderr, "Unexpected exception: %s\n", error.what());
+    FAIL();
+  }
+
+#undef EXPECT_THROWN_MESSAGE
+#undef EXPECT_THROWN_BASE
+#undef EXPECT_THROWN_LOCATION
+#undef EXPECT_THROWN_IDENTIFIER
+}
 } // namespace
 
 // Schemas whose keywords the official meta-schema rejects, which the compiler
@@ -221,7 +312,7 @@ static auto register_error_tests(
   std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
 
   for (const auto &[name, test_case] : read_fixtures(
-           directory, FixtureKind::Error, base_dialect, default_dialect)) {
+           directory, FixtureKind::Invalid, base_dialect, default_dialect)) {
 
     // Whether a schema is well-formed is a property of its dialect rather than
     // of the mode it compiles in, so both modes have to refuse the same ones
@@ -234,6 +325,32 @@ static auto register_error_tests(
           suite_name, name + mode_suffix, __FILE__, __LINE__,
           [name, test_case, metaschema, default_dialect, mode]() -> void {
             run_error_test(name, test_case, metaschema, default_dialect, mode);
+          });
+    }
+  }
+}
+
+// Schemas that are schemas of their dialect, but where asking for them raises
+// something: the compiler turns one down for a reason the meta-schema has no
+// say over, or evaluation runs into a wall
+static auto register_thrown_tests(
+    const std::filesystem::path &directory, const std::string &suite_name,
+    const std::string &default_dialect,
+    const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
+  // NOLINTNEXTLINE(modernize-use-std-print)
+  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
+
+  for (const auto &[name, test_case] : read_fixtures(
+           directory, FixtureKind::Error, base_dialect, default_dialect)) {
+    for (const auto &[mode_suffix, mode] :
+         {std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_fast", sourcemeta::blaze::Mode::FastValidation},
+          std::pair<const char *, sourcemeta::blaze::Mode>{
+              "_exhaustive", sourcemeta::blaze::Mode::Exhaustive}}) {
+      sourcemeta::core::test_register(
+          suite_name, name + mode_suffix, __FILE__, __LINE__,
+          [name, test_case, default_dialect, mode]() -> void {
+            run_thrown_test(name, test_case, default_dialect, mode);
           });
     }
   }
@@ -291,6 +408,10 @@ auto main(int argc, char **argv) -> int {
           suite / "openapi_3_0" / "invalid",
           std::string{"Evaluator_error_OpenAPI_3_0_"} + label, dialect, dialect,
           sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+      register_thrown_tests(
+          suite / "openapi_3_0" / "error",
+          std::string{"Evaluator_thrown_OpenAPI_3_0_"} + label, dialect,
+          sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
     }
     register_tests(suite / "openapi_3_1" / "valid",
                    "Evaluator_trace_OpenAPI_3_1",
@@ -306,6 +427,9 @@ auto main(int argc, char **argv) -> int {
     register_error_tests(
         suite / "draft7" / "invalid", "Evaluator_error_draft7",
         "http://json-schema.org/draft-07/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
+    register_thrown_tests(
+        suite / "draft7" / "error", "Evaluator_thrown_draft7", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_7);
     register_tests(suite / "2019_09" / "valid", "Evaluator_trace_2019_09",
                    "https://json-schema.org/draft/2019-09/schema", "",
@@ -332,12 +456,18 @@ auto main(int argc, char **argv) -> int {
         suite / "2019_09" / "invalid", "Evaluator_error_2019_09",
         "https://json-schema.org/draft/2019-09/schema", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
+    register_thrown_tests(
+        suite / "2019_09" / "error", "Evaluator_thrown_2019_09", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2019_09);
     register_tests(suite / "draft6" / "valid", "Evaluator_trace_draft6",
                    "http://json-schema.org/draft-06/schema#", "",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
     register_error_tests(
         suite / "draft6" / "invalid", "Evaluator_error_draft6",
         "http://json-schema.org/draft-06/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
+    register_thrown_tests(
+        suite / "draft6" / "error", "Evaluator_thrown_draft6", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_6);
     register_tests(suite / "2020_12" / "valid", "Evaluator_trace_2020_12",
                    "https://json-schema.org/draft/2020-12/schema", "",
@@ -346,6 +476,9 @@ auto main(int argc, char **argv) -> int {
         suite / "2020_12" / "invalid", "Evaluator_error_2020_12",
         "https://json-schema.org/draft/2020-12/schema", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
+    register_thrown_tests(
+        suite / "2020_12" / "error", "Evaluator_thrown_2020_12", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_2020_12);
     register_tests(suite / "draft4" / "valid", "Evaluator_trace_draft4",
                    "http://json-schema.org/draft-04/schema#", "",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
@@ -353,12 +486,18 @@ auto main(int argc, char **argv) -> int {
         suite / "draft4" / "invalid", "Evaluator_error_draft4",
         "http://json-schema.org/draft-04/schema#", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
+    register_thrown_tests(
+        suite / "draft4" / "error", "Evaluator_thrown_draft4", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_4);
     register_tests(suite / "draft3" / "valid", "Evaluator_trace_draft3",
                    "http://json-schema.org/draft-03/schema#", "",
                    sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
     register_error_tests(
         suite / "draft3" / "invalid", "Evaluator_error_draft3",
         "http://json-schema.org/draft-03/schema#", "",
+        sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
+    register_thrown_tests(
+        suite / "draft3" / "error", "Evaluator_thrown_draft3", "",
         sourcemeta::core::SchemaBaseDialect::JSON_SCHEMA_DRAFT_3);
   } catch (const std::exception &error) {
     // NOLINTNEXTLINE(modernize-use-std-print)

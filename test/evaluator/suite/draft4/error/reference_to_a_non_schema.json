@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "definitions": { "array": { "items": [ { "type": "string" }, { "type": "array" } ] } },
+    "additionalProperties": { "$ref": "#/definitions/array/items" }
+  },
+  "error": {
+    "type": "CompilerReferenceTargetNotSchemaError",
+    "message": "The referenced schema is not considered to be a valid subschema given the dialect and vocabularies in use",
+    "identifier": "#/definitions/array/items",
+    "location": "/definitions/array/items"
+  }
+}

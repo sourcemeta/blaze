@@ -1,0 +1,12 @@
+{
+  "schema": {
+    "$id": "https://www.example.com",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$ref": "#/definitions/test",
+    "definitions": { "test": {} }
+  },
+  "error": {
+    "type": "SchemaError",
+    "message": "Cannot bundle a JSON Schema Draft 7 or older with a top-level `$ref` (which overrides sibling keywords) without introducing undefined behavior"
+  }
+}

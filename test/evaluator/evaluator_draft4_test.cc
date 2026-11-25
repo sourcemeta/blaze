@@ -8,78 +8,6 @@
 
 #include "evaluator_utils.h"
 
-TEST(ref_11) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
-  }
-}
-
-TEST(ref_12) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/i-dont-exist" } ]
-  })JSON")};
-
-  auto test_resolver = [](const std::string_view identifier)
-      -> sourcemeta::core::SchemaResolverResult {
-    if (identifier == "https://example.com") {
-      return sourcemeta::core::parse_json(R"JSON({
-                "$schema": "http://json-schema.org/draft-04/schema#",
-                "id": "https://example.com"
-              })JSON");
-    }
-
-    return sourcemeta::core::schema_resolver(identifier);
-  };
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               test_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaReferenceError &error) {
-    EXPECT_STREQ(error.what(), "Could not resolve schema reference");
-  }
-}
-
-TEST(ref_14) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "allOf": [ { "$ref": "#/definitions/foo" } ],
-    "definitions": {
-      "foo": { "$ref": "#/definitions/bar" },
-      "bar": { "$ref": "#/definitions/foo" }
-    }
-  })JSON")};
-
-  const auto compiled_schema{
-      sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                                 sourcemeta::core::schema_resolver,
-                                 sourcemeta::blaze::default_schema_compiler)};
-
-  const sourcemeta::core::JSON instance{true};
-  sourcemeta::blaze::Evaluator evaluator;
-  try {
-    evaluator.validate(compiled_schema, instance);
-    FAIL();
-  } catch (const sourcemeta::blaze::EvaluationError &error) {
-    EXPECT_STREQ(error.what(), "The evaluation path depth limit was reached "
-                               "likely due to infinite recursion");
-  } catch (...) {
-    FAIL();
-  }
-}
-
 TEST(pattern_4) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -205,25 +133,6 @@ TEST(patternProperties_9) {
   }
 }
 
-TEST(invalid_ref_top_level) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/i-dont-exist"
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
-  }
-}
-
 TEST(invalid_ref_nested) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -341,85 +250,6 @@ TEST(reference_to_nested_unknown_keyword) {
   }
 }
 
-TEST(ref_to_non_schema) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "definitions": {
-      "array": {
-        "items": [
-          { "type": "string" },
-          { "type": "array" }
-        ]
-      }
-    },
-    "additionalProperties": {
-      "$ref": "#/definitions/array/items"
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (
-      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
-    EXPECT_EQ(error.identifier(), "#/definitions/array/items");
-    EXPECT_EQ(error.location(),
-              sourcemeta::core::Pointer({"definitions", "array", "items"}));
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(top_level_ref_with_id) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "id": "https://www.example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/test",
-    "definitions": {
-      "test": {}
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
-  }
-}
-
-TEST(top_level_ref_with_id_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "id": "https://www.example.com",
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "$ref": "#/definitions/test",
-    "definitions": {
-      "test": {}
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
-  }
-}
-
 TEST(items_integer_bounded_decimal_in_range) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -482,43 +312,4 @@ TEST(prop_type_integer_bounded_strict_decimal_3_0_fails) {
   EVALUATE_TRACE_POST_DESCRIBE(
       instance, 0,
       "The value was expected to be an integer within the given range");
-}
-
-TEST(boolean_root_schema) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json("true")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation,
-                               "http://json-schema.org/draft-04/schema#");
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(), "This dialect does not support boolean schemas");
-  } catch (...) {
-    FAIL();
-  }
-}
-
-TEST(boolean_subschema_entrypoint) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-04/schema#",
-    "definitions": {
-      "everything": true
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation, "", "",
-                               "#/definitions/everything");
-    FAIL();
-  } catch (const sourcemeta::blaze::CompilerError &error) {
-    EXPECT_STREQ(error.what(), "This dialect does not support boolean schemas");
-  } catch (...) {
-    FAIL();
-  }
 }

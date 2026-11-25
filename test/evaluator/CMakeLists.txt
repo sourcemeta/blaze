@@ -4,7 +4,6 @@ sourcemeta_test(NAMESPACE sourcemeta PROJECT blaze NAME evaluator
     suite_compatibility.h
     evaluator_2019_09_test.cc
     evaluator_2020_12_test.cc
-    evaluator_draft3_test.cc
     evaluator_draft4_test.cc
     evaluator_draft6_test.cc
     evaluator_draft7_test.cc

@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": { "a": { "$ref": "#/additionalProperties" } }
+  },
+  "error": {
+    "type": "CompilerError",
+    "message": "This dialect does not support boolean schemas",
+    "base": "",
+    "location": "/additionalProperties"
+  }
+}

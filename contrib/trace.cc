@@ -35,6 +35,24 @@ auto fixture_instruction_name(const sourcemeta::blaze::Instruction &step)
 // The part of a trace fixture that one mode decides, exactly as the evaluator
 // callback reports it, so that a fixture covering a mode the tests never
 // exercised does not need its expectations written out by hand. What comes out
+// What a fixture records about an exception: the name of the kind it is, the
+// message it carries, and whatever else that kind answers for. This is the
+// shape an `error` fixture holds, so the output drops straight into one
+auto emit_error(const std::string_view type, const std::string_view message,
+                const std::map<std::string, std::string> &fields) -> void {
+  auto error{sourcemeta::core::JSON::make_object()};
+  error.assign("type", sourcemeta::core::JSON{type});
+  error.assign("message", sourcemeta::core::JSON{message});
+  for (const auto &[name, value] : fields) {
+    error.assign(name, sourcemeta::core::JSON{value});
+  }
+
+  auto result{sourcemeta::core::JSON::make_object()};
+  result.assign("error", std::move(error));
+  sourcemeta::core::prettify(result, std::cout);
+  std::cout << "\n";
+}
+
 // is shaped like the fixture itself: the verdict where a fixture keeps it, and
 // the trace under the name of the mode that produced it
 auto emit_fixture_section(const sourcemeta::blaze::Template &schema_template,
@@ -287,6 +305,59 @@ auto main(int argc, char **argv) noexcept -> int {
     }
 
     std::cerr << "PASS\n";
+  } catch (const sourcemeta::blaze::CompilerInvalidRegexError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("CompilerInvalidRegexError", error.what(),
+               {{"base", error.base().recompose()},
+                {"location", sourcemeta::core::to_string(error.location())},
+                {"regex", error.regex()}});
+  } catch (const sourcemeta::blaze::CompilerInvalidEntryPoint &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("CompilerInvalidEntryPoint", error.what(),
+               {{"identifier", error.identifier()}});
+  } catch (
+      const sourcemeta::blaze::CompilerReferenceTargetNotSchemaError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("CompilerReferenceTargetNotSchemaError", error.what(),
+               {{"identifier", error.identifier()},
+                {"location", sourcemeta::core::to_string(error.location())}});
+  } catch (const sourcemeta::blaze::CompilerError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("CompilerError", error.what(),
+               {{"base", error.base().recompose()},
+                {"location", sourcemeta::core::to_string(error.location())}});
+  } catch (const sourcemeta::blaze::EvaluationError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("EvaluationError", error.what(), {});
+  } catch (const sourcemeta::core::SchemaReferenceError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("SchemaReferenceError", error.what(),
+               {{"identifier", std::string{error.identifier()}},
+                {"location", sourcemeta::core::to_string(error.location())}});
+  } catch (const sourcemeta::core::SchemaError &error) {
+    if (!options.contains("fixture")) {
+      throw;
+    }
+
+    emit_error("SchemaError", error.what(), {});
   } catch (const std::exception &error) {
     std::cerr << "error: " << error.what() << "\n";
     return EXIT_FAILURE;

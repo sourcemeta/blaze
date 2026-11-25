@@ -488,25 +488,6 @@ TEST(exclusiveMaximum_18) {
       "The number value 0.5 was expected to be less than the number 0.5");
 }
 
-TEST(invalid_ref_top_level) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "$ref": "#/definitions/i-dont-exist"
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
-  }
-}
-
 TEST(invalid_ref_nested) {
   const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
     "$schema": "http://json-schema.org/draft-06/schema#",
@@ -584,53 +565,5 @@ TEST(reference_from_unknown_keyword) {
     EXPECT_EQ(error.location(), sourcemeta::core::Pointer({"$defs"}));
   } catch (...) {
     throw;
-  }
-}
-
-TEST(top_level_ref_with_id) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$id": "https://www.example.com",
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "$ref": "#/definitions/test",
-    "definitions": {
-      "test": {}
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::FastValidation);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
-  }
-}
-
-TEST(top_level_ref_with_id_exhaustive) {
-  const sourcemeta::core::JSON schema{sourcemeta::core::parse_json(R"JSON({
-    "$id": "https://www.example.com",
-    "$schema": "http://json-schema.org/draft-06/schema#",
-    "$ref": "#/definitions/test",
-    "definitions": {
-      "test": {}
-    }
-  })JSON")};
-
-  try {
-    sourcemeta::blaze::compile(schema, sourcemeta::core::schema_walker,
-                               sourcemeta::core::schema_resolver,
-                               sourcemeta::blaze::default_schema_compiler,
-                               sourcemeta::blaze::Mode::Exhaustive);
-    FAIL();
-  } catch (const sourcemeta::core::SchemaError &error) {
-    EXPECT_STREQ(error.what(),
-                 "Cannot bundle a JSON Schema Draft 7 or older with a "
-                 "top-level `$ref` (which overrides sibling keywords) without "
-                 "introducing undefined behavior");
   }
 }

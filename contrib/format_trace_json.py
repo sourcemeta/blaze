@@ -22,7 +22,10 @@ TRACE_ENTRY_KEYS = (
     "comment", "description", "schema", "resolve", "instance", "valid",
     "defaultDialect", "entrypoint", "tweaks", "fast", "exhaustive"
 )
-ERROR_ENTRY_KEYS = ("comment", "description", "schema", "tweaks", "error")
+ERROR_ENTRY_KEYS = (
+    "comment", "description", "schema", "resolve", "instance",
+    "defaultDialect", "entrypoint", "tweaks", "error"
+)
 
 
 class RawNumber:

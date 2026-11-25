@@ -1,0 +1,10 @@
+{
+  "schema": true,
+  "defaultDialect": "http://json-schema.org/draft-04/schema#",
+  "error": {
+    "type": "CompilerError",
+    "message": "This dialect does not support boolean schemas",
+    "base": "",
+    "location": ""
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema": { "nullable": "not a boolean" },
+  "error": {
+    "type": "CompilerError",
+    "message": "This keyword was expected to be set to a boolean",
+    "base": "",
+    "location": "/nullable"
+  }
+}

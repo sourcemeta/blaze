@@ -1,0 +1,15 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": { "name": { "$ref": "https://example.com/name" } }
+  },
+  "resolve": {
+    "https://example.com/name": { "type": "object", "patternProperties": { "^x": { "type": "string" } } }
+  },
+  "error": {
+    "type": "CompilerError",
+    "message": "This keyword is prohibited by this dialect",
+    "base": "",
+    "location": "/x-definitions/https:~1~1example.com~1name/patternProperties"
+  }
+}
