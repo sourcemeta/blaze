@@ -387,7 +387,8 @@ auto schema_dependencies(const JSON &schema, const SchemaWalker &walker,
     if (unresolved != nullptr) {
       throw SchemaResolutionError(
           "Could not resolve the reference to an external schema",
-          unresolved->destination);
+          unresolved->destination, unresolved->pointer,
+          fragment_of(*unresolved));
     }
   } catch (const ForeignError &caller) {
     std::rethrow_exception(caller.error);
