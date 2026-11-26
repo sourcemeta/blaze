@@ -1520,7 +1520,8 @@ auto expand_unresolved_reference(
     // A base the document itself holds is already answered for above, so
     // one that nobody hands over is a schema from elsewhere that is missing
     throw SchemaResolutionError(
-        "Could not resolve the reference to an external schema", identifier);
+        "Could not resolve the reference to an external schema", identifier,
+        reported, reference.fragment);
   }
 
   // Bundling rewrites the schema before embedding it, so it needs a copy
