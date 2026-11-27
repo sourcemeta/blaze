@@ -585,10 +585,11 @@ auto check_fixture_base_dialect(
 // A directory that holds none is a mistake rather than an empty suite: a
 // fixture left in the wrong place would otherwise never run, and nobody would
 // notice
-auto parse_fixtures(const std::filesystem::path &directory)
-    -> const std::vector<std::pair<std::string, sourcemeta::core::JSON>> & {
-  static std::map<std::filesystem::path,
-                  std::vector<std::pair<std::string, sourcemeta::core::JSON>>>
+auto parse_fixtures(const std::filesystem::path &directory) -> const
+    std::vector<std::pair<std::filesystem::path, sourcemeta::core::JSON>> & {
+  static std::map<
+      std::filesystem::path,
+      std::vector<std::pair<std::filesystem::path, sourcemeta::core::JSON>>>
       cache;
   const auto cached{cache.find(directory)};
   if (cached != cache.cend()) {
@@ -614,11 +615,10 @@ auto parse_fixtures(const std::filesystem::path &directory)
   // would otherwise come out in a different order on every machine
   std::ranges::sort(paths);
 
-  std::vector<std::pair<std::string, sourcemeta::core::JSON>> result;
+  std::vector<std::pair<std::filesystem::path, sourcemeta::core::JSON>> result;
   result.reserve(paths.size());
   for (const auto &path : paths) {
-    result.emplace_back(path.stem().string(),
-                        sourcemeta::core::read_json(path));
+    result.emplace_back(path, sourcemeta::core::read_json(path));
   }
 
   return cache.emplace(directory, std::move(result)).first->second;
@@ -631,11 +631,10 @@ auto parse_fixtures(const std::filesystem::path &directory)
 auto read_fixtures(const std::filesystem::path &directory,
                    const FixtureKind kind,
                    const sourcemeta::core::SchemaBaseDialect base_dialect,
-                   const std::string &default_dialect)
-    -> const std::vector<std::pair<std::string, sourcemeta::core::JSON>> & {
+                   const std::string &default_dialect) -> const
+    std::vector<std::pair<std::filesystem::path, sourcemeta::core::JSON>> & {
   const auto &fixtures{parse_fixtures(directory)};
-  for (const auto &[name, fixture] : fixtures) {
-    const auto path{directory / (name + ".json")};
+  for (const auto &[path, fixture] : fixtures) {
     check_fixture(path, kind, fixture);
     check_fixture_base_dialect(
         path, fixture, base_dialect,
@@ -965,8 +964,9 @@ static auto register_error_tests(
     const std::filesystem::path &directory, const std::string &suite_name,
     const std::string &metaschema, const std::string &default_dialect,
     const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  for (const auto &[name, test_case] : read_fixtures(
+  for (const auto &[path, test_case] : read_fixtures(
            directory, FixtureKind::Invalid, base_dialect, default_dialect)) {
+    const auto name{path.stem().string()};
 
     // Whether a schema is well-formed is a property of its dialect rather than
     // of the mode it compiles in, so both modes have to refuse the same ones
@@ -991,8 +991,9 @@ static auto register_thrown_tests(
     const std::filesystem::path &directory, const std::string &suite_name,
     const std::string &default_dialect,
     const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  for (const auto &[name, test_case] : read_fixtures(
+  for (const auto &[path, test_case] : read_fixtures(
            directory, FixtureKind::Error, base_dialect, default_dialect)) {
+    const auto name{path.stem().string()};
     for (const auto &[mode_suffix, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
               "_fast", sourcemeta::blaze::Mode::FastValidation},
@@ -1012,8 +1013,9 @@ register_tests(const std::filesystem::path &directory,
                const std::string &suite_name, const std::string &metaschema,
                const std::string &default_dialect,
                const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  for (const auto &[name, test_case] : read_fixtures(
+  for (const auto &[path, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
+    const auto name{path.stem().string()};
 
     for (const auto &[mode_key, mode] :
          {std::pair<const char *, sourcemeta::blaze::Mode>{
