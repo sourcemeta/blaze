@@ -835,6 +835,10 @@ auto compile(const sourcemeta::core::JSON &schema,
               0, std::min(parent_size + 1, entry.pointer.size()))));
     }
 
+    // A copy rather than a reference on purpose. What follows walks this
+    // subschema over and over, and a compact copy of it answers far faster
+    // than the same nodes reached through the document they sit in. Taking a
+    // reference here costs around a quarter of the time this loop takes
     auto subschema{sourcemeta::core::get(context.root, entry.pointer)};
     auto nested_vocabularies{
         context.frame.vocabularies(entry, context.resolver)};

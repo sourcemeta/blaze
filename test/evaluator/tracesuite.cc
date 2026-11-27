@@ -579,14 +579,25 @@ auto check_fixture_base_dialect(
 }
 
 // The fixtures a suite directory holds, each one paired with the name its file
-// gives it. A directory that holds none is a mistake rather than an empty
-// suite: a fixture left in the wrong place would otherwise never run, and
-// nobody would notice
-auto read_fixtures(const std::filesystem::path &directory,
-                   const FixtureKind kind,
-                   const sourcemeta::core::SchemaBaseDialect base_dialect,
-                   const std::string &default_dialect)
-    -> std::vector<std::pair<std::string, sourcemeta::core::JSON>> {
+// gives it, parsed once however many times the directory is registered. The
+// two OpenAPI 3.0 dialects register the same directories, and reading those
+// files a second time cannot say anything the first reading did not.
+// A directory that holds none is a mistake rather than an empty suite: a
+// fixture left in the wrong place would otherwise never run, and nobody would
+// notice
+auto parse_fixtures(const std::filesystem::path &directory)
+    -> const std::vector<std::pair<std::string, sourcemeta::core::JSON>> & {
+  static std::map<std::filesystem::path,
+                  std::vector<std::pair<std::string, sourcemeta::core::JSON>>>
+      cache;
+  const auto cached{cache.find(directory)};
+  if (cached != cache.cend()) {
+    return cached->second;
+  }
+
+  // NOLINTNEXTLINE(modernize-use-std-print)
+  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
+
   std::vector<std::filesystem::path> paths;
   for (const std::filesystem::directory_entry &entry :
        std::filesystem::recursive_directory_iterator{directory}) {
@@ -606,16 +617,33 @@ auto read_fixtures(const std::filesystem::path &directory,
   std::vector<std::pair<std::string, sourcemeta::core::JSON>> result;
   result.reserve(paths.size());
   for (const auto &path : paths) {
-    auto fixture{sourcemeta::core::read_json(path)};
+    result.emplace_back(path.stem().string(),
+                        sourcemeta::core::read_json(path));
+  }
+
+  return cache.emplace(directory, std::move(result)).first->second;
+}
+
+// What a directory holds, held to what the registration says of it. The
+// checking stays out of the parsing above because a directory registered twice
+// is registered under a dialect of its own each time, and each of those has to
+// answer for the fixtures
+auto read_fixtures(const std::filesystem::path &directory,
+                   const FixtureKind kind,
+                   const sourcemeta::core::SchemaBaseDialect base_dialect,
+                   const std::string &default_dialect)
+    -> const std::vector<std::pair<std::string, sourcemeta::core::JSON>> & {
+  const auto &fixtures{parse_fixtures(directory)};
+  for (const auto &[name, fixture] : fixtures) {
+    const auto path{directory / (name + ".json")};
     check_fixture(path, kind, fixture);
     check_fixture_base_dialect(
         path, fixture, base_dialect,
         fixture_default_dialect(fixture, default_dialect),
         FixtureResolver{fixture});
-    result.emplace_back(path.stem().string(), std::move(fixture));
   }
 
-  return result;
+  return fixtures;
 }
 
 // Compiling a meta-schema is expensive, so each one is compiled on first use
@@ -937,9 +965,6 @@ static auto register_error_tests(
     const std::filesystem::path &directory, const std::string &suite_name,
     const std::string &metaschema, const std::string &default_dialect,
     const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
-
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Invalid, base_dialect, default_dialect)) {
 
@@ -966,9 +991,6 @@ static auto register_thrown_tests(
     const std::filesystem::path &directory, const std::string &suite_name,
     const std::string &default_dialect,
     const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
-
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Error, base_dialect, default_dialect)) {
     for (const auto &[mode_suffix, mode] :
@@ -990,9 +1012,6 @@ register_tests(const std::filesystem::path &directory,
                const std::string &suite_name, const std::string &metaschema,
                const std::string &default_dialect,
                const sourcemeta::core::SchemaBaseDialect base_dialect) -> void {
-  // NOLINTNEXTLINE(modernize-use-std-print)
-  std::fprintf(stderr, "-- Parsing: %s\n", directory.string().c_str());
-
   for (const auto &[name, test_case] : read_fixtures(
            directory, FixtureKind::Trace, base_dialect, default_dialect)) {
 
